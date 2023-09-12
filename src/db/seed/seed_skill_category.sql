@@ -1,0 +1,21 @@
+insert into "standardized-skills".skill_category(name, created_at, updated_at)
+values
+	('Programming and Development', now(), now()),
+	('Web Development', now(), now()),
+	('Database Management', now(), now()),
+	('Cloud Computing', now(), now()),
+	('DevOps and Automation', now(), now()),
+	('Networking', now(), now()),
+	('Cybersecurity', now(), now()),
+	('Data Analysis and Big Data', now(), now()),
+	('Operating Systems', now(), now()),
+	('Project Management', now(), now()),
+	('Databases and Data Warehousing', now(), now()),
+	('Software Development Lifecycle (SDLC)', now(), now()),
+	('Mobile App Development', now(), now()),
+	('Virtualization', now(), now()),
+	('Hardware and Systems Administration', now(), now()),
+	('Scripting and Automation', now(), now()),
+	('IoT (Internet of Things)', now(), now()),
+	('Blockchain', now(), now()),
+	('Cloud Security', now(), now());
