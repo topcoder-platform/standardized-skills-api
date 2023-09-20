@@ -7,8 +7,7 @@ import Config from './config/Config';
 import routes from './routes';
 import http from 'http';
 import cors from 'cors';
-// import { Sequelize } from 'sequelize/types';
-// import connection from './services/SequelizeClient';
+import dbConnection from './services/SequelizeClient';
 
 const app: Application = express();
 const PORT = Config.port || 4000;
@@ -23,10 +22,8 @@ app.use((req: Request, res: Response, next: NextFunction) => next(new NotFoundEr
 app.use(ErrorHandler.handle());
 
 let server: http.Server;
-// let dbClient: Sequelize | undefined;
 const startServer = async () => {
     try {
-        // dbClient = await connection.sync();
         server = app.listen(PORT, (): void => {
             console.log(`Connected successfully on port ${PORT}`);
         });
@@ -41,6 +38,6 @@ ErrorHandler.initializeUnhandledException();
 
 process.on('SIGTERM', () => {
     console.info('SIGTERM received');
-    // if (dbClient) dbClient.close();
+    if (dbConnection) dbConnection.close();
     if (server) server.close();
 });
