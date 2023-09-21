@@ -14,9 +14,7 @@ export class LoggerClient {
                 json(),
                 format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`),
             ),
-            transports: [
-                new transports.Console(),
-            ],
+            transports: [new transports.Console()],
         });
 
         if (process.env.NODE_ENV !== 'production') {

@@ -6,7 +6,7 @@ import { Service } from 'typedi';
 export default class HealthController {
     health = asyncWrapper(async () => {
         return new SuccessResponse({
-            status: 'ok'
+            status: 'ok',
         });
     });
 }
