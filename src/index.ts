@@ -7,7 +7,6 @@ import Config from './config/Config';
 import routes from './routes';
 import http from 'http';
 import cors from 'cors';
-import dbConnection from './services/SequelizeClient';
 
 const app: Application = express();
 const PORT = Config.port || 4000;
@@ -38,6 +37,5 @@ ErrorHandler.initializeUnhandledException();
 
 process.on('SIGTERM', () => {
     console.info('SIGTERM received');
-    if (dbConnection) dbConnection.close();
     if (server) server.close();
 });
