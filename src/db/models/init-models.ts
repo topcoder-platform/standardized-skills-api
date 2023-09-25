@@ -72,13 +72,13 @@ export function initModels(sequelize: Sequelize) {
     user_skill_level.hasMany(user_skill, { as: "user_skills", foreignKey: "user_skill_level_id" });
 
     return {
-        event: event,
-        skill: skill,
-        skill_category: skill_category,
-        skill_event: skill_event,
-        skill_event_type: skill_event_type,
-        source_type: source_type,
-        user_skill: user_skill,
-        user_skill_level: user_skill_level,
+        Event: event,
+        Skill: skill,
+        SkillCategory: skill_category,
+        SkillEvent: skill_event,
+        SkillEventType: skill_event_type,
+        SourceType: source_type,
+        UserSkill: user_skill,
+        UserSkillLevel: user_skill_level,
     };
 }
