@@ -1,7 +1,8 @@
 import { Sequelize } from 'sequelize';
 import { initModels } from './models/init-models';
+import { envConfig } from '../config';
 
-const sequelize = new Sequelize(process.env.TC_SKILLS_DATABASE_URL || '', {
+const sequelize = new Sequelize(envConfig.dbUrl || '', {
     logging: false,
 });
 

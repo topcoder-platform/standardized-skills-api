@@ -3,13 +3,13 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
 import { NotFoundError } from './utils/ApiError';
 import ErrorHandler from './middlewares/ErrorHandler';
-import Config from './config/Config';
+import { envConfig } from './config';
 import routes from './routes';
 import http from 'http';
 import cors from 'cors';
 
 const app: Application = express();
-const PORT = Config.port || 4000;
+const PORT = envConfig.port || 4000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -32,8 +32,6 @@ const startServer = async () => {
 };
 
 startServer();
-
-ErrorHandler.initializeUnhandledException();
 
 process.on('SIGTERM', () => {
     console.info('SIGTERM received');
