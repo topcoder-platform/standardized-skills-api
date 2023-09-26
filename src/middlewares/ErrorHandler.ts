@@ -7,6 +7,7 @@ export default class ErrorHandler {
         return async (err: ApiError, req: Request, res: Response, next: NextFunction) => {
             const statusCode = err.statusCode || 500;
             console.log('error occurred: ', err.toString(), statusCode);
+            console.log(err.stack);
             res.status(statusCode).send({
                 success: false,
                 message: err.message,

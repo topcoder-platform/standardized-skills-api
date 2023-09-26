@@ -84,7 +84,19 @@ export class skill extends Model<skillAttributes, skillCreationAttributes> imple
                     model: 'skill_category',
                     key: 'id'
                 }
-            }
+            },
+            createdAt: {
+                field: 'created_at',
+                type: Sequelize.DATE,
+            },
+            updatedAt: {
+                field: 'updated_at',
+                type: Sequelize.DATE,
+            },
+            deletedAt: {
+                field: 'deleted_at',
+                type: Sequelize.DATE,
+            },
         } as any, {
             sequelize,
             tableName: 'skill',

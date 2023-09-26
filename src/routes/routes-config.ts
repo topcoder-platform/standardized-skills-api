@@ -1,3 +1,4 @@
+import { UserRoles } from '../config';
 import { RouteDefinition } from '../interfaces';
 
 const RouteDefinitions: RouteDefinition[] = [
@@ -6,6 +7,14 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'HealthController',
         method: 'health',
+    },
+    {
+        path: '/skills',
+        verb: 'get',
+        controller: 'SkillsController',
+        method: 'getSkills',
+        auth: true,
+        access: [UserRoles.Admin]
     }
 ];
 

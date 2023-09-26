@@ -7,9 +7,10 @@ const sequelize = new Sequelize(envConfig.DB_URL || '', {
 });
 
 // Put models here when needed...
-const db: any = initModels(sequelize);
+const models = initModels(sequelize);
 
-db.sequelize = sequelize;
-db.Sequelize = Sequelize;
-
-export default db;
+export default {
+    models,
+    sequelize,
+    Sequelize,
+};

@@ -46,7 +46,18 @@ export type {
     user_skill_levelCreationAttributes,
 };
 
-export function initModels(sequelize: Sequelize) {
+interface dbAPI {
+    Event: typeof _event;
+    Skill: typeof _skill;
+    SkillCategory: typeof _skill_category;
+    SkillEvent: typeof _skill_event;
+    SkillEventType: typeof _skill_event_type;
+    SourceType: typeof _source_type;
+    UserSkill: typeof _user_skill;
+    UserSkillLevel: typeof _user_skill_level;
+}
+
+export function initModels(sequelize: Sequelize): dbAPI {
     const event = _event.initModel(sequelize);
     const skill = _skill.initModel(sequelize);
     const skill_category = _skill_category.initModel(sequelize);
