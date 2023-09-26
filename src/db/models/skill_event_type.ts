@@ -10,9 +10,9 @@ export interface skill_event_typeAttributes {
     updated_at: Date;
 }
 
-export type skill_event_typePk = "id";
+export type skill_event_typePk = 'id';
 export type skill_event_typeId = skill_event_type[skill_event_typePk];
-export type skill_event_typeOptionalAttributes = "id" | "description" | "created_at" | "updated_at";
+export type skill_event_typeOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
 export type skill_event_typeCreationAttributes = Optional<skill_event_typeAttributes, skill_event_typeOptionalAttributes>;
 
 export class skill_event_type extends Model<skill_event_typeAttributes, skill_event_typeCreationAttributes> implements skill_event_typeAttributes {
@@ -46,7 +46,7 @@ export class skill_event_type extends Model<skill_event_typeAttributes, skill_ev
             name: {
                 type: DataTypes.STRING(100),
                 allowNull: false,
-                unique: "uniq_event_type_name"
+                unique: 'uniq_event_type_name'
             },
             description: {
                 type: DataTypes.TEXT,
@@ -59,17 +59,17 @@ export class skill_event_type extends Model<skill_event_typeAttributes, skill_ev
             timestamps: true,
             indexes: [
                 {
-                    name: "skill_event_type_pkey",
+                    name: 'skill_event_type_pkey',
                     unique: true,
                     fields: [
-                        { name: "id" },
+                        { name: 'id' },
                     ]
                 },
                 {
-                    name: "uniq_event_type_name",
+                    name: 'uniq_event_type_name',
                     unique: true,
                     fields: [
-                        { name: "name" },
+                        { name: 'name' },
                     ]
                 },
             ]

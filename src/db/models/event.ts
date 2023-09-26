@@ -10,9 +10,9 @@ export interface eventAttributes {
     created_at: Date;
 }
 
-export type eventPk = "id";
+export type eventPk = 'id';
 export type eventId = event[eventPk];
-export type eventOptionalAttributes = "id" | "payload_hash" | "created_at";
+export type eventOptionalAttributes = 'id' | 'payload_hash' | 'created_at';
 export type eventCreationAttributes = Optional<eventAttributes, eventOptionalAttributes>;
 
 export class event extends Model<eventAttributes, eventCreationAttributes> implements eventAttributes {
@@ -54,7 +54,7 @@ export class event extends Model<eventAttributes, eventCreationAttributes> imple
             payload_hash: {
                 type: DataTypes.TEXT,
                 allowNull: true,
-                unique: "uniq_payload_hash"
+                unique: 'uniq_payload_hash'
             }
         } as any, {
             sequelize,
@@ -63,17 +63,17 @@ export class event extends Model<eventAttributes, eventCreationAttributes> imple
             timestamps: true,
             indexes: [
                 {
-                    name: "event_pkey",
+                    name: 'event_pkey',
                     unique: true,
                     fields: [
-                        { name: "id" },
+                        { name: 'id' },
                     ]
                 },
                 {
-                    name: "uniq_payload_hash",
+                    name: 'uniq_payload_hash',
                     unique: true,
                     fields: [
-                        { name: "payload_hash" },
+                        { name: 'payload_hash' },
                     ]
                 },
             ]

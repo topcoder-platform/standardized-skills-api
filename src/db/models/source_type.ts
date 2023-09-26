@@ -10,9 +10,9 @@ export interface source_typeAttributes {
     updated_at: Date;
 }
 
-export type source_typePk = "id";
+export type source_typePk = 'id';
 export type source_typeId = source_type[source_typePk];
-export type source_typeOptionalAttributes = "id" | "description" | "created_at" | "updated_at";
+export type source_typeOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
 export type source_typeCreationAttributes = Optional<source_typeAttributes, source_typeOptionalAttributes>;
 
 export class source_type extends Model<source_typeAttributes, source_typeCreationAttributes> implements source_typeAttributes {
@@ -46,7 +46,7 @@ export class source_type extends Model<source_typeAttributes, source_typeCreatio
             name: {
                 type: DataTypes.STRING(100),
                 allowNull: false,
-                unique: "uniq_source_type_name"
+                unique: 'uniq_source_type_name'
             },
             description: {
                 type: DataTypes.TEXT,
@@ -59,17 +59,17 @@ export class source_type extends Model<source_typeAttributes, source_typeCreatio
             timestamps: true,
             indexes: [
                 {
-                    name: "source_type_pkey",
+                    name: 'source_type_pkey',
                     unique: true,
                     fields: [
-                        { name: "id" },
+                        { name: 'id' },
                     ]
                 },
                 {
-                    name: "uniq_source_type_name",
+                    name: 'uniq_source_type_name',
                     unique: true,
                     fields: [
-                        { name: "name" },
+                        { name: 'name' },
                     ]
                 },
             ]

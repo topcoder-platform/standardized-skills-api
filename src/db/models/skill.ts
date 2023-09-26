@@ -14,9 +14,9 @@ export interface skillAttributes {
     deleted_at?: Date;
 }
 
-export type skillPk = "id";
+export type skillPk = 'id';
 export type skillId = skill[skillPk];
-export type skillOptionalAttributes = "id" | "description" | "category_id" | "created_at" | "updated_at" | "deleted_at";
+export type skillOptionalAttributes = 'id' | 'description' | 'category_id' | 'created_at' | 'updated_at' | 'deleted_at';
 export type skillCreationAttributes = Optional<skillAttributes, skillOptionalAttributes>;
 
 export class skill extends Model<skillAttributes, skillCreationAttributes> implements skillAttributes {
@@ -71,7 +71,7 @@ export class skill extends Model<skillAttributes, skillCreationAttributes> imple
             name: {
                 type: DataTypes.STRING(100),
                 allowNull: false,
-                unique: "uniq_skill_name"
+                unique: 'uniq_skill_name'
             },
             description: {
                 type: DataTypes.TEXT,
@@ -93,23 +93,23 @@ export class skill extends Model<skillAttributes, skillCreationAttributes> imple
             paranoid: true,
             indexes: [
                 {
-                    name: "fki_fk_skill_category",
+                    name: 'fki_fk_skill_category',
                     fields: [
-                        { name: "category_id" },
+                        { name: 'category_id' },
                     ]
                 },
                 {
-                    name: "skill_pkey",
+                    name: 'skill_pkey',
                     unique: true,
                     fields: [
-                        { name: "id" },
+                        { name: 'id' },
                     ]
                 },
                 {
-                    name: "uniq_skill_name",
+                    name: 'uniq_skill_name',
                     unique: true,
                     fields: [
-                        { name: "name" },
+                        { name: 'name' },
                     ]
                 },
             ]

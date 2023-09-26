@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "cross-env NODE_ENV=development ts-node-dev --respawn src/index.ts",
     "build": "cross-env NODE_ENV=production tsc",
-    "lint": "eslint src/**/*.ts",
-    "format": "eslint src/**/*.ts --fix",
+    "lint": "eslint -c .eslintrc 'src/**/*.ts'",
+    "format": "eslint -c .eslintrc 'src/**/*.ts' --fix",
     "pretty": "prettier --write \"src/**/*.ts\""
   },
   "devDependencies": {

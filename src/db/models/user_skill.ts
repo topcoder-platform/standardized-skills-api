@@ -12,9 +12,9 @@ export interface user_skillAttributes {
     updated_at: Date;
 }
 
-export type user_skillPk = "id";
+export type user_skillPk = 'id';
 export type user_skillId = user_skill[user_skillPk];
-export type user_skillOptionalAttributes = "id" | "created_at" | "updated_at";
+export type user_skillOptionalAttributes = 'id' | 'created_at' | 'updated_at';
 export type user_skillCreationAttributes = Optional<user_skillAttributes, user_skillOptionalAttributes>;
 
 export class user_skill extends Model<user_skillAttributes, user_skillCreationAttributes> implements user_skillAttributes {
@@ -47,7 +47,7 @@ export class user_skill extends Model<user_skillAttributes, user_skillCreationAt
             user_id: {
                 type: DataTypes.INTEGER,
                 allowNull: false,
-                unique: "uniq_user_skill_type"
+                unique: 'uniq_user_skill_type'
             },
             skill_id: {
                 type: DataTypes.UUID,
@@ -56,7 +56,7 @@ export class user_skill extends Model<user_skillAttributes, user_skillCreationAt
                     model: 'skill',
                     key: 'id'
                 },
-                unique: "uniq_user_skill_type"
+                unique: 'uniq_user_skill_type'
             },
             user_skill_level_id: {
                 type: DataTypes.UUID,
@@ -65,7 +65,7 @@ export class user_skill extends Model<user_skillAttributes, user_skillCreationAt
                     model: 'user_skill_level',
                     key: 'id'
                 },
-                unique: "uniq_user_skill_type"
+                unique: 'uniq_user_skill_type'
             }
         } as any, {
             sequelize,
@@ -74,31 +74,31 @@ export class user_skill extends Model<user_skillAttributes, user_skillCreationAt
             timestamps: true,
             indexes: [
                 {
-                    name: "fki_fk_skill",
+                    name: 'fki_fk_skill',
                     fields: [
-                        { name: "skill_id" },
+                        { name: 'skill_id' },
                     ]
                 },
                 {
-                    name: "fki_fk_user_skill_level",
+                    name: 'fki_fk_user_skill_level',
                     fields: [
-                        { name: "user_skill_level_id" },
+                        { name: 'user_skill_level_id' },
                     ]
                 },
                 {
-                    name: "uniq_user_skill_type",
+                    name: 'uniq_user_skill_type',
                     unique: true,
                     fields: [
-                        { name: "user_id" },
-                        { name: "skill_id" },
-                        { name: "user_skill_level_id" },
+                        { name: 'user_id' },
+                        { name: 'skill_id' },
+                        { name: 'user_skill_level_id' },
                     ]
                 },
                 {
-                    name: "user_skill_pkey",
+                    name: 'user_skill_pkey',
                     unique: true,
                     fields: [
-                        { name: "id" },
+                        { name: 'id' },
                     ]
                 },
             ]

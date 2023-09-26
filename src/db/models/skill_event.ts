@@ -16,9 +16,9 @@ export interface skill_eventAttributes {
     created_at: Date;
 }
 
-export type skill_eventPk = "id";
+export type skill_eventPk = 'id';
 export type skill_eventId = skill_event[skill_eventPk];
-export type skill_eventOptionalAttributes = "id" | "created_at";
+export type skill_eventOptionalAttributes = 'id' | 'created_at';
 export type skill_eventCreationAttributes = Optional<skill_eventAttributes, skill_eventOptionalAttributes>;
 
 export class skill_event extends Model<skill_eventAttributes, skill_eventCreationAttributes> implements skill_eventAttributes {
@@ -107,28 +107,28 @@ export class skill_event extends Model<skill_eventAttributes, skill_eventCreatio
             timestamps: true,
             indexes: [
                 {
-                    name: "fki_fk_event",
+                    name: 'fki_fk_event',
                     fields: [
-                        { name: "event_id" },
+                        { name: 'event_id' },
                     ]
                 },
                 {
-                    name: "fki_fk_skill_event_type",
+                    name: 'fki_fk_skill_event_type',
                     fields: [
-                        { name: "skill_event_type_id" },
+                        { name: 'skill_event_type_id' },
                     ]
                 },
                 {
-                    name: "fki_fk_source_type",
+                    name: 'fki_fk_source_type',
                     fields: [
-                        { name: "source_type_id" },
+                        { name: 'source_type_id' },
                     ]
                 },
                 {
-                    name: "skill_event_pkey",
+                    name: 'skill_event_pkey',
                     unique: true,
                     fields: [
-                        { name: "id" },
+                        { name: 'id' },
                     ]
                 },
             ]

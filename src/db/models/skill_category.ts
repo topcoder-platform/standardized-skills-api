@@ -10,9 +10,9 @@ export interface skill_categoryAttributes {
     updated_at: Date;
 }
 
-export type skill_categoryPk = "id";
+export type skill_categoryPk = 'id';
 export type skill_categoryId = skill_category[skill_categoryPk];
-export type skill_categoryOptionalAttributes = "id" | "description" | "created_at" | "updated_at";
+export type skill_categoryOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
 export type skill_categoryCreationAttributes = Optional<skill_categoryAttributes, skill_categoryOptionalAttributes>;
 
 export class skill_category extends Model<skill_categoryAttributes, skill_categoryCreationAttributes> implements skill_categoryAttributes {
@@ -46,7 +46,7 @@ export class skill_category extends Model<skill_categoryAttributes, skill_catego
             name: {
                 type: DataTypes.STRING(100),
                 allowNull: false,
-                unique: "uniq_category_name"
+                unique: 'uniq_category_name'
             },
             description: {
                 type: DataTypes.TEXT,
@@ -59,17 +59,17 @@ export class skill_category extends Model<skill_categoryAttributes, skill_catego
             timestamps: true,
             indexes: [
                 {
-                    name: "skill_category_pkey",
+                    name: 'skill_category_pkey',
                     unique: true,
                     fields: [
-                        { name: "id" },
+                        { name: 'id' },
                     ]
                 },
                 {
-                    name: "uniq_category_name",
+                    name: 'uniq_category_name',
                     unique: true,
                     fields: [
-                        { name: "name" },
+                        { name: 'name' },
                     ]
                 },
             ]
