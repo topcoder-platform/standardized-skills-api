@@ -5,11 +5,10 @@ import { NotFoundError } from './utils/ApiError';
 import ErrorHandler from './middlewares/ErrorHandler';
 import { envConfig } from './config';
 import routes from './routes';
-import http from 'http';
 import cors from 'cors';
 
 const app: Application = express();
-const PORT = envConfig.port || 4000;
+const PORT = envConfig.PORT || 4000;
 
 app.use(cors());
 app.use(bodyParser.json());
@@ -20,10 +19,9 @@ app.use((req: Request, res: Response, next: NextFunction) => next(new NotFoundEr
 
 app.use(ErrorHandler.handle());
 
-let server: http.Server;
 const startServer = async () => {
     try {
-        server = app.listen(PORT, (): void => {
+        app.listen(PORT, (): void => {
             console.log(`Connected successfully on port ${PORT}`);
         });
     } catch (error: any) {
@@ -32,8 +30,3 @@ const startServer = async () => {
 };
 
 startServer();
-
-process.on('SIGTERM', () => {
-    console.info('SIGTERM received');
-    if (server) server.close();
-});

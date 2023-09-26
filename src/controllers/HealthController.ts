@@ -1,12 +1,15 @@
-import { asyncWrapper } from '../utils/asyncWrapper';
 import { SuccessResponse } from '../utils/SuccessResponse';
-import { Service } from 'typedi';
+import { Request, Response } from 'express';
 
-@Service()
 export default class HealthController {
-    health = asyncWrapper(async () => {
-        return new SuccessResponse({
+    /**
+     * Generic health check endpoint
+     */
+    health = async (req: Request, res: Response) => {
+        const response = new SuccessResponse({
             status: 'ok',
         });
-    });
+
+        res.status(200).json(response);
+    };
 }

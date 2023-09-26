@@ -29,3 +29,15 @@ export class ApplicationError extends ApiError {
         super(StatusCodes.BAD_REQUEST, message, errors);
     }
 }
+
+export class ForbiddenError extends ApiError {
+    constructor(message: string, errors?: string[]) {
+        super(StatusCodes.FORBIDDEN, message, errors);
+    }
+}
+
+export class UnauthorizedError extends ApiError {
+    constructor(message: string, errors?: string[]) {
+        super(StatusCodes.UNAUTHORIZED, message, errors);
+    }
+}

@@ -2,7 +2,7 @@ import { Sequelize } from 'sequelize';
 import { initModels } from './models/init-models';
 import { envConfig } from '../config';
 
-const sequelize = new Sequelize(envConfig.dbUrl || '', {
+const sequelize = new Sequelize(envConfig.DB_URL || '', {
     logging: false,
 });
 
