@@ -1,10 +1,10 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, RequestHandler } from 'express';
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validate } from 'class-validator';
 import { BadRequestError } from '../utils/ApiError';
 
 export default class RequestValidator {
-    static validate = <T extends object>(classInstance: ClassConstructor<T>) => {
+    static validate = <T extends object>(classInstance: ClassConstructor<T>): RequestHandler => {
         return async (req: Request, res: Response, next: NextFunction) => {
             const convertedObject = plainToInstance(classInstance, req.body);
             await validate(convertedObject).then((errors) => {
