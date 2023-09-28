@@ -36,47 +36,46 @@ export class event extends Model<eventAttributes, eventCreationAttributes> imple
     countSkill_events!: Sequelize.HasManyCountAssociationsMixin;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof event {
-        return event.init({
-            id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-                primaryKey: true
-            },
-            topic: {
-                type: DataTypes.STRING(255),
-                allowNull: false
-            },
-            payload: {
-                type: DataTypes.JSONB,
-                allowNull: false
-            },
-            payload_hash: {
-                type: DataTypes.TEXT,
-                allowNull: true,
-                unique: 'uniq_payload_hash'
-            }
-        } as any, {
-            sequelize,
-            tableName: 'event',
-            schema: 'public',
-            timestamps: true,
-            indexes: [
-                {
-                    name: 'event_pkey',
-                    unique: true,
-                    fields: [
-                        { name: 'id' },
-                    ]
+        return event.init(
+            {
+                id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    defaultValue: DataTypes.UUIDV4,
+                    primaryKey: true,
                 },
-                {
-                    name: 'uniq_payload_hash',
-                    unique: true,
-                    fields: [
-                        { name: 'payload_hash' },
-                    ]
+                topic: {
+                    type: DataTypes.STRING(255),
+                    allowNull: false,
                 },
-            ]
-        });
+                payload: {
+                    type: DataTypes.JSONB,
+                    allowNull: false,
+                },
+                payload_hash: {
+                    type: DataTypes.TEXT,
+                    allowNull: true,
+                    unique: 'uniq_payload_hash',
+                },
+            } as any,
+            {
+                sequelize,
+                tableName: 'event',
+                schema: 'public',
+                timestamps: true,
+                indexes: [
+                    {
+                        name: 'event_pkey',
+                        unique: true,
+                        fields: [{ name: 'id' }],
+                    },
+                    {
+                        name: 'uniq_payload_hash',
+                        unique: true,
+                        fields: [{ name: 'payload_hash' }],
+                    },
+                ],
+            },
+        );
     }
 }

@@ -14,8 +14,8 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillsController',
         method: 'getSkills',
         auth: true,
-        access: [UserRoles.Admin]
-    }
+        access: [UserRoles.Admin],
+    },
 ];
 
 export default RouteDefinitions;

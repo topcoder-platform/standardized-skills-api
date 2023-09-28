@@ -28,7 +28,6 @@ export class skill extends Model<skillAttributes, skillCreationAttributes> imple
     updated_at!: Date;
     deleted_at?: Date;
 
-
     countLegacy_skill_maps!: Sequelize.HasManyCountAssociationsMixin;
     // skill hasMany skill_event via skill_id
     skill_events!: skill_event[];
@@ -61,70 +60,67 @@ export class skill extends Model<skillAttributes, skillCreationAttributes> imple
     createCategory!: Sequelize.BelongsToCreateAssociationMixin<skill_category>;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof skill {
-        return skill.init({
-            id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-                primaryKey: true
-            },
-            name: {
-                type: DataTypes.STRING(100),
-                allowNull: false,
-                unique: 'uniq_skill_name'
-            },
-            description: {
-                type: DataTypes.TEXT,
-                allowNull: true
-            },
-            category_id: {
-                type: DataTypes.UUID,
-                allowNull: true,
-                references: {
-                    model: 'skill_category',
-                    key: 'id'
-                }
-            },
-            createdAt: {
-                field: 'created_at',
-                type: Sequelize.DATE,
-            },
-            updatedAt: {
-                field: 'updated_at',
-                type: Sequelize.DATE,
-            },
-            deletedAt: {
-                field: 'deleted_at',
-                type: Sequelize.DATE,
-            },
-        } as any, {
-            sequelize,
-            tableName: 'skill',
-            schema: 'public',
-            timestamps: true,
-            paranoid: true,
-            indexes: [
-                {
-                    name: 'fki_fk_skill_category',
-                    fields: [
-                        { name: 'category_id' },
-                    ]
+        return skill.init(
+            {
+                id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    defaultValue: DataTypes.UUIDV4,
+                    primaryKey: true,
                 },
-                {
-                    name: 'skill_pkey',
-                    unique: true,
-                    fields: [
-                        { name: 'id' },
-                    ]
+                name: {
+                    type: DataTypes.STRING(100),
+                    allowNull: false,
+                    unique: 'uniq_skill_name',
                 },
-                {
-                    name: 'uniq_skill_name',
-                    unique: true,
-                    fields: [
-                        { name: 'name' },
-                    ]
+                description: {
+                    type: DataTypes.TEXT,
+                    allowNull: true,
                 },
-            ]
-        });
+                category_id: {
+                    type: DataTypes.UUID,
+                    allowNull: true,
+                    references: {
+                        model: 'skill_category',
+                        key: 'id',
+                    },
+                },
+                createdAt: {
+                    field: 'created_at',
+                    type: Sequelize.DATE,
+                },
+                updatedAt: {
+                    field: 'updated_at',
+                    type: Sequelize.DATE,
+                },
+                deletedAt: {
+                    field: 'deleted_at',
+                    type: Sequelize.DATE,
+                },
+            } as any,
+            {
+                sequelize,
+                tableName: 'skill',
+                schema: 'public',
+                timestamps: true,
+                paranoid: true,
+                indexes: [
+                    {
+                        name: 'fki_fk_skill_category',
+                        fields: [{ name: 'category_id' }],
+                    },
+                    {
+                        name: 'skill_pkey',
+                        unique: true,
+                        fields: [{ name: 'id' }],
+                    },
+                    {
+                        name: 'uniq_skill_name',
+                        unique: true,
+                        fields: [{ name: 'name' }],
+                    },
+                ],
+            },
+        );
     }
 }

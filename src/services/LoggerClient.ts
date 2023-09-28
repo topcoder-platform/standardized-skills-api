@@ -8,13 +8,17 @@ export class LoggerClient {
 
     constructor(service = 'general-purpose') {
         this.logger = createLogger({
-            defaultMeta: { service }
+            defaultMeta: { service },
         });
 
         if (process.env.NODE_ENV === 'local') {
             this.logger.add(
                 new transports.Console({
-                    format: format.combine(label({ label: 'StandardizedSkillsApi\t' }), format.colorize(), format.simple()),
+                    format: format.combine(
+                        label({ label: 'StandardizedSkillsApi\t' }),
+                        format.colorize(),
+                        format.simple(),
+                    ),
                 }),
             );
         } else {
@@ -24,9 +28,12 @@ export class LoggerClient {
                         label({ label: 'StandardizedSkillsApi' }),
                         timestamp(),
                         json(),
-                        format.printf((info) => `[${info.label}] [${info.timestamp}] - [${info.level.toUpperCase()}] : ${info.message}`)
-                    )
-                })
+                        format.printf(
+                            (info) =>
+                                `[${info.label}] [${info.timestamp}] - [${info.level.toUpperCase()}] : ${info.message}`,
+                        ),
+                    ),
+                }),
             );
         }
     }

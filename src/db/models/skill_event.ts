@@ -21,7 +21,10 @@ export type skill_eventId = skill_event[skill_eventPk];
 export type skill_eventOptionalAttributes = 'id' | 'created_at';
 export type skill_eventCreationAttributes = Optional<skill_eventAttributes, skill_eventOptionalAttributes>;
 
-export class skill_event extends Model<skill_eventAttributes, skill_eventCreationAttributes> implements skill_eventAttributes {
+export class skill_event
+    extends Model<skill_eventAttributes, skill_eventCreationAttributes>
+    implements skill_eventAttributes
+{
     id!: string;
     event_id!: string;
     user_id!: number;
@@ -53,85 +56,80 @@ export class skill_event extends Model<skill_eventAttributes, skill_eventCreatio
     createSource_type!: Sequelize.BelongsToCreateAssociationMixin<source_type>;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof skill_event {
-        return skill_event.init({
-            id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-                primaryKey: true
-            },
-            event_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                references: {
-                    model: 'event',
-                    key: 'id'
-                }
-            },
-            user_id: {
-                type: DataTypes.INTEGER,
-                allowNull: false
-            },
-            skill_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                references: {
-                    model: 'skill',
-                    key: 'id'
-                }
-            },
-            skill_event_type_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                references: {
-                    model: 'skill_event_type',
-                    key: 'id'
-                }
-            },
-            source_id: {
-                type: DataTypes.UUID,
-                allowNull: false
-            },
-            source_type_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                references: {
-                    model: 'source_type',
-                    key: 'id'
-                }
-            }
-        } as any, {
-            sequelize,
-            tableName: 'skill_event',
-            schema: 'public',
-            timestamps: true,
-            indexes: [
-                {
-                    name: 'fki_fk_event',
-                    fields: [
-                        { name: 'event_id' },
-                    ]
+        return skill_event.init(
+            {
+                id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    defaultValue: DataTypes.UUIDV4,
+                    primaryKey: true,
                 },
-                {
-                    name: 'fki_fk_skill_event_type',
-                    fields: [
-                        { name: 'skill_event_type_id' },
-                    ]
+                event_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    references: {
+                        model: 'event',
+                        key: 'id',
+                    },
                 },
-                {
-                    name: 'fki_fk_source_type',
-                    fields: [
-                        { name: 'source_type_id' },
-                    ]
+                user_id: {
+                    type: DataTypes.INTEGER,
+                    allowNull: false,
                 },
-                {
-                    name: 'skill_event_pkey',
-                    unique: true,
-                    fields: [
-                        { name: 'id' },
-                    ]
+                skill_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    references: {
+                        model: 'skill',
+                        key: 'id',
+                    },
                 },
-            ]
-        });
+                skill_event_type_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    references: {
+                        model: 'skill_event_type',
+                        key: 'id',
+                    },
+                },
+                source_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                },
+                source_type_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    references: {
+                        model: 'source_type',
+                        key: 'id',
+                    },
+                },
+            } as any,
+            {
+                sequelize,
+                tableName: 'skill_event',
+                schema: 'public',
+                timestamps: true,
+                indexes: [
+                    {
+                        name: 'fki_fk_event',
+                        fields: [{ name: 'event_id' }],
+                    },
+                    {
+                        name: 'fki_fk_skill_event_type',
+                        fields: [{ name: 'skill_event_type_id' }],
+                    },
+                    {
+                        name: 'fki_fk_source_type',
+                        fields: [{ name: 'source_type_id' }],
+                    },
+                    {
+                        name: 'skill_event_pkey',
+                        unique: true,
+                        fields: [{ name: 'id' }],
+                    },
+                ],
+            },
+        );
     }
 }
