@@ -1,6 +1,6 @@
 import { format, transports, createLogger, Logger } from 'winston';
 import { Service } from 'typedi';
-const { combine, timestamp, json } = format;
+const { combine, timestamp, json, label } = format;
 
 @Service()
 export class LoggerClient {
@@ -8,20 +8,25 @@ export class LoggerClient {
 
     constructor(service = 'general-purpose') {
         this.logger = createLogger({
-            defaultMeta: { service },
-            format: combine(
-                timestamp(),
-                json(),
-                format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`),
-            ),
-            transports: [new transports.Console()],
+            defaultMeta: { service }
         });
 
-        if (process.env.NODE_ENV !== 'production') {
+        if (process.env.NODE_ENV === 'local') {
             this.logger.add(
                 new transports.Console({
-                    format: format.combine(format.colorize(), format.simple()),
+                    format: format.combine(label({ label: 'StandardizedSkillsApi\t' }), format.colorize(), format.simple()),
                 }),
+            );
+        } else {
+            this.logger.add(
+                new transports.Console({
+                    format: combine(
+                        label({ label: 'StandardizedSkillsApi' }),
+                        timestamp(),
+                        json(),
+                        format.printf((info) => `[${info.label}] [${info.timestamp}] - [${info.level.toUpperCase()}] : ${info.message}`)
+                    )
+                })
             );
         }
     }

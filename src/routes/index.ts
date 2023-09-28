@@ -1,4 +1,4 @@
-import express, { NextFunction, Request, Response } from 'express';
+import express, { NextFunction, Request, Response, RequestHandler } from 'express';
 import allRoutes from './routes-config';
 import { envConfig } from '../config';
 import { ForbiddenError } from '../utils/ApiError';
@@ -12,7 +12,7 @@ const authenticator = middleware.jwtAuthenticator;
 const router = express.Router();
 
 allRoutes.forEach((route) => {
-    const middlewares = [];
+    const middlewares: RequestHandler[] = [];
 
     if (route.auth) {
         // add authentication middleware if route requires authentication
