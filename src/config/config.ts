@@ -17,4 +17,5 @@ export const envConfig = {
         ALL: process.env.SCOPE_EMSI_SKILLS_ALL || 'all:ts-skills',
         SETUP_ELASTICSEARCH: process.env.SCOPE_SETUP_ELASTICSEARCH || 'setup:elasticsearch'
     },
+    API_BASE: '/v5/standardized-skills'
 };

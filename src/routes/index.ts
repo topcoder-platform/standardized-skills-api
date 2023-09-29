@@ -69,7 +69,7 @@ allRoutes.forEach((route) => {
 
     // register route with router
     router[route.verb](
-        route.path,
+        `${envConfig.API_BASE}${route.path}`,
         middlewares
     );
 });
