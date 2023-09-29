@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: __dirname + `/../../.env.${process.env.NODE_ENV}` });
 
 export const envConfig = {
-    PORT: process.env.PORT,
+    PORT: process.env.PORT || 3000,
     DB_URL: process.env.TC_SKILLS_DATABASE_URL,
     AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
     VALID_ISSUERS: process.env.VALID_ISSUERS || '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/", "https://auth.topcoder-dev.com/"]',
