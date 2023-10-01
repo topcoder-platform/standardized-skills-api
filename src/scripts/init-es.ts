@@ -1,6 +1,6 @@
 import { getSkillsESClient } from '../utils/es-helper';
 import { envConfig } from '../config';
-import { LoggerClient } from '../services/LoggerClient';
+import { LoggerClient } from '../utils/LoggerClient';
 import elasticsearch from '@elastic/elasticsearch';
 
 const skillESClient = getSkillsESClient();

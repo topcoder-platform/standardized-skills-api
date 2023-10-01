@@ -3,7 +3,7 @@ import { envConfig } from '../config';
 import _ from 'lodash';
 import * as config from '../config';
 import * as helper from '../utils/helpers';
-import { LoggerClient } from '../services/LoggerClient';
+import { LoggerClient } from '../utils/LoggerClient';
 
 let skillsESClient: elasticsearch.Client;
 const logger = new LoggerClient('es-helper');

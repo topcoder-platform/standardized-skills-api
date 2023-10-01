@@ -1,4 +1,4 @@
-import { LoggerClient } from '../services/LoggerClient';
+import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import * as postgres from '../utils/postgres-helper';
 import * as constants from '../config/constants';
