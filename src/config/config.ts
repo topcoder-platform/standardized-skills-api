@@ -21,7 +21,7 @@ export const envConfig = {
     },
     SKILLS_ES: {
         HOST: process.env.SKILL_ES_HOST || 'http://localhost:9200',
-        INDEX: process.env.SKILL_ES_EMSI_SKILL_INDEX || 'standardized_skills_suggester',
+        INDEX: process.env.SKILL_ES_INDEX || 'standardized_skills_suggester',
         DOCUMENT_TYPE: process.env.SKILL_ES_DOCUMENT_TYPE || '_doc',
         REFRESH: process.env.SKILL_ES_REFRESH || false,
     },

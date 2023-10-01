@@ -10,7 +10,8 @@
     "format": "eslint -c .eslintrc 'src/**/*.ts' --fix",
     "pretty": "prettier --write \"src/**/*.ts\"",
     "es-init": "node dist/scripts/init-es.js",
-    "es-init-force": "node dist/scripts/init-es.js force"
+    "es-init-force": "node dist/scripts/init-es.js force",
+    "load-data-es": "node dist/scripts/load-data-es.js"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",
@@ -37,6 +38,7 @@
     "class-validator": "^0.13.2",
     "cors": "^2.8.5",
     "cross-env": "^7.0.3",
+    "dayjs": "^1.11.10",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
     "http-status-codes": "^2.2.0",

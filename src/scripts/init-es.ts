@@ -1,4 +1,4 @@
-import getSkillsESClient from '../utils/es-helper';
+import { getSkillsESClient } from '../utils/es-helper';
 import { envConfig } from '../config';
 import { LoggerClient } from '../services/LoggerClient';
 import elasticsearch from '@elastic/elasticsearch';
