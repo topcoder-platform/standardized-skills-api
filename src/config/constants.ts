@@ -8,3 +8,5 @@ export enum UserRoles {
 }
 
 export const ES_SKILL_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
+export const MAX_SUGGESTIONS_SIZE = 1500;
+export const DEFAULT_SKILLS_SUGGESTION_SIZE = 20;

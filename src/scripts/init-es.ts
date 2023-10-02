@@ -27,23 +27,27 @@ const skillPutMappingRequest: elasticsearch.RequestParams.IndicesPutMapping = {
     index: envConfig.SKILLS_ES.INDEX,
     body: {
         properties: {
-            id: {
-                type: 'keyword',
-            },
-            name: {
-                type: 'text',
-            },
-            name_suggest: {
-                type: 'completion',
-                preserve_position_increments: true,
-            },
-            createdAt: {
-                type: 'date',
-                format: 'yyyy-MM-dd HH:mm:ss',
-            },
-            updatedAt: {
-                type: 'date',
-                format: 'yyyy-MM-dd HH:mm:ss',
+            doc: {
+                properties: {
+                    id: {
+                        type: 'keyword',
+                    },
+                    name: {
+                        type: 'text',
+                    },
+                    name_suggest: {
+                        type: 'completion',
+                        preserve_position_increments: true,
+                    },
+                    createdAt: {
+                        type: 'date',
+                        format: 'yyyy-MM-dd HH:mm:ss',
+                    },
+                    updatedAt: {
+                        type: 'date',
+                        format: 'yyyy-MM-dd HH:mm:ss',
+                    },
+                },
             },
         },
     },

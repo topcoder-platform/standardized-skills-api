@@ -6,7 +6,7 @@ services:
     environment:
       POSTGRES_PASSWORD: "password"
       POSTGRES_USER: "postgres"
-      POSTGRES_DB: "skills-db"
+      POSTGRES_DB: "StandardizedSkills"
     ports:
       - "5436:5432"
   elasticsearch7.8:

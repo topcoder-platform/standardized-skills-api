@@ -16,6 +16,12 @@ const RouteDefinitions: RouteDefinition[] = [
         auth: true,
         access: [UserRoles.Admin],
     },
+    {
+        path: '/skills/autocomplete',
+        verb: 'get',
+        controller: 'SkillsController',
+        method: 'getAutocompleteSuggestions',
+    },
 ];
 
 export default RouteDefinitions;
