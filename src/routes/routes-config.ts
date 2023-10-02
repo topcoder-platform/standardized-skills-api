@@ -1,4 +1,5 @@
 import { UserRoles } from '../config';
+import { SkillsRequestDto } from '../dto/SkillsRequest.dto';
 import { RouteDefinition } from '../interfaces';
 
 const RouteDefinitions: RouteDefinition[] = [
@@ -14,7 +15,12 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillsController',
         method: 'getSkills',
         auth: true,
-        access: [UserRoles.Admin]
+        access: [UserRoles.Admin],
+        validation: {
+            query: {
+                dto: SkillsRequestDto
+            }
+        }
     }
 ];
 
