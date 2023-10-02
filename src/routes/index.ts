@@ -74,7 +74,10 @@ allRoutes.forEach((route) => {
     );
 
     // register route with router
-    router[route.verb](route.path, middlewares);
+    router[route.verb](
+        `${envConfig.API_BASE}${route.path}`,
+        middlewares
+    );
 });
 
 export default router;
