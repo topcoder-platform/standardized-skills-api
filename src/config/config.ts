@@ -25,5 +25,5 @@ export const envConfig = {
         DOCUMENT_TYPE: process.env.SKILL_ES_DOCUMENT_TYPE || '_doc',
         REFRESH: process.env.SKILL_ES_REFRESH || false,
     },
-    API_BASE: '/v5/standardized-skills'
+    API_BASE: '/v5/standardized-skills',
 };

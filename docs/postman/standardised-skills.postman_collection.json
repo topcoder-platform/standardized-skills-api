@@ -9,17 +9,43 @@
 		{
 			"name": "all skills",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/skills",
-					"protocol": "http",
+					"raw": "{{base_url}}/skills?page=1&perPage=25&sortBy=name&sortOrder=DESC",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3000",
 					"path": [
 						"skills"
+					],
+					"query": [
+						{
+							"key": "page",
+							"value": "1"
+						},
+						{
+							"key": "perPage",
+							"value": "25"
+						},
+						{
+							"key": "sortBy",
+							"value": "name"
+						},
+						{
+							"key": "sortOrder",
+							"value": "DESC"
+						}
 					]
 				}
 			},
@@ -31,12 +57,10 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/skills/autocomplete?term=jav&size=30",
-					"protocol": "http",
+					"raw": "{{base_url}}/skills/autocomplete?term=jav&size=30",
 					"host": [
-						"localhost"
+						"{{base_url}}"
 					],
-					"port": "3000",
 					"path": [
 						"skills",
 						"autocomplete"

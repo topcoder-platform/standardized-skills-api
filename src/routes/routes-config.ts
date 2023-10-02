@@ -13,8 +13,8 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getSkills',
-        auth: true,
-        access: [UserRoles.Admin],
+        // auth: true,
+        // access: [UserRoles.Admin],
     },
     {
         path: '/skills/autocomplete',

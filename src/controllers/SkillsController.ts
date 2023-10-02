@@ -1,20 +1,31 @@
 import * as skillsService from '../services/SkillsService';
-import { SuccessResponse } from '../utils/SuccessResponse';
 import { NextFunction, Request, Response } from 'express';
+import * as helper from '../utils/helpers';
+import type { autocompleteQuery, basePaginatedRequest } from '../interfaces';
 
 export default class SkillsController {
     /**
      * Get all skills
      */
-    getSkills = async (req: Request, res: Response) => {
-        const allSkills = await skillsService.getAllSkills();
-
-        const response = new SuccessResponse(allSkills);
-
-        res.status(200).json(response);
+    getSkills = async (
+        req: Request<{ [key: string]: string }, any, any, basePaginatedRequest, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skills = await skillsService.getAllSkills(req.query);
+            helper.setResHeaders(res, skills);
+            res.status(200).json(skills.skills);
+        } catch (error) {
+            next(error);
+        }
     };
 
-    getAutocompleteSuggestions = async (req: Request, res: Response, next: NextFunction) => {
+    getAutocompleteSuggestions = async (
+        req: Request<{ [key: string]: string }, any, any, autocompleteQuery, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) => {
         try {
             const response = await skillsService.autocompleteSkills(req.query);
             res.status(200).json(response);
