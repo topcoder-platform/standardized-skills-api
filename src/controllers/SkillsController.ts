@@ -1,14 +1,14 @@
 import * as skillsService from '../services/SkillsService';
 import { NextFunction, Request, Response } from 'express';
 import * as helper from '../utils/helpers';
-import type { autocompleteQuery, basePaginatedRequest } from '../interfaces';
+import type { IAutocompleteRequestQuery, IBasePaginatedRequest } from '../interfaces';
 
 export default class SkillsController {
     /**
      * Get all skills
      */
     getSkills = async (
-        req: Request<{ [key: string]: string }, any, any, basePaginatedRequest, Record<string, any>>,
+        req: Request<{ [key: string]: string }, any, any, IBasePaginatedRequest, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -22,7 +22,7 @@ export default class SkillsController {
     };
 
     getAutocompleteSuggestions = async (
-        req: Request<{ [key: string]: string }, any, any, autocompleteQuery, Record<string, any>>,
+        req: Request<{ [key: string]: string }, any, any, IAutocompleteRequestQuery, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) => {

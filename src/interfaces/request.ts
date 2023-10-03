@@ -1,11 +1,15 @@
-export interface basePaginatedRequest {
-    page: number;
-    perPage: number;
-    sortBy: string;
-    sortOrder: string;
+export interface IBasePaginatedRequest {
+    page?: number;
+    perPage?: number;
+    sortBy?: string;
+    sortOrder?: 'ASC' | 'DESC';
 }
 
-export interface autocompleteQuery {
+export interface IAutocompleteRequestQuery {
     term: string;
     size: number;
 }
+
+export type IChangeToMandatory<T> = {
+    [Property in keyof T]-?: T[Property];
+};
