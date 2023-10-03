@@ -4,8 +4,7 @@
   "main": "index.js",
   "description": "API endpoints for accessing the new standardized skills across Topcoder",
   "scripts": {
-    "dev": "cross-env NODE_ENV=development ts-node-dev --respawn src/index.ts",
-    "build": "cross-env NODE_ENV=production tsc",
+    "transpile": "tsc",
     "lint": "eslint -c .eslintrc 'src/**/*.ts'",
     "format": "eslint -c .eslintrc 'src/**/*.ts' --fix",
     "pretty": "prettier --write \"src/**/*.ts\"",
@@ -38,7 +37,6 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cors": "^2.8.5",
-    "cross-env": "^7.0.3",
     "dayjs": "^1.11.10",
     "dotenv": "^16.0.0",
     "express": "^4.17.3",
