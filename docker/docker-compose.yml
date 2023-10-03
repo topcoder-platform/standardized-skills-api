@@ -1,0 +1,7 @@
+version: '3'
+services:
+  standardized-skills-api:
+    image: standardized-skills-api:latest
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile

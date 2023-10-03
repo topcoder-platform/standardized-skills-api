@@ -13,9 +13,15 @@ export interface user_skill_levelAttributes {
 export type user_skill_levelPk = 'id';
 export type user_skill_levelId = user_skill_level[user_skill_levelPk];
 export type user_skill_levelOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
-export type user_skill_levelCreationAttributes = Optional<user_skill_levelAttributes, user_skill_levelOptionalAttributes>;
+export type user_skill_levelCreationAttributes = Optional<
+    user_skill_levelAttributes,
+    user_skill_levelOptionalAttributes
+>;
 
-export class user_skill_level extends Model<user_skill_levelAttributes, user_skill_levelCreationAttributes> implements user_skill_levelAttributes {
+export class user_skill_level
+    extends Model<user_skill_levelAttributes, user_skill_levelCreationAttributes>
+    implements user_skill_levelAttributes
+{
     id!: string;
     name!: string;
     description?: string;
@@ -36,43 +42,42 @@ export class user_skill_level extends Model<user_skill_levelAttributes, user_ski
     countUser_skills!: Sequelize.HasManyCountAssociationsMixin;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof user_skill_level {
-        return user_skill_level.init({
-            id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-                primaryKey: true
-            },
-            name: {
-                type: DataTypes.STRING(100),
-                allowNull: false,
-                unique: 'uniq_skill_level_name'
-            },
-            description: {
-                type: DataTypes.TEXT,
-                allowNull: true
-            }
-        } as any, {
-            sequelize,
-            tableName: 'user_skill_level',
-            schema: 'public',
-            timestamps: true,
-            indexes: [
-                {
-                    name: 'uniq_skill_level_name',
-                    unique: true,
-                    fields: [
-                        { name: 'name' },
-                    ]
+        return user_skill_level.init(
+            {
+                id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    defaultValue: DataTypes.UUIDV4,
+                    primaryKey: true,
                 },
-                {
-                    name: 'user_skill_level_pkey',
-                    unique: true,
-                    fields: [
-                        { name: 'id' },
-                    ]
+                name: {
+                    type: DataTypes.STRING(100),
+                    allowNull: false,
+                    unique: 'uniq_skill_level_name',
                 },
-            ]
-        });
+                description: {
+                    type: DataTypes.TEXT,
+                    allowNull: true,
+                },
+            } as any,
+            {
+                sequelize,
+                tableName: 'user_skill_level',
+                schema: 'public',
+                timestamps: true,
+                indexes: [
+                    {
+                        name: 'uniq_skill_level_name',
+                        unique: true,
+                        fields: [{ name: 'name' }],
+                    },
+                    {
+                        name: 'user_skill_level_pkey',
+                        unique: true,
+                        fields: [{ name: 'id' }],
+                    },
+                ],
+            },
+        );
     }
 }
