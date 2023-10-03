@@ -7,11 +7,11 @@ WORKDIR /usr/standardized-skills-api/app
 # Copy the codebase
 COPY . .
 
-# Run the lint to check for lint errors and stop further progress
-RUN npm run lint
-
 # Install the dependencies from package.json
 RUN npm install
+
+# Run the lint to check for lint errors and stop further progress
+RUN npm run lint
 
 # Expose the API on PORT 3000
 EXPOSE 3000
