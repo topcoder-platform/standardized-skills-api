@@ -65,6 +65,7 @@ workflows:
             branches:
               only:
                 - develop
+                - TSJR-124
       - "build-prod":
           context: org-global
           filters:
