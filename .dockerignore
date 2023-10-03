@@ -10,4 +10,8 @@ docker
 docs
 local
 
+.eslintignore
+.eslintrc
+.prettierrc
+
 README.md

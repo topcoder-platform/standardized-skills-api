@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: __dirname + `/../../.env.${process.env.NODE_ENV}` });
+dotenv.config();
 
 export const envConfig = {
     PORT: process.env.PORT || 3000,
