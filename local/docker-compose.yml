@@ -1,0 +1,18 @@
+version: '3.3'
+services:
+  postgresdb:
+    image: postgres:15
+    container_name: postgresdb-local
+    environment:
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_USER: "postgres"
+      POSTGRES_DB: "StandardizedSkills"
+    ports:
+      - "5436:5432"
+  elasticsearch7.8:
+      image: elasticsearch:7.8.0
+      container_name: elasticsearch7.8
+      environment:
+        - "discovery.type=single-node"
+      ports:
+        - "9200:9200"

@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: __dirname + `/../../.env.${process.env.NODE_ENV}` });
+dotenv.config();
 
 export const envConfig = {
     PORT: process.env.PORT || 3000,
@@ -18,6 +18,12 @@ export const envConfig = {
         DELETE: process.env.SCOPE_EMSI_SKILLS_DELETE || 'delete:ts-skills',
         ALL: process.env.SCOPE_EMSI_SKILLS_ALL || 'all:ts-skills',
         SETUP_ELASTICSEARCH: process.env.SCOPE_SETUP_ELASTICSEARCH || 'setup:elasticsearch',
+    },
+    SKILLS_ES: {
+        HOST: process.env.SKILL_ES_HOST || 'http://localhost:9200',
+        INDEX: process.env.SKILL_ES_INDEX || 'standardized_skills_suggester',
+        DOCUMENT_TYPE: process.env.SKILL_ES_DOCUMENT_TYPE || '_doc',
+        REFRESH: process.env.SKILL_ES_REFRESH || false,
     },
     API_BASE: '/v5/standardized-skills',
 };
