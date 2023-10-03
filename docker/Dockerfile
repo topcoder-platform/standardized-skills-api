@@ -2,7 +2,7 @@
 FROM node:17.8.0-alpine
 
 # Set working directory for future use
-WORKDIR /usr/standardized-skills-api/app
+WORKDIR /usr/src/app
 
 # Copy the package.json
 COPY package*.json ./
