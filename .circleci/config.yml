@@ -65,6 +65,7 @@ workflows:
             branches:
               only:
                 - develop
+                - feature/TSJR-121/skills-autocomplete-api
       - "build-prod":
           context: org-global
           filters:
