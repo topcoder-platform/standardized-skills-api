@@ -1,5 +1,5 @@
-import { UserRoles } from '../config';
-import { SkillsRequestDto } from '../dto/SkillsRequest.dto';
+// import { UserRoles } from '../config';
+import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
 import { RouteDefinition } from '../interfaces';
 
 const RouteDefinitions: RouteDefinition[] = [
@@ -14,11 +14,11 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getSkills',
-        auth: true,
-        access: [UserRoles.Admin],
+        // auth: true,
+        // access: [UserRoles.Admin],
         validation: {
             query: {
-                dto: SkillsRequestDto
+                dto: GetSkillsQueryRequestDto,
             }
         }
     },
@@ -27,6 +27,11 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getAutocompleteSuggestions',
+        validation: {
+            query: {
+                dto: GetAutocompleteRequestQueryDto,
+            }
+        }
     },
 ];
 

@@ -15,20 +15,6 @@ const router = express.Router();
 allRoutes.forEach((route) => {
     const middlewares: RequestHandler[] = [];
 
-    if (route.validation && (route.validation.body || route.validation.params || route.validation.query)) {
-        // add validation middleware if route has validation
-        const { body, params, query } = route.validation ?? {};
-        if (body) {
-            middlewares.push(validationMiddleware(body.dto, 'body', body.skipMissingProperties, body.forbidNonWhitelisted));
-        }
-        if (params) {
-            middlewares.push(validationMiddleware(params.dto, 'params', params.skipMissingProperties, params.forbidNonWhitelisted));
-        }
-        if (query) {
-            middlewares.push(validationMiddleware(query.dto, 'query', query.skipMissingProperties, query.forbidNonWhitelisted));
-        }
-    }
-
     if (route.auth) {
         // add authentication middleware if route requires authentication
         middlewares.push((req: Request, res: Response, next: NextFunction) => {
@@ -70,6 +56,20 @@ allRoutes.forEach((route) => {
                 }
             }
         });
+    }
+
+    if (route.validation && (route.validation.body || route.validation.params || route.validation.query)) {
+        // add validation middleware if route has validation
+        const { body, params, query } = route.validation ?? {};
+        if (body) {
+            middlewares.push(validationMiddleware(body.dto, 'body', body.skipMissingProperties, body.whitelist, body.forbidNonWhitelisted));
+        }
+        if (params) {
+            middlewares.push(validationMiddleware(params.dto, 'params', params.skipMissingProperties, params.whitelist, params.forbidNonWhitelisted));
+        }
+        if (query) {
+            middlewares.push(validationMiddleware(query.dto, 'query', query.skipMissingProperties, query.whitelist, query.forbidNonWhitelisted));
+        }
     }
 
     middlewares.push(

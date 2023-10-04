@@ -6,11 +6,14 @@ export enum UserRoles {
     SelfServiceCustomer = 'Self-Service Customer',
     Talent = 'Topcoder Talent',
 }
-
 export const ES_SKILL_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
-export const MAX_SUGGESTIONS_SIZE = 1500;
-export const DEFAULT_SKILLS_SUGGESTION_SIZE = 20;
 
-export const defaultPerPage = 20;
-export const defaultPage = 1;
-export const defaultSortOrder = 'ASC';
+export const MAX_SUGGESTIONS_SIZE = 1500;
+
+export const DEFAULT_SUGGESTIONS_SIZE = 20;
+
+export const DEFAULT_PER_PAGE = 20;
+
+export const DEFAULT_PAGE = 1;
+
+export const DEFAULT_SORT_ORDER = 'ASC';

@@ -17,6 +17,7 @@ export const validationMiddleware = (type: any, source: 'body' | 'query' | 'para
         const dto = plainToInstance(type, req[source]);
         validateOrReject(dto, { skipMissingProperties, whitelist, forbidNonWhitelisted })
             .then(() => {
+                req[source] = dto;
                 next();
             })
             .catch((errors: ValidationError[]) => {

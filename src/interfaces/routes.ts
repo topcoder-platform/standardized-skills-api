@@ -11,16 +11,19 @@ export interface RouteDefinition {
             dto: any;
             skipMissingProperties?: boolean;
             forbidNonWhitelisted?: boolean;
+            whitelist?: boolean;
         };
         params?: {
             dto: any;
             skipMissingProperties?: boolean;
             forbidNonWhitelisted?: boolean;
+            whitelist?: boolean;
         };
         query?: {
             dto: any;
             skipMissingProperties?: boolean;
             forbidNonWhitelisted?: boolean;
+            whitelist?: boolean;
         };
     };
 }
