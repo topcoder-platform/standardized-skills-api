@@ -10,7 +10,8 @@
     "pretty": "prettier --write \"src/**/*.ts\"",
     "es-init": "node dist/scripts/init-es.js",
     "es-init-force": "node dist/scripts/init-es.js force",
-    "load-data-es": "node dist/scripts/load-data-es.js"
+    "load-data-es": "node dist/scripts/load-data-es.js",
+    "dev": "ts-node-dev --respawn src/index.ts"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",
