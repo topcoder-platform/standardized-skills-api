@@ -1,5 +1,37 @@
 {
-  "parser": "@typescript-eslint/parser",
+  "settings": {
+    "import/parsers": {
+      "@typescript-eslint/parser": [".ts", ".tsx"]
+    },
+    "import/resolver": {
+      "typescript": {
+        "alwaysTryTypes": true // always try to resolve types under `<root>@types` directory even it doesn't contain any source code, like `@types/unist`
+
+        // Choose from one of the "project" configs below or omit to use <root>/tsconfig.json by default
+
+        // use <root>/path/to/folder/tsconfig.json
+        // "project": "path/to/folder",
+
+        // // Multiple tsconfigs (Useful for monorepos)
+
+        // // use a glob pattern
+        // "project": "packages/*/tsconfig.json",
+
+        // // use an array
+        // "project": [
+        //   "packages/module-a/tsconfig.json",
+        //   "packages/module-b/tsconfig.json"
+        // ],
+
+        // // use an array of glob patterns
+        // "project": [
+        //   "packages/*/tsconfig.json",
+        //   "other-packages/*/tsconfig.json"
+        // ]
+      }
+    }
+  },
+  "plugins": ["import"],
   "parserOptions": {
     "ecmaVersion": "latest",
     "sourceType": "module" // Allows for the use of imports
@@ -15,6 +47,7 @@
     "@typescript-eslint/no-explicit-any": "off",
     "semi": ["error", "always"],
     "eol-last": ["error", "always"],
-    "quotes": ["error", "single"]
+    "quotes": ["error", "single"],
+    "import/no-unresolved": "error"
   }
 }
