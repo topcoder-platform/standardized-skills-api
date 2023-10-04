@@ -12,7 +12,7 @@ const loadSkillDataInES = async () => {
     let page = 1,
         totalPages = 1;
     do {
-        const skills = await postgres.findAndCountAllSkills({
+        const skills = await postgres.findAndCountAll('Skill', {
             attributes: ['id', 'name'],
             limit: 2000,
             offset: (page - 1) * 2000,
