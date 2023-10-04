@@ -15,7 +15,6 @@ export default class ErrorHandler {
             }
             res.status(statusCode).json({
                 message: err.message,
-                rawErrors: err.rawErrors ?? [],
             });
         };
     };
