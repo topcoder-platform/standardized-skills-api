@@ -21,7 +21,13 @@ const RouteDefinitions: RouteDefinition[] = [
                 dto: SkillsRequestDto
             }
         }
-    }
+    },
+    {
+        path: '/skills/autocomplete',
+        verb: 'get',
+        controller: 'SkillsController',
+        method: 'getAutocompleteSuggestions',
+    },
 ];
 
 export default RouteDefinitions;

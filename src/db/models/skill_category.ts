@@ -15,7 +15,10 @@ export type skill_categoryId = skill_category[skill_categoryPk];
 export type skill_categoryOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
 export type skill_categoryCreationAttributes = Optional<skill_categoryAttributes, skill_categoryOptionalAttributes>;
 
-export class skill_category extends Model<skill_categoryAttributes, skill_categoryCreationAttributes> implements skill_categoryAttributes {
+export class skill_category
+    extends Model<skill_categoryAttributes, skill_categoryCreationAttributes>
+    implements skill_categoryAttributes
+{
     id!: string;
     name!: string;
     description?: string;
@@ -36,43 +39,42 @@ export class skill_category extends Model<skill_categoryAttributes, skill_catego
     countSkills!: Sequelize.HasManyCountAssociationsMixin;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof skill_category {
-        return skill_category.init({
-            id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-                primaryKey: true
-            },
-            name: {
-                type: DataTypes.STRING(100),
-                allowNull: false,
-                unique: 'uniq_category_name'
-            },
-            description: {
-                type: DataTypes.TEXT,
-                allowNull: true
-            }
-        } as any, {
-            sequelize,
-            tableName: 'skill_category',
-            schema: 'public',
-            timestamps: true,
-            indexes: [
-                {
-                    name: 'skill_category_pkey',
-                    unique: true,
-                    fields: [
-                        { name: 'id' },
-                    ]
+        return skill_category.init(
+            {
+                id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    defaultValue: DataTypes.UUIDV4,
+                    primaryKey: true,
                 },
-                {
-                    name: 'uniq_category_name',
-                    unique: true,
-                    fields: [
-                        { name: 'name' },
-                    ]
+                name: {
+                    type: DataTypes.STRING(100),
+                    allowNull: false,
+                    unique: 'uniq_category_name',
                 },
-            ]
-        });
+                description: {
+                    type: DataTypes.TEXT,
+                    allowNull: true,
+                },
+            } as any,
+            {
+                sequelize,
+                tableName: 'skill_category',
+                schema: 'public',
+                timestamps: true,
+                indexes: [
+                    {
+                        name: 'skill_category_pkey',
+                        unique: true,
+                        fields: [{ name: 'id' }],
+                    },
+                    {
+                        name: 'uniq_category_name',
+                        unique: true,
+                        fields: [{ name: 'name' }],
+                    },
+                ],
+            },
+        );
     }
 }

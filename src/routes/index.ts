@@ -34,7 +34,7 @@ allRoutes.forEach((route) => {
         middlewares.push((req: Request, res: Response, next: NextFunction) => {
             authenticator({
                 AUTH_SECRET: envConfig.AUTH_SECRET,
-                VALID_ISSUERS: envConfig.VALID_ISSUERS
+                VALID_ISSUERS: envConfig.VALID_ISSUERS,
             })(req, res, next);
         });
         // scopes & permissions check
@@ -52,7 +52,13 @@ allRoutes.forEach((route) => {
                 req.authUser.userId = String(req.authUser.userId);
                 // User roles authorization
                 if (req.authUser.roles) {
-                    if (route.access && !checkIfExists(route.access.map(a => a.toLowerCase()), req.authUser.roles.map((r: string) => r.toLowerCase()))) {
+                    if (
+                        route.access &&
+                        !checkIfExists(
+                            route.access.map((a) => a.toLowerCase()),
+                            req.authUser.roles.map((r: string) => r.toLowerCase()),
+                        )
+                    ) {
                         next(new ForbiddenError('You are not allowed to perform this action!'));
                     } else {
                         // user token is used in create/update operations
@@ -79,14 +85,11 @@ allRoutes.forEach((route) => {
             } catch (error: any) {
                 next(error);
             }
-        }
+        },
     );
 
     // register route with router
-    router[route.verb](
-        `${envConfig.API_BASE}${route.path}`,
-        middlewares
-    );
+    router[route.verb](`${envConfig.API_BASE}${route.path}`, middlewares);
 });
 
 export default router;

@@ -54,4 +54,3 @@ export class ConflictError extends StandardizedSkillApiError {
         super(StatusCodes.CONFLICT, message, errors);
     }
 }
-
