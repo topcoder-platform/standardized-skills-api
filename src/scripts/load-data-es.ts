@@ -4,6 +4,7 @@ import * as postgres from '../utils/postgres-helper';
 import * as constants from '../config/constants';
 import dayjs from 'dayjs';
 import _ from 'lodash';
+import db from '../db';
 
 const logger = new LoggerClient('load-data-es');
 
@@ -14,6 +15,11 @@ const loadSkillDataInES = async () => {
     do {
         const skills = await postgres.findAndCountAll('Skill', {
             attributes: ['id', 'name'],
+            include: {
+                model: db.models.SkillCategory,
+                as: 'category',
+                attributes: ['id', 'name'],
+            },
             limit: 2000,
             offset: (page - 1) * 2000,
             order: [['name', 'ASC']],
@@ -24,11 +30,21 @@ const loadSkillDataInES = async () => {
             break;
         }
 
-        const skillsToBeIndexed: { id: string; name: string; createdAt: string; updatedAt: string }[] = [];
+        const skillsToBeIndexed: {
+            id: string;
+            name: string;
+            category: { id: string; name: string };
+            createdAt: string;
+            updatedAt: string;
+        }[] = [];
         _.forEach(skills.rows, (skill) => {
             skillsToBeIndexed.push({
                 id: skill.id,
                 name: skill.name,
+                category: {
+                    id: skill.category.id,
+                    name: skill.category.name,
+                },
                 createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
                 updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
             });

@@ -62,13 +62,37 @@ allRoutes.forEach((route) => {
         // add validation middleware if route has validation
         const { body, params, query } = route.validation ?? {};
         if (body) {
-            middlewares.push(validationMiddleware(body.dto, 'body', body.skipMissingProperties, body.whitelist, body.forbidNonWhitelisted));
+            middlewares.push(
+                validationMiddleware(
+                    body.dto,
+                    'body',
+                    body.skipMissingProperties,
+                    body.whitelist,
+                    body.forbidNonWhitelisted,
+                ),
+            );
         }
         if (params) {
-            middlewares.push(validationMiddleware(params.dto, 'params', params.skipMissingProperties, params.whitelist, params.forbidNonWhitelisted));
+            middlewares.push(
+                validationMiddleware(
+                    params.dto,
+                    'params',
+                    params.skipMissingProperties,
+                    params.whitelist,
+                    params.forbidNonWhitelisted,
+                ),
+            );
         }
         if (query) {
-            middlewares.push(validationMiddleware(query.dto, 'query', query.skipMissingProperties, query.whitelist, query.forbidNonWhitelisted));
+            middlewares.push(
+                validationMiddleware(
+                    query.dto,
+                    'query',
+                    query.skipMissingProperties,
+                    query.whitelist,
+                    query.forbidNonWhitelisted,
+                ),
+            );
         }
     }
 
