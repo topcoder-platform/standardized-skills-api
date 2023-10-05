@@ -5,7 +5,7 @@ import _ from 'lodash';
 import { skill } from '../db/models/skill';
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
 import { findAndCountAll } from '../utils/postgres-helper';
-import { skill_category } from '../db/models/skill_category';
+import db from '../db';
 
 const logger = new LoggerClient('SkillsService');
 
@@ -24,7 +24,7 @@ async function getAllSkills(query: GetSkillsQueryRequestDto) {
         include: [
             // expand the category information in the response
             {
-                model: skill_category,
+                model: db.models.SkillCategory,
                 as: 'category',
             }
         ],
