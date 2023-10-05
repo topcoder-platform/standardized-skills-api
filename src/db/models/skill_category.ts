@@ -17,8 +17,7 @@ export type skill_categoryCreationAttributes = Optional<skill_categoryAttributes
 
 export class skill_category
     extends Model<skill_categoryAttributes, skill_categoryCreationAttributes>
-    implements skill_categoryAttributes
-{
+    implements skill_categoryAttributes {
     id!: string;
     name!: string;
     description?: string;
@@ -55,6 +54,14 @@ export class skill_category
                 description: {
                     type: DataTypes.TEXT,
                     allowNull: true,
+                },
+                createdAt: {
+                    field: 'created_at',
+                    type: Sequelize.DATE,
+                },
+                updatedAt: {
+                    field: 'updated_at',
+                    type: Sequelize.DATE,
                 },
             } as any,
             {

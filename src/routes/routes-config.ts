@@ -1,4 +1,3 @@
-// import { UserRoles } from '../config';
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
 import { RouteDefinition } from '../interfaces';
 
@@ -14,8 +13,6 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getSkills',
-        // auth: true,
-        // access: [UserRoles.Admin],
         validation: {
             query: {
                 dto: GetSkillsQueryRequestDto,

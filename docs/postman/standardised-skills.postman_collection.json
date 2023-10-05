@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "182a9402-f876-44a7-bd2a-e15872fa8aa9",
+		"_postman_id": "59827b0f-45a1-4ae4-8d22-3f986885e449",
 		"name": "standardised-skills",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30186453"
+		"_exporter_id": "10740"
 	},
 	"item": [
 		{
@@ -22,7 +22,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/skills?page=1&perPage=25&sortBy=name&sortOrder=DESC",
+					"raw": "{{base_url}}/skills",
 					"host": [
 						"{{base_url}}"
 					],
@@ -32,19 +32,33 @@
 					"query": [
 						{
 							"key": "page",
-							"value": "1"
+							"value": "11",
+							"disabled": true
 						},
 						{
 							"key": "perPage",
-							"value": "25"
+							"value": "50",
+							"disabled": true
 						},
 						{
 							"key": "sortBy",
-							"value": "name"
+							"value": "name",
+							"disabled": true
 						},
 						{
 							"key": "sortOrder",
-							"value": "DESC"
+							"value": "DESC",
+							"disabled": true
+						},
+						{
+							"key": "skillId",
+							"value": "d18b7aa7-cfe2-46ae-ba63-bc6c3e039d12",
+							"disabled": true
+						},
+						{
+							"key": "skillId",
+							"value": "a54a0041-77d5-4af6-b0e5-bee54b85d0e8",
+							"disabled": true
 						}
 					]
 				}
@@ -83,7 +97,16 @@
 			"name": "health check",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/health",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"health"
+					]
+				}
 			},
 			"response": []
 		}
