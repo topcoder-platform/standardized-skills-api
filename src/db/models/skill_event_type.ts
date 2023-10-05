@@ -2,7 +2,7 @@ import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill_event, skill_eventId } from './skill_event';
 
-export interface skill_event_typeAttributes {
+export interface skillEventTypeAttributes {
     id: string;
     name: string;
     description?: string;
@@ -13,14 +13,14 @@ export interface skill_event_typeAttributes {
 export type skill_event_typePk = 'id';
 export type skill_event_typeId = skill_event_type[skill_event_typePk];
 export type skill_event_typeOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
-export type skill_event_typeCreationAttributes = Optional<
-    skill_event_typeAttributes,
+export type skillEventTypeCreationAttributes = Optional<
+    skillEventTypeAttributes,
     skill_event_typeOptionalAttributes
 >;
 
 export class skill_event_type
-    extends Model<skill_event_typeAttributes, skill_event_typeCreationAttributes>
-    implements skill_event_typeAttributes
+    extends Model<skillEventTypeAttributes, skillEventTypeCreationAttributes>
+    implements skillEventTypeAttributes
 {
     id!: string;
     name!: string;

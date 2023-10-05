@@ -1,4 +1,3 @@
-// import { UserRoles } from '../config';
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
 import { RouteDefinition } from '../interfaces';
 import * as config from '../config';

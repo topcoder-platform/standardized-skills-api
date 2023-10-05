@@ -2,7 +2,7 @@ import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill, skillId } from './skill';
 
-export interface skill_categoryAttributes {
+export interface skillCategoryAttributes {
     id: string;
     name: string;
     description?: string;
@@ -13,12 +13,11 @@ export interface skill_categoryAttributes {
 export type skill_categoryPk = 'id';
 export type skill_categoryId = skill_category[skill_categoryPk];
 export type skill_categoryOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
-export type skill_categoryCreationAttributes = Optional<skill_categoryAttributes, skill_categoryOptionalAttributes>;
+export type skillCategoryCreationAttributes = Optional<skillCategoryAttributes, skill_categoryOptionalAttributes>;
 
 export class skill_category
-    extends Model<skill_categoryAttributes, skill_categoryCreationAttributes>
-    implements skill_categoryAttributes
-{
+    extends Model<skillCategoryAttributes, skillCategoryCreationAttributes>
+    implements skillCategoryAttributes {
     id!: string;
     name!: string;
     description?: string;
@@ -55,6 +54,14 @@ export class skill_category
                 description: {
                     type: DataTypes.TEXT,
                     allowNull: true,
+                },
+                createdAt: {
+                    field: 'created_at',
+                    type: Sequelize.DATE,
+                },
+                updatedAt: {
+                    field: 'updated_at',
+                    type: Sequelize.DATE,
                 },
             } as any,
             {

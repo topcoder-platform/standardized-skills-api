@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { skill } from '../db/models/skill';
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
 import { findAndCountAll } from '../utils/postgres-helper';
+import db from '../db';
 
 const logger = new LoggerClient('SkillsService');
 
@@ -20,11 +21,25 @@ async function getAllSkills(query: GetSkillsQueryRequestDto) {
     const pgQuery: FindAndCountOptions = {
         limit: query.perPage,
         offset: (query.page - 1) * query.perPage,
+        include: [
+            // expand the category information in the response
+            {
+                model: db.models.SkillCategory,
+                as: 'category',
+            }
+        ],
     };
 
     if (query.sortBy) {
         // sorting is optional
         pgQuery.order = [[query.sortBy, query.sortOrder]];
+    }
+
+    if (query.skillId) {
+        // filtering by skillId is optional
+        pgQuery.where = {
+            id: [].concat(query.skillId as any),
+        };
     }
 
     try {
