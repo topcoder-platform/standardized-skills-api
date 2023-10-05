@@ -19,8 +19,8 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             query: {
                 dto: GetSkillsQueryRequestDto,
-            }
-        }
+            },
+        },
     },
     {
         path: '/skills/autocomplete',
@@ -30,8 +30,8 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             query: {
                 dto: GetAutocompleteRequestQueryDto,
-            }
-        }
+            },
+        },
     },
 ];
 

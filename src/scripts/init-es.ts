@@ -35,6 +35,16 @@ const skillPutMappingRequest: elasticsearch.RequestParams.IndicesPutMapping = {
                     name: {
                         type: 'text',
                     },
+                    category: {
+                        properties: {
+                            id: {
+                                type: 'keyword',
+                            },
+                            name: {
+                                type: 'text',
+                            },
+                        },
+                    },
                     name_suggest: {
                         type: 'completion',
                         preserve_position_increments: true,
