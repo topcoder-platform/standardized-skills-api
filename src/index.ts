@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/', routes);
 
-app.use((req: Request, res: Response, next: NextFunction) => next(new NotFoundError(req.path)));
+app.use((req: Request, res: Response, next: NextFunction) => next(new NotFoundError(req.path + ' does not exist!')));
 
 app.use(ErrorHandler.handle());
 

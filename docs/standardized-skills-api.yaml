@@ -1,0 +1,820 @@
+openapi: 3.0.0
+info:
+  version: '1'
+  title: standardized-skills-api
+  description: 'Topcoder Standardized Skills API Backend <br> <br>
+                All endpoints are JWT protected except GET /skills/autocomplete'
+security:
+  - Bearer: []
+paths:
+  /skills:
+    get:
+      operationId: searchSkills
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria. <br> ids should be a comma-separated skills uuids. <br> All search criteria will be applied with And operator  <br> If no criteria is provided, all available  skills are fetched'
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: ids
+          schema:
+            type: string
+            description: comma-separated skills uuids
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            description: '1 based page index'
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: ['name']
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: ['ASC', 'DESC']
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardizedSkill'
+          headers:
+            X-Page:
+              schema:
+                type: integer
+              description: 'The index of the current page (starting at 1)'
+            X-Per-Page:
+              schema:
+                type: integer
+              description: 'The number of items to list per page'
+            X-Total:
+              schema:
+                type: integer
+              description: 'The total number of items'
+            X-Total-Pages:
+              schema:
+                type: integer
+              description: 'The total number of pages'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /skills/{id}:
+    get:
+      operationId: getSkillById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns the skill details by id'
+      parameters:
+        - in: path
+          required: true
+          name: id
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the skill to retrieve'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardizedSkillDetails'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  
+  /categories:
+    get:
+      operationId: searchSkillCategories
+      tags: ['Standardized Skills API']
+      description: 'This endpoint searches the skill categories matching the specified search criteria. If no search criteria is provided then all categories are returned'
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: ['name']
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: ['ASC', 'DESC']
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryDetails'
+          headers:
+            X-Page:
+              schema:
+                type: integer
+              description: 'The index of the current page (starting at 1)'
+            X-Per-Page:
+              schema:
+                type: integer
+              description: 'The number of items to list per page'
+            X-Total:
+              schema:
+                type: integer
+              description: 'The total number of items'
+            X-Total-Pages:
+              schema:
+                type: integer
+              description: 'The total number of pages'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /categories/{id}:
+    get:
+      operationId: getSkillCategoryById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint gets the details of the skill category identified by the given id'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'The id of the category to retrieve'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                allOf:
+                 - $ref: '#/components/schemas/CategoryDetails'
+                 - $ref: '#/components/schemas/Timestamps'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /categories/{id}/skills:
+    get:
+      operationId: getSkillsByCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns the list of all skills in a given category'
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'The id of the category for which to get all the skills'
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            description: '1 based page index'
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: ['name']
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: ['ASC', 'DESC']  
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardizedSkill'
+          headers:
+            X-Page:
+              schema:
+                type: integer
+              description: 'The index of the current page (starting at 1)'
+            X-Per-Page:
+              schema:
+                type: integer
+              description: 'The number of items to list per page'
+            X-Total:
+              schema:
+                type: integer
+              description: 'The total number of items'
+            X-Total-Pages:
+              schema:
+                type: integer
+              description: 'The total number of pages'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+
+  /user-skills:
+    post:
+      operationId: 'createUserSkills'
+      tags: ['Standardized Skills API']
+      description: 'Creates an association between a user and the skills supplied in the request body <br> Each skill is identified by its unique id, the skill level represents how the user got the skill: `self-declared` or `verified` <br> The user to skill association will be created only if it does not already exist.'
+      requestBody:
+        description: 'Associates the specified skills with the user identified by the given user id'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['userId', 'skills']
+              properties:
+                userId:
+                  type: integer
+                  example: 22923552
+                skills:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserSkillCreateRequest'
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /user-skills/{userId}:
+    get:
+      operationId: getAllUserSkills
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns all the skill details associated with the user identified by the given userId.  <br> If the member does not have any skills associated, then an empty array is returned'
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+          description: 'The id of the user for whome to list the skills'
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: ['name']
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: ['ASC', 'DESC']
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSkill'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+    put:
+      operationId: 'updateUserSkills'
+      tags: ['Standardized Skills API']
+      description: >- 
+       Updates the skills associations between the user identified by the given userId and the specified skills.
+      
+       <br>The following rules apply to this endpoint implementation:
+        * If the user has a verified skill and it is not present in the request body, then it should not be removed
+        * If the user has a self-declared skill, and that skill is not present in the request body, then the association should be removed
+       
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+          description: 'The id of the member whose skill associations are to be updated'
+      requestBody:
+        description: 'Update member skill association request'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['skills']
+              properties:
+                skills:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserSkillCreateRequest'
+      responses:
+        '200':
+          description: 'OK'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /skills/autocomplete:
+    get:
+      operationId: suggestSkills
+      tags: ['Standardized Skills API']
+      description: 'This endpoint handles the typeahead requests based on user inputs. It returns the list of skills that are prefixed with the input term'
+      parameters:
+        - in: query
+          name: term
+          schema:
+            type: string
+        - in: query
+          name: size
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+            description: 'The size of the skills to be suggested'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SuggestSkillsResponse'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'          
+        '500':
+          description: 'Internal Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  
+  /skill-source-types:
+    get:
+      operationId: listSkillSourceTypes
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns the list of skill sources that match the name parameter. If no name parameter is provided it returns all skill sources'
+      parameters:
+        - in: query
+          name: name
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+            description: '1 based page index'
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: ['name']
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: ['ASC', 'DESC']
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SkillSourceType'
+          headers:
+            X-Page:
+              schema:
+                type: integer
+              description: 'The index of the current page (starting at 1)'
+            X-Per-Page:
+              schema:
+                type: integer
+              description: 'The number of items to list per page'
+            X-Total:
+              schema:
+                type: integer
+              description: 'The total number of items'
+            X-Total-Pages:
+              schema:
+                type: integer
+              description: 'The total number of pages'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /skill-levels:
+    get:
+      operationId: listSkillLevels
+      tags: ['Standardized Skills API']
+      description: 'This lookup endpoint gets all skills levels available in the system'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SkillLevel'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /work-skills/{workTypeId}/{workId}:
+    get:
+      operationId: getWorkSkills
+      tags: ['Standardized Skills API']
+      description: 'This endpoint gets the list of skills associated to the work identified by the specified workId and work type id<br> The input workId represents the id of the work in the Topcoder platform (challenge id, gig id, task id)'
+      parameters:
+        - in: path
+          name: workId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 'The Topcoder id of the work for which to get the skills'
+        - in: path
+          name: workTypeId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 'The Work type id'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkSkill'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /work-skills:
+    post:
+      operationId: 'createWorkSkills'
+      tags: ['Standardized Skills API']
+      description: 'Associates a list of skills to the work identified by workId and workTypeId'
+      requestBody:
+        description: 'Associates the skills identified by the specified skill ids with the given work identified by workId and workTypeId'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['workId', 'workTypeId']
+              properties:
+                workId:
+                  type: string
+                  format: uuid
+                workTypeId:
+                  type: string
+                  format: uuid
+                skillIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /skill-events:
+    post:
+      operationId: 'recordSkillEvent'
+      tags: ['Standardized Skills API']
+      description: 'Creates skills event from the specified event payload. payload should be a valid JSON string <br>The following skill events need to be supported to start with: `Challenge Completed and winners announced`'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['topic', 'payload']
+              properties:
+                topic:
+                  type: string
+                payload:
+                  type: string
+                  format: json
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /health:
+    get:
+      tags: ['Health']
+      description: 'Get health status of the app'
+      responses:
+        "200":
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checksRun:
+                    type: integer
+                    description: 'Denotes the number of times the health check has been performed'
+        "503":
+          description: 'Service unavailable'
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceUnavailableErrorResponse"
+
+components:
+  securitySchemes:
+    Bearer:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    SuggestSkillsResponse:
+      properties:
+        id:
+          type: string
+          example: 'd3f922b7-e224-4d83-af6f-c3ef248c855b'
+        name:
+          type: string
+          example: 'Java (Programming Language)'
+        category:
+          type: object
+          properties:
+            id:
+             type: string
+             format: uuid
+            name:
+             type: string
+             example: 'Information Technology'
+    StandardizedSkill:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+    StandardizedSkillDetails:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    Category:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    CategoryDetails:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+    Timestamps:
+      properties:
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    UserSkillCreateRequest:
+      required: ['id']
+      properties:
+        id:
+          type: string
+          format: uuid
+        levelId:
+          type: string
+          format: uuid
+    UserSkill:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+        levels:
+         type: array
+         items:
+          $ref: '#/components/schemas/SkillLevel'
+    SkillSourceType:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: 'challenge'
+        description:
+          type: string
+    SkillLevel:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: 'self-declared'
+        description:
+          type: string      
+    WorkSkill:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          $ref: '#/components/schemas/Category'
+    BadRequestResponse:
+      properties:
+        message:
+          type: string
+    ServerErrorResponse:
+      properties:
+        message:
+          type: string
+    NotFoundErrorResponse:
+      properties:
+        message:
+          type: string
+    ServiceUnavailableErrorResponse:
+      properties:
+        message:
+          type: string
+    ForbiddenErrorResponse:
+      properties:
+        version:
+          type: string
+        result:
+          properties:
+            success:
+              type: boolean
+              default: false
+            status:
+              type: number
+              default: 403
+            content:
+              properties:
+                message:
+                  type: string
