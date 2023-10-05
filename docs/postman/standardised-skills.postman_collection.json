@@ -7,6 +7,83 @@
 	},
 	"item": [
 		{
+			"name": "Prerequisites",
+			"item": [
+				{
+					"name": "Pre request instructions",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"\"1. First need to update the Postman environment with valid values of `client_id` and `client_secret`\",",
+									"\"2. Run the `dev- generate token` test under `Auth Token` folder to properly generate the token\""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Auth Token",
+			"item": [
+				{
+					"name": "dev- generate token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"token\", pm.response.json().access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"client_credentials\",\n    \"client_id\": \"{{client_id}}\",\n    \"client_secret\": \"{{client_secret}}\",\n    \"audience\": \"https://m2m.topcoder-dev.com/\",\n    \"auth0_url\": \"https://topcoder-dev.auth0.com/oauth/token\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://auth0proxy.topcoder-dev.com/token",
+							"protocol": "https",
+							"host": [
+								"auth0proxy",
+								"topcoder-dev",
+								"com"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "all skills",
 			"request": {
 				"auth": {
@@ -68,6 +145,16 @@
 		{
 			"name": "autocomplete skills suggestion",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{token}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
 				"url": {
@@ -109,6 +196,12 @@
 				}
 			},
 			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "token",
+			"value": ""
 		}
 	]
 }

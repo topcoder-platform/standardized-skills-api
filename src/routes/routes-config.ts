@@ -1,5 +1,6 @@
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
 import { RouteDefinition } from '../interfaces';
+import * as config from '../config';
 
 const RouteDefinitions: RouteDefinition[] = [
     {
@@ -13,6 +14,8 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getSkills',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             query: {
                 dto: GetSkillsQueryRequestDto,
@@ -24,6 +27,8 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getAutocompleteSuggestions',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             query: {
                 dto: GetAutocompleteRequestQueryDto,
