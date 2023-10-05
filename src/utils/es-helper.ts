@@ -14,7 +14,15 @@ export function getSkillsESClient() {
     else return new elasticsearch.Client({ node: envConfig.SKILLS_ES.HOST });
 }
 
-export async function bulkCreateSkillsES(skills: { id: string; name: string; createdAt: string; updatedAt: string }[]) {
+export async function bulkCreateSkillsES(
+    skills: {
+        id: string;
+        name: string;
+        category: { id: string; name: string };
+        createdAt: string;
+        updatedAt: string;
+    }[],
+) {
     logger.info(
         `Bulk indexing skills for autocomplete: ${JSON.stringify(skills)} in ES index ${
             config.envConfig.SKILLS_ES.INDEX
@@ -78,6 +86,7 @@ export const autocompleteSkills = async (query: { term: string; size: number }) 
                 return {
                     id: doc._source.doc.id,
                     name: doc._source.doc.name,
+                    category: doc._source.doc.category,
                 };
             });
         logger.info(
