@@ -5,7 +5,7 @@ import type { skill, skillId } from './skill';
 import type { skill_event_type, skill_event_typeId } from './skill_event_type';
 import type { source_type, source_typeId } from './source_type';
 
-export interface skill_eventAttributes {
+export interface skillEventAttributes {
     id: string;
     event_id: string;
     user_id: number;
@@ -19,11 +19,11 @@ export interface skill_eventAttributes {
 export type skill_eventPk = 'id';
 export type skill_eventId = skill_event[skill_eventPk];
 export type skill_eventOptionalAttributes = 'id' | 'created_at';
-export type skill_eventCreationAttributes = Optional<skill_eventAttributes, skill_eventOptionalAttributes>;
+export type skillEventCreationAttributes = Optional<skillEventAttributes, skill_eventOptionalAttributes>;
 
 export class skill_event
-    extends Model<skill_eventAttributes, skill_eventCreationAttributes>
-    implements skill_eventAttributes
+    extends Model<skillEventAttributes, skillEventCreationAttributes>
+    implements skillEventAttributes
 {
     id!: string;
     event_id!: string;

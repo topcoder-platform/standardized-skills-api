@@ -3,7 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill, skillId } from './skill';
 import type { user_skill_level, user_skill_levelId } from './user_skill_level';
 
-export interface user_skillAttributes {
+export interface userSkillAttributes {
     id: string;
     user_id: number;
     skill_id: string;
@@ -15,11 +15,11 @@ export interface user_skillAttributes {
 export type user_skillPk = 'id';
 export type user_skillId = user_skill[user_skillPk];
 export type user_skillOptionalAttributes = 'id' | 'created_at' | 'updated_at';
-export type user_skillCreationAttributes = Optional<user_skillAttributes, user_skillOptionalAttributes>;
+export type userSkillCreationAttributes = Optional<userSkillAttributes, user_skillOptionalAttributes>;
 
 export class user_skill
-    extends Model<user_skillAttributes, user_skillCreationAttributes>
-    implements user_skillAttributes
+    extends Model<userSkillAttributes, userSkillCreationAttributes>
+    implements userSkillAttributes
 {
     id!: string;
     user_id!: number;
