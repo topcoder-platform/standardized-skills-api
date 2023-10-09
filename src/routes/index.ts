@@ -19,7 +19,7 @@ allRoutes.forEach((route) => {
         // add authentication middleware if route requires authentication
         middlewares.push((req: Request, res: Response, next: NextFunction) => {
             authenticator({
-                AUTH_SECRET: envConfig.AUTH_SECRET,
+                AUTH0_SECRET: envConfig.AUTH0_SECRET,
                 VALID_ISSUERS: envConfig.VALID_ISSUERS,
             })(req, res, next);
         });
