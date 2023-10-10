@@ -2,16 +2,14 @@ import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import { FindAndCountOptions } from 'sequelize';
 import _ from 'lodash';
-import { skill } from '../db/models/skill';
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
-import { findAndCountAll } from '../utils/postgres-helper';
-import db from '../db';
+import db, { Skill } from '../db';
 
 const logger = new LoggerClient('SkillsService');
 
 async function getAllSkills(query: GetSkillsQueryRequestDto) {
     const response = {
-        skills: [] as skill[],
+        skills: [] as Skill[],
         page: 1,
         perPage: 0,
         total: 0,
@@ -43,7 +41,7 @@ async function getAllSkills(query: GetSkillsQueryRequestDto) {
     }
 
     try {
-        const skillsAndCount = await findAndCountAll('Skill', pgQuery);
+        const skillsAndCount = await Skill.findAndCountAll(pgQuery);
         if (_.isEmpty(skillsAndCount) || _.isUndefined(skillsAndCount)) {
             return response;
         } else {

@@ -4,6 +4,11 @@ import { envConfig } from '../config';
 
 const sequelize = new Sequelize(envConfig.DB_URL || '', {
     logging: false,
+    define: {
+        // instruct sequelize to use snake case for  "created_at" and "updated_at",
+        // instead of camel case "createdAt" and "updatedAt"
+        underscored: true,
+    },
 });
 
 // Put models here when needed...
@@ -14,3 +19,5 @@ export default {
     sequelize,
     Sequelize,
 };
+
+export * from './models';

@@ -1,10 +1,9 @@
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
-import * as postgres from '../utils/postgres-helper';
 import * as constants from '../config/constants';
 import dayjs from 'dayjs';
 import _ from 'lodash';
-import db from '../db';
+import db, { Skill } from '../db';
 
 const logger = new LoggerClient('load-data-es');
 
@@ -13,7 +12,7 @@ const loadSkillDataInES = async () => {
     let page = 1,
         totalPages = 1;
     do {
-        const skills = await postgres.findAndCountAll('Skill', {
+        const skills = await Skill.findAndCountAll({
             attributes: ['id', 'name'],
             include: {
                 model: db.models.SkillCategory,

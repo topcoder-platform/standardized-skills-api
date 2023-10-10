@@ -1,4 +1,4 @@
-import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
+import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto, SetWorkSkillsRequestBodyDto } from '../dto';
 import { RouteDefinition } from '../interfaces';
 import * as config from '../config';
 
@@ -32,6 +32,19 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             query: {
                 dto: GetAutocompleteRequestQueryDto,
+            },
+        },
+    },
+    {
+        path: '/work-skills',
+        verb: 'post',
+        controller: 'WorkSkillsController',
+        method: 'setWorkSkills',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
+        validation: {
+            body: {
+                dto: SetWorkSkillsRequestBodyDto,
             },
         },
     },

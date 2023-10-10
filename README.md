@@ -3,12 +3,17 @@ This codebase provides CRUD APIs over the PostgreSQL database containing standar
 its associations with members, challenges, jobs and resumes. It also provides a type-ahead
 API for suggestion of probable skills with each input.
 
-## local deployment
+## Local deployment
 - Run the docker compose file under `./local` directory with `docker-compose up -d`
+- Run `npx tsc` to generate the dist script files
 - On success, execute `npm run es-init` to initialize the ES for autocomplete suggestions
-- Connect VPN and set two environment variables `export PORT=3000` and `TC_SKILLS_DATABASE_URL=<AWS DEV DB URL FOR SKILLS>` 
+- Set env variable (using export, or create an `.env` file) for `TC_SKILLS_DATABASE_URL=<AWS DEV DB URL FOR SKILLS>`
+- Connect to VPN
 - Execute `npm run load-data-es` to load all skill data into the created ES index
-- Execute `npx tsc` and `node dist/index.js`
+- Execute `npm run dev`
 
-## verification
+## Verification
 - Run the postman collection under `./docs/postman`
+
+## Secuelize DB model generation
+npm sequelize-auto -h <dev-db-host-for-skills> -d <dev-db-name-for-skills> -u dbadmin -p 5432 --dialect postgres -o \"./src/db/models\" -l ts -t <table_name>
