@@ -11,11 +11,13 @@
     "es-init": "node dist/scripts/init-es.js",
     "es-init-force": "node dist/scripts/init-es.js force",
     "load-data-es": "node dist/scripts/load-data-es.js",
-    "dev": "ts-node-dev --respawn src/index.ts"
+    "dev": "ts-node-dev --respawn src/index.ts",
+    "services:up": "cd ./local && docker-compose up -d"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",
     "@types/body-parser": "^1.19.2",
+    "@types/cls-hooked": "^4.3.6",
     "@types/cors": "^2.8.12",
     "@types/elasticsearch": "^5.0.41",
     "@types/express": "^4.17.13",
@@ -39,6 +41,7 @@
     "@elastic/elasticsearch": "<=7.13",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
+    "cls-hooked": "^4.2.2",
     "cors": "^2.8.5",
     "dayjs": "^1.11.10",
     "dotenv": "^16.0.0",

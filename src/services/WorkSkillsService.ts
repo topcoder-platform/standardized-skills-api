@@ -1,10 +1,13 @@
+import { get } from 'lodash';
 import { UniqueConstraintError } from 'sequelize';
 
 import { SetWorkSkillsRequestBodyDto } from '../dto';
 import db, { Skill, SourceType, WorkSkill } from '../db';
 import { bulkCheckValidIds, checkValidId } from '../utils/postgres-helper';
 import { BadRequestError, ConflictError } from '../utils/errors';
-import { get } from 'lodash';
+import { LoggerClient } from '../utils/LoggerClient';
+
+const logger = new LoggerClient('WorkSkillsService');
 
 /**
  * Create the association for work-skill-skill_source
@@ -30,11 +33,14 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
         try {
             await WorkSkill.bulkCreate(workSkills);
         } catch(error) {
+            logger.error('Unable to save new work skills!');
             if (error instanceof UniqueConstraintError) {
                 const conflictData = get(error, 'parent.detail', '');
                 const [workId, workTypeId, skillId] = (conflictData.match(/=\(([^)]*)\)/)?.[1] || '').split(', ');
                 throw new ConflictError(`WorkSkill with ${JSON.stringify({workId, workTypeId, skillId})} already exists!`);
             }
+
+            throw error;
         }
     });
 }

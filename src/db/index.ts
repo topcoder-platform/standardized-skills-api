@@ -1,6 +1,10 @@
 import { Sequelize } from 'sequelize';
+import { createNamespace } from 'cls-hooked';
 import { initModels } from './models/init-models';
-import { envConfig } from '../config';
+import { SEQUELIZE_CLS_NAMESPACE, envConfig } from '../config';
+
+const namespace = createNamespace(SEQUELIZE_CLS_NAMESPACE);
+Sequelize.useCLS(namespace);
 
 const sequelize = new Sequelize(envConfig.DB_URL || '', {
     logging: false,

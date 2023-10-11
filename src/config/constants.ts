@@ -17,3 +17,5 @@ export const DEFAULT_PER_PAGE = 20;
 export const DEFAULT_PAGE = 1;
 
 export const DEFAULT_SORT_ORDER = 'ASC';
+
+export const SEQUELIZE_CLS_NAMESPACE = 'standardized-skills-api';
