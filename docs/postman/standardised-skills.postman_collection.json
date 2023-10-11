@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "59827b0f-45a1-4ae4-8d22-3f986885e449",
+		"_postman_id": "9edc73aa-1d16-44a4-b0c4-c481b2e4233e",
 		"name": "standardised-skills",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "10740"
+		"_exporter_id": "215943"
 	},
 	"item": [
 		{
@@ -31,6 +31,9 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
 							"raw": ""
 						}
 					},
@@ -76,6 +79,79 @@
 							],
 							"path": [
 								"token"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "WorkSkills",
+			"item": [
+				{
+					"name": "Set Work Skills",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"workId\": \"\",\r\n  \"workTypeId\": \"test\",\r\n  \"skillIds\": [\"\"]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/work-skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"work-skills"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "11",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "name",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"disabled": true
+								},
+								{
+									"key": "skillId",
+									"value": "d18b7aa7-cfe2-46ae-ba63-bc6c3e039d12",
+									"disabled": true
+								},
+								{
+									"key": "skillId",
+									"value": "a54a0041-77d5-4af6-b0e5-bee54b85d0e8",
+									"disabled": true
+								}
 							]
 						}
 					},

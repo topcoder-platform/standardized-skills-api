@@ -55,14 +55,6 @@ export class skill_category
                     type: DataTypes.TEXT,
                     allowNull: true,
                 },
-                createdAt: {
-                    field: 'created_at',
-                    type: Sequelize.DATE,
-                },
-                updatedAt: {
-                    field: 'updated_at',
-                    type: Sequelize.DATE,
-                },
             } as any,
             {
                 sequelize,

@@ -1,7 +1,7 @@
 import express, { NextFunction, Request, Response, RequestHandler } from 'express';
 import allRoutes from './routes-config';
 import { envConfig } from '../config';
-import { ForbiddenError } from '../utils/ApiError';
+import { ForbiddenError } from '../utils/errors';
 import { checkIfExists } from '../utils/helpers';
 // we override the default linting and ts rules to allow the use of tc-core-library-js
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment

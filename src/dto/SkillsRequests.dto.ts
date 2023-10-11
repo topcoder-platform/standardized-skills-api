@@ -22,3 +22,5 @@ export class GetAutocompleteRequestQueryDto {
     @Max(100)
     size = DEFAULT_SUGGESTIONS_SIZE;
 }
+
+

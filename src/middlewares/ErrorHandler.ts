@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
-import { StandardizedSkillApiError } from '../utils/ApiError';
+import { StandardizedSkillApiError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 
 const logger = new LoggerClient('Error Handler');

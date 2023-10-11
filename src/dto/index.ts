@@ -1,2 +1,3 @@
 export * from './BaseRequest.dto';
-export * from './Request.dto';
+export * from './SkillsRequests.dto';
+export * from './SetWorkSkillsRequestBody.dto';

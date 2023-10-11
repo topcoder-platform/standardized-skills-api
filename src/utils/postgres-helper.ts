@@ -1,15 +1,54 @@
-import { get } from 'lodash';
-import db from '../db';
-import { FindAndCountOptions } from 'sequelize';
-import { NotFoundError } from './ApiError';
+import { isNull } from 'lodash';
+import { WhereOptions, Op } from 'sequelize';
+import { Model, ModelCtor } from 'sequelize-typescript';
+
+import { BadRequestError, ConflictError } from './errors';
+import { DbModelsType } from '../db';
 
 /**
- * Generic function to fetch records from a table and count all records
+ * Convert types for fixing typescript types looping
  */
-export const findAndCountAll = async (model: string, opts: FindAndCountOptions = {}) => {
-    const dbmodel = get(db.models, model);
+const getModelCtor = (model: DbModelsType): ModelCtor => (
+    model as unknown as ModelCtor
+);
 
-    if (!dbmodel) throw new NotFoundError(`Model ${model} not found!`);
+/**
+ * Finds the record matching the given search criteria in the database
+ *
+ * @param model
+ * @param where
+ */
+const findByCriteria = async (model: DbModelsType, criteria: WhereOptions): Promise<Model | null> => {
+    return getModelCtor(model).findOne({ where: criteria });
+};
 
-    return dbmodel.findAndCountAll(opts);
+/**
+ * Validates the uniqueness of the model record satisfying the given criteria in the database
+ *
+ * @param model
+ * @param criteria
+ */
+export const checkIsUnique = async (model: DbModelsType, criteria: WhereOptions): Promise<boolean> => {
+    const record = await findByCriteria(model, criteria);
+    return isNull(record);
+};
+
+/**
+ * Check if given id is a valid existing entry
+ * @param model 
+ * @param id 
+ */
+export const checkValidId = async (model: DbModelsType, id: string): Promise<boolean> => {
+    const data = await findByCriteria(model, { id });
+    return !isNull(data);
+};
+
+/**
+ * Check if given ids list are valid existing entries
+ * @param model
+ * @param ids
+ */
+export const bulkCheckValidIds = async (model: DbModelsType, ids: string[]): Promise<boolean> => {
+    const count = await getModelCtor(model).count({where: {id: {[Op.in]: ids}}});
+    return count === ids.length;
 };

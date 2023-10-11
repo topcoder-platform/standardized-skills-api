@@ -1,4 +1,4 @@
-import { BadRequestError } from '../utils/ApiError';
+import { BadRequestError } from '../utils/errors';
 import { plainToInstance } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
