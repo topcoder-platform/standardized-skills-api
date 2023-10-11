@@ -16,28 +16,30 @@ const logger = new LoggerClient('WorkSkillsService');
 export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDto) {
     // start a transaction to make sure we don't make partial updates
     await db.sequelize.transaction(async () => {
-        if (!await bulkCheckValidIds(Skill, workSkillData.skillIds)) {
-            throw new BadRequestError('Some of the passed \'skillIds\' are invalid!');
+        if (!(await bulkCheckValidIds(Skill, workSkillData.skillIds))) {
+            throw new BadRequestError("Some of the passed 'skillIds' are invalid!");
         }
-        
-        if (!await checkValidId(SourceType, workSkillData.workTypeId)) {
+
+        if (!(await checkValidId(SourceType, workSkillData.workTypeId))) {
             throw new BadRequestError(`WorkType with id='${workSkillData.workTypeId}' doesn't exist!`);
         }
-        
+
         const workSkills = workSkillData.skillIds.map((skillId) => ({
             work_id: workSkillData.workId,
             work_type_id: workSkillData.workTypeId,
             skill_id: skillId,
         }));
-    
+
         try {
             await WorkSkill.bulkCreate(workSkills);
-        } catch(error) {
+        } catch (error) {
             logger.error('Unable to save new work skills!');
             if (error instanceof UniqueConstraintError) {
                 const conflictData = get(error, 'parent.detail', '');
                 const [workId, workTypeId, skillId] = (conflictData.match(/=\(([^)]*)\)/)?.[1] || '').split(', ');
-                throw new ConflictError(`WorkSkill with ${JSON.stringify({workId, workTypeId, skillId})} already exists!`);
+                throw new ConflictError(
+                    `WorkSkill with ${JSON.stringify({ workId, workTypeId, skillId })} already exists!`,
+                );
             }
 
             throw error;

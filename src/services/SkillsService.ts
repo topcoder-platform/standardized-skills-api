@@ -24,7 +24,7 @@ async function getAllSkills(query: GetSkillsQueryRequestDto) {
             {
                 model: db.models.SkillCategory,
                 as: 'category',
-            }
+            },
         ],
     };
 

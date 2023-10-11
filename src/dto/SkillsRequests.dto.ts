@@ -5,8 +5,8 @@ import { DEFAULT_SUGGESTIONS_SIZE } from '../config';
 
 export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsOptional()
-    @IsUUID('all',{each:true})
-    @MinLength(1,{each:true})
+    @IsUUID('all', { each: true })
+    @MinLength(1, { each: true })
     skillId: string[];
 }
 
@@ -22,5 +22,3 @@ export class GetAutocompleteRequestQueryDto {
     @Max(100)
     size = DEFAULT_SUGGESTIONS_SIZE;
 }
-
-
