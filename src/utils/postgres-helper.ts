@@ -2,7 +2,6 @@ import { isNull } from 'lodash';
 import { WhereOptions, Op } from 'sequelize';
 import { Model, ModelCtor } from 'sequelize-typescript';
 
-import { BadRequestError, ConflictError } from './errors';
 import { DbModelsType } from '../db';
 
 /**
