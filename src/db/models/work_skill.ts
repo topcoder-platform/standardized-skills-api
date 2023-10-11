@@ -22,54 +22,50 @@ export class work_skill extends Model<workSkillAttributes, workSkillCreationAttr
     skill_id!: string;
     created_at?: Date;
     updated_at?: Date;
-    
-    
+
     static initModel(sequelize: Sequelize.Sequelize): typeof work_skill {
-        return work_skill.init({
-            id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                defaultValue: DataTypes.UUIDV4,
-                primaryKey: true
-            },
-            work_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                unique: 'uniq_work_skill'
-            },
-            work_type_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                unique: 'uniq_work_skill'
-            },
-            skill_id: {
-                type: DataTypes.UUID,
-                allowNull: false,
-                unique: 'uniq_work_skill'
-            }
-        }, {
-            sequelize,
-            tableName: 'work_skill',
-            schema: 'public',
-            timestamps: true,
-            indexes: [
-                {
-                    name: 'uniq_work_skill',
-                    unique: true,
-                    fields: [
-                        { name: 'work_id' },
-                        { name: 'work_type_id' },
-                        { name: 'skill_id' },
-                    ]
+        return work_skill.init(
+            {
+                id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    defaultValue: DataTypes.UUIDV4,
+                    primaryKey: true,
                 },
-                {
-                    name: 'work_skill_pkey',
-                    unique: true,
-                    fields: [
-                        { name: 'id' },
-                    ]
+                work_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    unique: 'uniq_work_skill',
                 },
-            ]
-        });
+                work_type_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    unique: 'uniq_work_skill',
+                },
+                skill_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    unique: 'uniq_work_skill',
+                },
+            },
+            {
+                sequelize,
+                tableName: 'work_skill',
+                schema: 'public',
+                timestamps: true,
+                indexes: [
+                    {
+                        name: 'uniq_work_skill',
+                        unique: true,
+                        fields: [{ name: 'work_id' }, { name: 'work_type_id' }, { name: 'skill_id' }],
+                    },
+                    {
+                        name: 'work_skill_pkey',
+                        unique: true,
+                        fields: [{ name: 'id' }],
+                    },
+                ],
+            },
+        );
     }
 }

@@ -1,6 +1,5 @@
 import { ArrayNotEmpty, IsArray, IsUUID } from 'class-validator';
 
-
 export class SetWorkSkillsRequestBodyDto {
     @IsUUID(4)
     workId: string;
@@ -10,6 +9,6 @@ export class SetWorkSkillsRequestBodyDto {
 
     @IsArray()
     @ArrayNotEmpty()
-    @IsUUID(4, {each: true})
+    @IsUUID(4, { each: true })
     skillIds: string[];
 }

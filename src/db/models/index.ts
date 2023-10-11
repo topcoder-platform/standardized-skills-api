@@ -17,17 +17,6 @@ export type DbModelsType =
     | typeof SourceType
     | typeof UserSkill
     | typeof UserSkillLevel
-    | typeof WorkSkill
-;
+    | typeof WorkSkill;
 
-export {
-    Event,
-    Skill,
-    SkillCategory,
-    SkillEvent,
-    SkillEventType,
-    SourceType,
-    UserSkill,
-    UserSkillLevel,
-    WorkSkill,
-};
+export { Event, Skill, SkillCategory, SkillEvent, SkillEventType, SourceType, UserSkill, UserSkillLevel, WorkSkill };
