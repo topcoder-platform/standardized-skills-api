@@ -73,5 +73,7 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
         if (workTypeDetail.name === 'gig') {
             await esHelper.updateSkillsInJobES(workSkillData.workId, skillsToAssociate);
         }
+
+        logger.info('Successfully associated work skills');
     });
 }
