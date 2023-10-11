@@ -17,7 +17,8 @@ export type skillCategoryCreationAttributes = Optional<skillCategoryAttributes, 
 
 export class skill_category
     extends Model<skillCategoryAttributes, skillCategoryCreationAttributes>
-    implements skillCategoryAttributes {
+    implements skillCategoryAttributes
+{
     id!: string;
     name!: string;
     description?: string;

@@ -13,10 +13,7 @@ export interface userSkillLevelAttributes {
 export type user_skill_levelPk = 'id';
 export type user_skill_levelId = user_skill_level[user_skill_levelPk];
 export type user_skill_levelOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
-export type userSkillLevelCreationAttributes = Optional<
-    userSkillLevelAttributes,
-    user_skill_levelOptionalAttributes
->;
+export type userSkillLevelCreationAttributes = Optional<userSkillLevelAttributes, user_skill_levelOptionalAttributes>;
 
 export class user_skill_level
     extends Model<userSkillLevelAttributes, userSkillLevelCreationAttributes>

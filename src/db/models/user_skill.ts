@@ -17,10 +17,7 @@ export type user_skillId = user_skill[user_skillPk];
 export type user_skillOptionalAttributes = 'id' | 'created_at' | 'updated_at';
 export type userSkillCreationAttributes = Optional<userSkillAttributes, user_skillOptionalAttributes>;
 
-export class user_skill
-    extends Model<userSkillAttributes, userSkillCreationAttributes>
-    implements userSkillAttributes
-{
+export class user_skill extends Model<userSkillAttributes, userSkillCreationAttributes> implements userSkillAttributes {
     id!: string;
     user_id!: number;
     skill_id!: string;

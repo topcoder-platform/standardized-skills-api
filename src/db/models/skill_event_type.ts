@@ -13,10 +13,7 @@ export interface skillEventTypeAttributes {
 export type skill_event_typePk = 'id';
 export type skill_event_typeId = skill_event_type[skill_event_typePk];
 export type skill_event_typeOptionalAttributes = 'id' | 'description' | 'created_at' | 'updated_at';
-export type skillEventTypeCreationAttributes = Optional<
-    skillEventTypeAttributes,
-    skill_event_typeOptionalAttributes
->;
+export type skillEventTypeCreationAttributes = Optional<skillEventTypeAttributes, skill_event_typeOptionalAttributes>;
 
 export class skill_event_type
     extends Model<skillEventTypeAttributes, skillEventTypeCreationAttributes>
