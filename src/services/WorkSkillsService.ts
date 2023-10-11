@@ -1,10 +1,10 @@
-import { get } from 'lodash';
+import { UniqueConstraintError } from 'sequelize';
 
-import { LoggerClient } from '../utils/LoggerClient';
 import { SetWorkSkillsRequestBodyDto } from '../dto';
-import db, { WorkSkill } from '../db';
-
-const logger = new LoggerClient('WorkSkillsService');
+import db, { Skill, SourceType, WorkSkill } from '../db';
+import { bulkCheckValidIds, checkValidId } from '../utils/postgres-helper';
+import { BadRequestError, ConflictError } from '../utils/errors';
+import { get } from 'lodash';
 
 /**
  * Create the association for work-skill-skill_source
@@ -12,22 +12,29 @@ const logger = new LoggerClient('WorkSkillsService');
  */
 export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDto) {
     // start a transaction to make sure we don't make partial updates
-    const tx = await db.sequelize.transaction();
-
-    try {
-        const creationPromises = workSkillData.skillIds.map((skillId) => (
-            WorkSkill.create({
-                work_id: workSkillData.workId,
-                work_type_id: workSkillData.workTypeId,
-                skill_id: skillId,
-            }, {transaction: tx})
-        ));
-
-        await Promise.all(creationPromises);
-        await tx.commit();
-    } catch (error: any) {
-        logger.error(`Unable to assign skills to workId '${workSkillData.workId}': ${get(error, 'message', error || '')}`);
-        await tx.rollback();
-        throw error;
-    }
+    await db.sequelize.transaction(async () => {
+        if (!await bulkCheckValidIds(Skill, workSkillData.skillIds)) {
+            throw new BadRequestError('Some of the passed \'skillIds\' are invalid!');
+        }
+        
+        if (!await checkValidId(SourceType, workSkillData.workTypeId)) {
+            throw new BadRequestError(`WorkType with id='${workSkillData.workTypeId}' doesn't exist!`);
+        }
+        
+        const workSkills = workSkillData.skillIds.map((skillId) => ({
+            work_id: workSkillData.workId,
+            work_type_id: workSkillData.workTypeId,
+            skill_id: skillId,
+        }));
+    
+        try {
+            await WorkSkill.bulkCreate(workSkills);
+        } catch(error) {
+            if (error instanceof UniqueConstraintError) {
+                const conflictData = get(error, 'parent.detail', '');
+                const [workId, workTypeId, skillId] = (conflictData.match(/=\(([^)]*)\)/)?.[1] || '').split(', ');
+                throw new ConflictError(`WorkSkill with ${JSON.stringify({workId, workTypeId, skillId})} already exists!`);
+            }
+        }
+    });
 }

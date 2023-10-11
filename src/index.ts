@@ -1,7 +1,7 @@
 import 'reflect-metadata';
 import express, { Application, Request, Response, NextFunction } from 'express';
 import bodyParser from 'body-parser';
-import { NotFoundError } from './utils/ApiError';
+import { NotFoundError } from './utils/errors';
 import ErrorHandler from './middlewares/ErrorHandler';
 import { envConfig } from './config';
 import routes from './routes';
