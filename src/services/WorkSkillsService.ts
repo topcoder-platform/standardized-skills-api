@@ -17,7 +17,7 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
     // start a transaction to make sure we don't make partial updates
     await db.sequelize.transaction(async () => {
         if (!(await bulkCheckValidIds(Skill, workSkillData.skillIds))) {
-            throw new BadRequestError("Some of the passed 'skillIds' are invalid!");
+            throw new BadRequestError('Some of the passed \'skillIds\' are invalid!');
         }
 
         if (!(await checkValidId(SourceType, workSkillData.workTypeId))) {
