@@ -22,5 +22,17 @@ export const envConfig = {
         DOCUMENT_TYPE: process.env.SKILL_ES_DOCUMENT_TYPE || '_doc',
         REFRESH: process.env.SKILL_ES_REFRESH || false,
     },
+    CHALLENGES_ES: {
+        HOST: process.env.CHALLENGES_ES_HOST || 'http://localhost:9201',
+        CHALLENGES_INDEX: process.env.CHALLENGES_ES_INDEX || 'challenge',
+        CHALLENGES_DOCUMENT_TYPE: process.env.CHALLENGES_ES_DOCUMENT_TYPE || '_doc',
+        REFRESH: process.env.CHALLENGES_ES_REFRESH || false,
+    },
+    JOBS_ES: {
+        HOST: process.env.JOBS_ES_HOST || 'http://localhost:9200',
+        JOB_INDEX: process.env.JOBS_ES_INDEX || 'job',
+        JOB_DOCUMENT_TYPE: process.env.JOBS_ES_DOCUMENT_TYPE || '_doc',
+        REFRESH: process.env.JOBS_ES_REFRESH || false,
+    },
     API_BASE: '/v5/standardized-skills',
 };
