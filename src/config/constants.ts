@@ -19,3 +19,8 @@ export const DEFAULT_PAGE = 1;
 export const DEFAULT_SORT_ORDER = 'ASC';
 
 export const SEQUELIZE_CLS_NAMESPACE = 'standardized-skills-api';
+
+export enum WORK_TYPE {
+    challenge = 'challenge',
+    gig = 'gig',
+}

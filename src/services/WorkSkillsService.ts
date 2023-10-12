@@ -1,11 +1,12 @@
 import { SetWorkSkillsRequestBodyDto } from '../dto';
 import db, { Skill, SkillCategory, SourceType, WorkSkill } from '../db';
 import { bulkCheckValidIds, checkValidId } from '../utils/postgres-helper';
-import { NotFoundError } from '../utils/errors';
+import { BadRequestError, NotFoundError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import _ from 'lodash';
 import { Op } from 'sequelize';
+import * as constants from '../config';
 
 const logger = new LoggerClient('WorkSkillsService');
 
@@ -15,15 +16,24 @@ const logger = new LoggerClient('WorkSkillsService');
  */
 export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDto) {
     logger.info(
-        `Associating skills to work type based on the following data: ${JSON.stringify(SetWorkSkillsRequestBodyDto)}`,
+        `Associating skills to work type based on the following request data: ${JSON.stringify(
+            SetWorkSkillsRequestBodyDto,
+        )}`,
     );
     await db.sequelize.transaction(async () => {
+        // valid worktype id
+        if (!(await checkValidId(SourceType, workSkillData.workTypeId))) {
+            throw new NotFoundError(`WorkType with id='${workSkillData.workTypeId}' does not exist!`);
+        }
+
+        //valid skills ids
         if (!(await bulkCheckValidIds(Skill, workSkillData.skillIds))) {
             throw new NotFoundError('Skill(s) to be associated do not exist!');
         }
 
-        if (!(await checkValidId(SourceType, workSkillData.workTypeId))) {
-            throw new NotFoundError(`WorkType with id='${workSkillData.workTypeId}' doesn't exist!`);
+        // unique skill ids
+        if (workSkillData.skillIds.length !== _.uniq(workSkillData.skillIds).length) {
+            throw new BadRequestError('Dupliacte skills cannot be associated!');
         }
 
         const workTypeDetail = await SourceType.findOne({
@@ -32,18 +42,21 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
             },
         });
 
+        // work type is supported, currently only gig and challenge is supported
         if (
             _.isNull(workTypeDetail) ||
-            (workTypeDetail.name === 'challenge' && _.isEmpty(await esHelper.getChallengeById(workSkillData.workId)))
+            (workTypeDetail.name === constants.WORK_TYPE.challenge &&
+                _.isEmpty(await esHelper.getChallengeById(workSkillData.workId)))
         ) {
-            throw new NotFoundError(`Challenge with id: ${workSkillData.workId} found in ES`);
+            throw new NotFoundError(`Challenge with id: ${workSkillData.workId} does not exist!`);
         }
 
         if (
             _.isNull(workTypeDetail) ||
-            (workTypeDetail.name === 'gig' && _.isEmpty(await esHelper.getJobById(workSkillData.workId)))
+            (workTypeDetail.name === constants.WORK_TYPE.gig &&
+                _.isEmpty(await esHelper.getJobById(workSkillData.workId)))
         ) {
-            throw new NotFoundError(`Job with id: ${workSkillData.workId} found in ES`);
+            throw new NotFoundError(`Job with id: ${workSkillData.workId} does not exist!`);
         }
 
         const workSkills = workSkillData.skillIds.map((skillId) => ({
@@ -67,10 +80,10 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
         });
 
         await WorkSkill.bulkCreate(workSkills);
-        if (workTypeDetail.name === 'challenge') {
+        if (workTypeDetail.name === constants.WORK_TYPE.challenge) {
             await esHelper.updateSkillsInChallengeES(workSkillData.workId, skillsToAssociate);
         }
-        if (workTypeDetail.name === 'gig') {
+        if (workTypeDetail.name === constants.WORK_TYPE.gig) {
             await esHelper.updateSkillsInJobES(workSkillData.workId, skillsToAssociate);
         }
 

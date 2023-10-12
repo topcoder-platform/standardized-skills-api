@@ -36,6 +36,10 @@ export function getJobsESClient() {
     }
 }
 
+/**
+ *
+ * @param {Array<{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}>} skills the skills to index in the skills autocomplete suggester ES
+ */
 export async function bulkCreateSkillsES(
     skills: {
         id: string;
@@ -76,7 +80,15 @@ export async function bulkCreateSkillsES(
     }
 }
 
-export const autocompleteSkills = async (query: { term: string; size: number }) => {
+/**
+ *
+ * @param {{ term: string; size: number }} query the query object to use for autocomplete
+ * @returns {Promise<Array<Record<string, any>>>}
+ */
+export const autocompleteSkills = async (query: {
+    term: string;
+    size: number;
+}): Promise<Array<Record<string, any>>> => {
     logger.info(`Querying ES index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete suggestions of skill`);
     try {
         skillsESClient = getSkillsESClient();
@@ -125,7 +137,12 @@ export const autocompleteSkills = async (query: { term: string; size: number }) 
     }
 };
 
-export const getChallengeById = async (id: string) => {
+/**
+ *
+ * @param {String} id the uuid v4 id of the challenge
+ * @returns {Promise<Record<string, any>>} the challenge object if found or empty object
+ */
+export const getChallengeById = async (id: string): Promise<Record<string, any>> => {
     logger.info(`Fetch challenge with id: ${id} from ES`);
     try {
         challengesESClient = getChallengesESClient();
@@ -143,7 +160,12 @@ export const getChallengeById = async (id: string) => {
     }
 };
 
-export const getJobById = async (id: string) => {
+/**
+ *
+ * @param {String} id the uuid v4 id of the gig
+ * @returns {Promise<Record<string, any>>} the gig object if found or empty object
+ */
+export const getJobById = async (id: string): Promise<Record<string, any>> => {
     logger.info(`Fetch job with id: ${id} from ES`);
     try {
         jobsESClient = getJobsESClient();
@@ -161,6 +183,11 @@ export const getJobById = async (id: string) => {
     }
 };
 
+/**
+ *
+ * @param {String} id the uuid v4 id of the challenge to update
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills the skills to update in the challenge
+ */
 export const updateSkillsInChallengeES = async (
     id: string,
     skills: { id: string; name: string; category: { id: string; name: string } }[],
@@ -181,6 +208,11 @@ export const updateSkillsInChallengeES = async (
     logger.info(`Challenge ${id} successfully updated with skills`);
 };
 
+/**
+ *
+ * @param {String} id the uuid v4 id of the gig to update
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills the skills to update in the gig
+ */
 export const updateSkillsInJobES = async (
     id: string,
     skills: { id: string; name: string; category: { id: string; name: string } }[],
