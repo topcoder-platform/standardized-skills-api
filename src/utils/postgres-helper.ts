@@ -1,8 +1,9 @@
-import { isNull } from 'lodash';
-import { WhereOptions, Op } from 'sequelize';
+import { isEmpty, isNull, isUndefined } from 'lodash';
+import { WhereOptions, Op, FindAndCountOptions } from 'sequelize';
 import { Model, ModelCtor } from 'sequelize-typescript';
 
-import { DbModelsType } from '../db';
+import { DbModelsType, SkillCategory } from '../db';
+import { BasePaginatedSortedRequest } from '../dto';
 
 /**
  * Convert types for fixing typescript types looping
@@ -49,3 +50,44 @@ export const bulkCheckValidIds = async (model: DbModelsType, ids: string[]): Pro
     const count = await getModelCtor(model).count({ where: { id: { [Op.in]: ids } } });
     return count === ids.length;
 };
+
+
+export async function findAndCountPaginated<T>(
+    model: DbModelsType,
+    modelName: string,
+    queryOptions: BasePaginatedSortedRequest,
+    extraQueryOptions?: FindAndCountOptions
+) {
+    const DbModel = getModelCtor(model);
+    const entriesKey = `${modelName}s`;
+
+    const pgQuery: FindAndCountOptions = {
+        limit: queryOptions.perPage,
+        offset: (queryOptions.page - 1) * queryOptions.perPage,
+        ...extraQueryOptions,
+    };
+
+    if (queryOptions.sortBy) {
+        // sorting is optional
+        pgQuery.order = [[queryOptions.sortBy, queryOptions.sortOrder]];
+    }
+
+    const resultsAndCount = await DbModel.findAndCountAll(pgQuery);
+    if (isEmpty(resultsAndCount) || isUndefined(resultsAndCount)) {
+        return {
+            [entriesKey]: [] as T[],
+            page: 1,
+            perPage: 0,
+            total: 0,
+            totalPages: 0,
+        };
+    }
+
+    return {
+        [entriesKey]: resultsAndCount.rows as unknown as T[],
+        page: queryOptions.page,
+        perPage: queryOptions.perPage,
+        total: resultsAndCount.count,
+        totalPages: Math.ceil(resultsAndCount.count / queryOptions.perPage),
+    };
+}
