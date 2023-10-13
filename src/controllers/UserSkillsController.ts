@@ -15,7 +15,6 @@ export default class UserSkillsController {
         next: NextFunction,
     ) {
         try {
-            
             const skills = await UserSkillsService.getUserSkills(req.params.userId as string, req.query);
             setResHeaders(res, skills);
             res.status(200).json(skills.skills);
@@ -28,7 +27,13 @@ export default class UserSkillsController {
      * Create association for the User & provided skills
      */
     async createUserSkills(
-        req: AuthorizedRequest<{ [key: string]: string }, any, any, UpdateUserSkillsRequestBodyDto, Record<string, any>>,
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            any,
+            UpdateUserSkillsRequestBodyDto,
+            Record<string, any>
+        >,
         res: Response,
         next: NextFunction,
     ) {
@@ -44,7 +49,13 @@ export default class UserSkillsController {
      * Create association for the User & provided skills
      */
     async updateUserSkills(
-        req: AuthorizedRequest<{ [key: string]: string }, any, any, UpdateUserSkillsRequestBodyDto, Record<string, any>>,
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            any,
+            UpdateUserSkillsRequestBodyDto,
+            Record<string, any>
+        >,
         res: Response,
         next: NextFunction,
     ) {

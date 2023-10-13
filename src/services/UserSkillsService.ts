@@ -14,34 +14,31 @@ const logger = new LoggerClient('SkillsService');
 
 export async function getUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
     try {
-        const {skills, ...paginationData} = await findAndCountPaginated(
-            Skill,
-            'skill',
-            query,
-            {
-                attributes: ['id', 'name'],
-                include: [
-                    {
-                        model: SkillCategory,
-                        as: 'category',
-                        attributes: ['id', 'name'],
+        const { skills, ...paginationData } = await findAndCountPaginated(Skill, 'skill', query, {
+            attributes: ['id', 'name'],
+            include: [
+                {
+                    model: SkillCategory,
+                    as: 'category',
+                    attributes: ['id', 'name'],
+                },
+                {
+                    model: UserSkill,
+                    as: 'user_skills',
+                    where: {
+                        user_id: userId,
                     },
-                    {
-                        model: UserSkill,
-                        as: 'user_skills',
-                        where: {
-                            user_id: userId
-                        },
-                        include: [{
+                    include: [
+                        {
                             model: UserSkillLevel,
                             as: 'user_skill_level',
-                            attributes: ['id', 'name', 'description']
-                        }],
-                        attributes: ['id'],
-                    }
-                ]
-            }
-        );
+                            attributes: ['id', 'name', 'description'],
+                        },
+                    ],
+                    attributes: ['id'],
+                },
+            ],
+        });
 
         return {
             ...paginationData,
@@ -49,7 +46,7 @@ export async function getUserSkills(userId: string | number, query: GetUserSkill
                 ...skill.dataValues,
                 user_skills: undefined,
                 levels: skill.user_skills.map((uskill) => uskill.user_skill_level),
-            }))
+            })),
         };
     } catch (error) {
         logger.error('Unable to fetch all user\'s skills');
@@ -63,23 +60,28 @@ export async function updateDbUserSkills(
     skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
     // fetch the DB id for the selfDeclared user skill level
-    const selfDeclaredSkillLevel = await UserSkillLevel.findOne({ where: {name: UserSkillLevels.selfDeclared} });
+    const selfDeclaredSkillLevel = await UserSkillLevel.findOne({ where: { name: UserSkillLevels.selfDeclared } });
     if (!selfDeclaredSkillLevel) {
         throw new Error('User self-declared skill not found!');
     }
-    
+
     // ensure that only designated users can mark skills as other than "selfDeclared"
-    if (skillsData.skills.some(skill => skill.levelId && skill.levelId !== selfDeclaredSkillLevel.id)) {
+    if (skillsData.skills.some((skill) => skill.levelId && skill.levelId !== selfDeclaredSkillLevel.id)) {
         ensureUserCanValidateMemberSkills(currentUser);
     }
-    
+
     // ensure passesd skill ids are valid
-    if (!(await bulkCheckValidIds(Skill, skillsData.skills.map(s => s.id)))) {
+    if (
+        !(await bulkCheckValidIds(
+            Skill,
+            skillsData.skills.map((s) => s.id),
+        ))
+    ) {
         throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
     }
-    
+
     // ensure no duplicates
-    if (skillsData.skills.length !== uniqBy(skillsData.skills, skill => skill.id).length) {
+    if (skillsData.skills.length !== uniqBy(skillsData.skills, (skill) => skill.id).length) {
         throw new BadRequestError(`List of skills to be associated with member:${userId} has duplicate values`);
     }
 
@@ -88,10 +90,10 @@ export async function updateDbUserSkills(
         await UserSkill.destroy({
             where: {
                 user_id: userId,
-                skill_id: {[Op.notIn]: map(skillsData.skills, 'id')},
+                skill_id: { [Op.notIn]: map(skillsData.skills, 'id') },
                 // only selfDeclared skills can be removed
                 user_skill_level_id: selfDeclaredSkillLevel.id,
-            }
+            },
         });
 
         const userSkills = skillsData.skills.map((skill) => ({
@@ -100,9 +102,9 @@ export async function updateDbUserSkills(
             user_skill_level_id: skill.levelId ?? selfDeclaredSkillLevel.id,
         }));
 
-        await UserSkill.bulkCreate(userSkills, {ignoreDuplicates: true});
+        await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
-        return getUserSkills(userId, new GetUserSkillsQueryDto);
+        return getUserSkills(userId, new GetUserSkillsQueryDto());
     });
 }
 
@@ -113,7 +115,7 @@ export async function createUserSkills(
 ) {
     await ensureUserCanManageMemberSkills(currentUser, userId);
 
-    const hasUserSkillsAlready = Boolean(await UserSkill.findOne({where: {user_id: userId}}));
+    const hasUserSkillsAlready = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (hasUserSkillsAlready) {
         throw new BadRequestError(`Member:${userId} already has skills associated with it`);
     }
@@ -128,7 +130,7 @@ export async function updateUserSkills(
 ) {
     await ensureUserCanManageMemberSkills(currentUser, userId);
 
-    const hasUserSkillsAssociated = Boolean(await UserSkill.findOne({where: {user_id: userId}}));
+    const hasUserSkillsAssociated = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (!hasUserSkillsAssociated) {
         throw new NotFoundError(`Member:${userId} association does not exist`);
     }

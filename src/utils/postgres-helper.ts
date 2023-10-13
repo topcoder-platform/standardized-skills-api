@@ -2,7 +2,7 @@ import { isEmpty, isNull, isUndefined } from 'lodash';
 import { WhereOptions, Op, FindAndCountOptions } from 'sequelize';
 import { Model, ModelCtor } from 'sequelize-typescript';
 
-import { DbModelsType, SkillCategory } from '../db';
+import { DbModelsType } from '../db';
 import { BasePaginatedSortedRequest } from '../dto';
 
 /**
@@ -51,12 +51,11 @@ export const bulkCheckValidIds = async (model: DbModelsType, ids: string[]): Pro
     return count === ids.length;
 };
 
-
 export async function findAndCountPaginated<T>(
     model: DbModelsType,
     modelName: string,
     queryOptions: BasePaginatedSortedRequest,
-    extraQueryOptions?: FindAndCountOptions
+    extraQueryOptions?: FindAndCountOptions,
 ) {
     const DbModel = getModelCtor(model);
     const entriesKey = `${modelName}s`;
