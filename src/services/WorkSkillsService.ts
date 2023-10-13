@@ -44,21 +44,21 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
 
         // currently only gig and challenge is supported
         if (
-            workTypeDetail!.name !== constants.WORK_TYPE.challenge &&
-            workTypeDetail!.name !== constants.WORK_TYPE.gig
+            _.isNull(workTypeDetail) ||
+            (workTypeDetail.name !== constants.WORK_TYPE.challenge && workTypeDetail.name !== constants.WORK_TYPE.gig)
         ) {
-            throw new BadRequestError(`${workTypeDetail!.name} is currently not supported!`);
+            throw new BadRequestError(`${workTypeDetail?.name ?? 'Work type'} is currently not supported!`);
         }
 
         if (
-            workTypeDetail!.name === constants.WORK_TYPE.challenge &&
+            workTypeDetail.name === constants.WORK_TYPE.challenge &&
             _.isEmpty(await esHelper.getChallengeById(workSkillData.workId))
         ) {
             throw new NotFoundError(`Challenge with id: ${workSkillData.workId} does not exist!`);
         }
 
         if (
-            workTypeDetail!.name === constants.WORK_TYPE.gig &&
+            workTypeDetail.name === constants.WORK_TYPE.gig &&
             _.isEmpty(await esHelper.getJobById(workSkillData.workId))
         ) {
             throw new NotFoundError(`Job with id: ${workSkillData.workId} does not exist!`);
@@ -84,11 +84,20 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
             },
         });
 
+        // remove existing association and create new skills association
+        await WorkSkill.destroy({
+            where: {
+                work_id: workSkillData.workId,
+                work_type_id: workSkillData.workTypeId,
+            },
+        });
         await WorkSkill.bulkCreate(workSkills);
-        if (workTypeDetail!.name === constants.WORK_TYPE.challenge) {
+
+        // update ES indices to reflect the new association
+        if (workTypeDetail.name === constants.WORK_TYPE.challenge) {
             await esHelper.updateSkillsInChallengeES(workSkillData.workId, skillsToAssociate);
         }
-        if (workTypeDetail!.name === constants.WORK_TYPE.gig) {
+        if (workTypeDetail.name === constants.WORK_TYPE.gig) {
             await esHelper.updateSkillsInJobES(workSkillData.workId, skillsToAssociate);
         }
 

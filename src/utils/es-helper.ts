@@ -37,7 +37,7 @@ export function getJobsESClient() {
 }
 
 /**
- *
+ * Indexes skills in the standardized_skills_suggester elasticsearch in bulk
  * @param {Array<{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}>} skills the skills to index in the skills autocomplete suggester ES
  */
 export async function bulkCreateSkillsES(
@@ -81,7 +81,7 @@ export async function bulkCreateSkillsES(
 }
 
 /**
- *
+ * Searches elasticsearch and returns an array of skills that match the query
  * @param {{ term: string; size: number }} query the query object to use for autocomplete
  * @returns {Promise<Array<Record<string, any>>>}
  */
@@ -138,7 +138,7 @@ export const autocompleteSkills = async (query: {
 };
 
 /**
- *
+ * Searches elasticsearch challenge index by the challenge id
  * @param {String} id the uuid v4 id of the challenge
  * @returns {Promise<Record<string, any>>} the challenge object if found or empty object
  */
@@ -161,7 +161,7 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
 };
 
 /**
- *
+ * Searches elasticsearch job index by the job id
  * @param {String} id the uuid v4 id of the gig
  * @returns {Promise<Record<string, any>>} the gig object if found or empty object
  */
@@ -184,7 +184,7 @@ export const getJobById = async (id: string): Promise<Record<string, any>> => {
 };
 
 /**
- *
+ * Updates the elasticsearch challenge document indentified by id with the provided skills
  * @param {String} id the uuid v4 id of the challenge to update
  * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills the skills to update in the challenge
  */
@@ -209,15 +209,15 @@ export const updateSkillsInChallengeES = async (
 };
 
 /**
- *
+ * Updates the elasticsearch job document indentified by id with the provided skills
  * @param {String} id the uuid v4 id of the gig to update
- * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills the skills to update in the gig
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} jobSkills the skills to update in the gig
  */
 export const updateSkillsInJobES = async (
     id: string,
-    skills: { id: string; name: string; category: { id: string; name: string } }[],
+    jobSkills: { id: string; name: string; category: { id: string; name: string } }[],
 ) => {
-    logger.info(`Update skills in challenge ${id} with skills: ${JSON.stringify(skills)}`);
+    logger.info(`Update skills in challenge ${id} with skills: ${JSON.stringify(jobSkills)}`);
 
     jobsESClient = getJobsESClient();
     await jobsESClient.update({
@@ -226,7 +226,7 @@ export const updateSkillsInJobES = async (
         id,
         body: {
             doc: {
-                skills,
+                jobSkills,
             },
         },
     });

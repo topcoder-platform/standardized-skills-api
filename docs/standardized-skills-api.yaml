@@ -113,7 +113,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
-  
   /categories:
     get:
       operationId: searchSkillCategories
@@ -288,7 +287,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundErrorResponse'
-
   /user-skills:
     post:
       operationId: 'createUserSkills'
@@ -445,7 +443,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
-  
   /skill-source-types:
     get:
       operationId: listSkillSourceTypes
