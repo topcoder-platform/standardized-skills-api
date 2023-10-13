@@ -11,8 +11,8 @@ export class StandardizedSkillApiError extends Error {
 }
 
 export class NotFoundError extends StandardizedSkillApiError {
-    constructor(path: string) {
-        super(StatusCodes.NOT_FOUND, `The requested path ${path} not found!`);
+    constructor(message: string) {
+        super(StatusCodes.NOT_FOUND, message);
     }
 }
 

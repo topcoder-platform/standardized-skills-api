@@ -1,6 +1,13 @@
-import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto, SetWorkSkillsRequestBodyDto } from '../dto';
-import { RouteDefinition } from '../interfaces';
 import * as config from '../config';
+import { RouteDefinition } from '../interfaces';
+import {
+    GetAutocompleteRequestQueryDto,
+    GetSkillsQueryRequestDto,
+    GetUserSkillsQueryDto,
+    UpdateUserSkillsRequestBodyDto,
+    SetWorkSkillsRequestBodyDto,
+    UserIdParamDto,
+} from '../dto';
 
 const RouteDefinitions: RouteDefinition[] = [
     {
@@ -32,6 +39,62 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             query: {
                 dto: GetAutocompleteRequestQueryDto,
+            },
+        },
+    },
+    {
+        path: '/user-skills/:userId',
+        verb: 'get',
+        controller: 'UserSkillsController',
+        method: 'getUserSkills',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        validation: {
+            params: {
+                dto: UserIdParamDto,
+            },
+            query: {
+                dto: GetUserSkillsQueryDto,
+            },
+        },
+    },
+    {
+        path: '/user-skills/:userId',
+        verb: 'post',
+        controller: 'UserSkillsController',
+        method: 'createUserSkills',
+        auth: true,
+        access: [
+            config.UserRoles.Admin,
+            config.UserRoles.User,
+        ],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
+        validation: {
+            params: {
+                dto: UserIdParamDto,
+            },
+            body: {
+                dto: UpdateUserSkillsRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/user-skills/:userId',
+        verb: 'put',
+        controller: 'UserSkillsController',
+        method: 'updateUserSkills',
+        auth: true,
+        access: [
+            config.UserRoles.Admin,
+            config.UserRoles.User,
+        ],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
+        validation: {
+            params: {
+                dto: UserIdParamDto,
+            },
+            body: {
+                dto: UpdateUserSkillsRequestBodyDto,
             },
         },
     },

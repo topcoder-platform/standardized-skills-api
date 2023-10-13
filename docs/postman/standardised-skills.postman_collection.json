@@ -128,6 +128,135 @@
 			]
 		},
 		{
+			"name": "UserSkills",
+			"item": [
+				{
+					"name": "get all user skills",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user-skills/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user-skills",
+								"{{userId}}"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "11",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "name",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update user skills",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"skills\": [\r\n    {\r\n      \"id\": \"01591f01-8a29-4aa8-9f53-0b2409a5b761\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    },\r\n    {\r\n      \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user-skills/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user-skills",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create user skills",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"skills\": [\r\n    {\r\n      \"id\": \"00038ad8-9bd1-47b4-8477-256e214a9f82\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    },\r\n    {\r\n      \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user-skills/{{userId}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user-skills",
+								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "all skills",
 			"request": {
 				"auth": {

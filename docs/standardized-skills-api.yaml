@@ -287,42 +287,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NotFoundErrorResponse'
-  /user-skills:
-    post:
-      operationId: 'createUserSkills'
-      tags: ['Standardized Skills API']
-      description: 'Creates an association between a user and the skills supplied in the request body <br> Each skill is identified by its unique id, the skill level represents how the user got the skill: `self-declared` or `verified` <br> The user to skill association will be created only if it does not already exist.'
-      requestBody:
-        description: 'Associates the specified skills with the user identified by the given user id'
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: ['userId', 'skills']
-              properties:
-                userId:
-                  type: integer
-                  example: 22923552
-                skills:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/UserSkillCreateRequest'
-      responses:
-        '201':
-          description: 'Created'
-        '400':
-          description: 'Bad Request Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '500':
-          description: 'Server Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServerErrorResponse'
   /user-skills/{userId}:
     get:
       operationId: getAllUserSkills
@@ -354,6 +318,51 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserSkill'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+    post:
+      operationId: 'createUserSkills'
+      tags: ['Standardized Skills API']
+      description: 'Creates an association between a user and the skills supplied in the request body <br> Each skill is identified by its unique id, the skill level represents how the user got the skill: `self-declared` or `verified` <br> The user to skill association will be created only if it does not already exist.'
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+          description: 'The id of the member whose skill associations are to be updated'
+      requestBody:
+        description: 'Associates the specified skills with the user identified by the given user id'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['skills']
+              properties:
+                skills:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserSkillCreateRequest'
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '500':
           description: 'Server Error'
           content:
@@ -393,6 +402,12 @@ paths:
       responses:
         '200':
           description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSkill'
         '404':
           description: 'Not Found Error'
           content:
