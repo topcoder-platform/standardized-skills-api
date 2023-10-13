@@ -20,6 +20,17 @@ install_deploy_scripts: &install_deploy_scripts
     cp ../buildscript/awsconfiguration.sh .
     cp ../buildscript/psvar-processor.sh .
 
+running_linter: &running_linter
+    name: Running linter
+    command: |
+        npm install -g eslint
+        npm run lint
+
+lint_steps: &lint_steps # Initialization.
+    - checkout
+    - setup_remote_docker
+    - run: *running_linter
+
 build_and_deploy_steps: &build_and_deploy_steps
   - checkout
   - setup_remote_docker
@@ -39,7 +50,15 @@ build_and_deploy_steps: &build_and_deploy_steps
         ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -j /config/standardized-skills-api/appvar -i ${APPNAME}
 
 jobs:
-  "build-dev":
+  lint-dev:
+      <<: *defaults
+      environment:
+          DEPLOY_ENV: "DEV"
+          LOGICAL_ENV: "dev"
+          APPNAME: "standardized-skills-api"
+      steps: *lint_steps
+
+  build-dev:
     <<: *defaults
     environment:
       DEPLOY_ENV: "DEV"
@@ -47,7 +66,7 @@ jobs:
       APPNAME: "standardized-skills-api"
     steps: *build_and_deploy_steps
 
-  "build-prod":
+  build-prod:
     <<: *defaults
     environment:
       DEPLOY_ENV: "PROD"
@@ -59,6 +78,12 @@ workflows:
   version: 2
   build:
     jobs:
+      - lint-dev:
+          context: org-global
+          filters:
+            branches:
+              ignore:
+                - master
       - "build-dev":
           context: org-global
           filters:
