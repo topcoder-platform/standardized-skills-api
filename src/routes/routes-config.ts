@@ -3,11 +3,10 @@ import { RouteDefinition } from '../interfaces';
 import {
     GetAutocompleteRequestQueryDto,
     GetSkillsQueryRequestDto,
-    GetUserSkillsRequestQueryDto,
+    GetUserSkillsQueryDto,
     UpdateUserSkillsRequestBodyDto,
     SetWorkSkillsRequestBodyDto,
     UserIdParamDto,
-    RemoveUserSkillsRequestBodyDto,
 } from '../dto';
 
 const RouteDefinitions: RouteDefinition[] = [
@@ -55,15 +54,15 @@ const RouteDefinitions: RouteDefinition[] = [
                 dto: UserIdParamDto,
             },
             query: {
-                dto: GetUserSkillsRequestQueryDto,
+                dto: GetUserSkillsQueryDto,
             },
         },
     },
     {
         path: '/user-skills/:userId',
-        verb: 'put',
+        verb: 'post',
         controller: 'UserSkillsController',
-        method: 'updateUserSkills',
+        method: 'createUserSkills',
         auth: true,
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
         validation: {
@@ -77,17 +76,17 @@ const RouteDefinitions: RouteDefinition[] = [
     },
     {
         path: '/user-skills/:userId',
-        verb: 'delete',
+        verb: 'put',
         controller: 'UserSkillsController',
-        method: 'removeUserSkills',
+        method: 'updateUserSkills',
         auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.DELETE],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         validation: {
             params: {
                 dto: UserIdParamDto,
             },
             body: {
-                dto: RemoveUserSkillsRequestBodyDto,
+                dto: UpdateUserSkillsRequestBodyDto,
             },
         },
     },

@@ -1,16 +1,18 @@
 import { Op } from 'sequelize';
+import { map, uniqBy } from 'lodash';
+
 import { UserSkillLevels } from '../config';
 import db, { Skill, SkillCategory, UserSkill, UserSkillLevel } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
-import { GetUserSkillsRequestQueryDto, RemoveUserSkillsRequestBodyDto, UpdateUserSkillsRequestBodyDto } from '../dto';
+import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-helper';
-import { BadRequestError } from '../utils/errors';
+import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserCanValidateMemberSkills } from '../utils/helpers';
 
 const logger = new LoggerClient('SkillsService');
 
-export async function getUserSkills(userId: string, query: GetUserSkillsRequestQueryDto) {
+export async function getUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
     try {
         const {skills, ...paginationData} = await findAndCountPaginated(
             Skill,
@@ -55,13 +57,11 @@ export async function getUserSkills(userId: string, query: GetUserSkillsRequestQ
     }
 }
 
-export async function updateUserSkills(
+export async function updateDbUserSkills(
     currentUser: AuthUser,
     userId: number,
     skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
-    await ensureUserCanManageMemberSkills(currentUser, userId);
-
     // fetch the DB id for the selfDeclared user skill level
     const selfDeclaredSkillLevel = await UserSkillLevel.findOne({ where: {name: UserSkillLevels.selfDeclared} });
     if (!selfDeclaredSkillLevel) {
@@ -77,8 +77,23 @@ export async function updateUserSkills(
     if (!(await bulkCheckValidIds(Skill, skillsData.skills.map(s => s.id)))) {
         throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
     }
+    
+    // ensure no duplicates
+    if (skillsData.skills.length !== uniqBy(skillsData.skills, skill => skill.id).length) {
+        throw new BadRequestError(`List of skills to be associated with member:${userId} has duplicate values`);
+    }
 
-    await db.sequelize.transaction(async () => {
+    return db.sequelize.transaction(async () => {
+        // remove all previously owned selfDeclared skills
+        await UserSkill.destroy({
+            where: {
+                user_id: userId,
+                skill_id: {[Op.notIn]: map(skillsData.skills, 'id')},
+                // only selfDeclared skills can be removed
+                user_skill_level_id: selfDeclaredSkillLevel.id,
+            }
+        });
+
         const userSkills = skillsData.skills.map((skill) => ({
             user_id: userId,
             skill_id: skill.id,
@@ -86,30 +101,37 @@ export async function updateUserSkills(
         }));
 
         await UserSkill.bulkCreate(userSkills, {ignoreDuplicates: true});
+
+        return getUserSkills(userId, new GetUserSkillsQueryDto);
     });
 }
 
-export async function removeUserSkills(
+export async function createUserSkills(
     currentUser: AuthUser,
     userId: number,
-    skillsData: RemoveUserSkillsRequestBodyDto,
+    skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
     await ensureUserCanManageMemberSkills(currentUser, userId);
 
-    // fetch the DB id for the selfDeclared user skill level
-    const selfDeclaredSkillLevel = await UserSkillLevel.findOne({ where: {name: UserSkillLevels.selfDeclared} });
-    if (!selfDeclaredSkillLevel) {
-        throw new Error('User self-declared skill not found!');
+    const hasUserSkillsAlready = Boolean(await UserSkill.findOne({where: {user_id: userId}}));
+    if (hasUserSkillsAlready) {
+        throw new BadRequestError(`Member:${userId} already has skills associated with it`);
     }
 
-    await db.sequelize.transaction(async () => {
-        await UserSkill.destroy({
-            where: {
-                user_id: userId,
-                skill_id: {[Op.in]: skillsData.skillIds},
-                // only selfDeclared skills can be removed
-                user_skill_level_id: selfDeclaredSkillLevel.id,
-            }
-        });
-    });
+    return updateDbUserSkills(currentUser, userId, skillsData);
+}
+
+export async function updateUserSkills(
+    currentUser: AuthUser,
+    userId: number,
+    skillsData: UpdateUserSkillsRequestBodyDto,
+) {
+    await ensureUserCanManageMemberSkills(currentUser, userId);
+
+    const hasUserSkillsAssociated = Boolean(await UserSkill.findOne({where: {user_id: userId}}));
+    if (!hasUserSkillsAssociated) {
+        throw new NotFoundError(`Member:${userId} association does not exist`);
+    }
+
+    return updateDbUserSkills(currentUser, userId, skillsData);
 }

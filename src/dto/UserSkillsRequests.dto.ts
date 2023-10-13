@@ -1,7 +1,7 @@
-import { ArrayNotEmpty, IsArray, IsNumber, IsNumberString, IsOptional, IsUUID } from 'class-validator';
+import { IsArray, IsNumberString, IsOptional, IsUUID } from 'class-validator';
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 
-export class GetUserSkillsRequestQueryDto extends BasePaginatedSortedRequest {
+export class GetUserSkillsQueryDto extends BasePaginatedSortedRequest {
 }
 
 
@@ -21,13 +21,6 @@ export class UserIdParamDto {
 
 export class UpdateUserSkillsRequestBodyDto extends BasePaginatedSortedRequest {
     @IsArray()
-    @ArrayNotEmpty()
     skills: UserSkillSkillRequestDto[];
 }
 
-export class RemoveUserSkillsRequestBodyDto extends BasePaginatedSortedRequest {
-    @IsArray()
-    @ArrayNotEmpty()
-    @IsUUID('all', { each: true })
-    skillIds: string[];
-}
