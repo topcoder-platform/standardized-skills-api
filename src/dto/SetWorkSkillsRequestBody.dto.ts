@@ -1,4 +1,4 @@
-import { ArrayNotEmpty, IsArray, IsUUID } from 'class-validator';
+import { ArrayNotEmpty, IsArray, IsUUID, ArrayUnique } from 'class-validator';
 
 export class SetWorkSkillsRequestBodyDto {
     @IsUUID(4)
@@ -9,6 +9,7 @@ export class SetWorkSkillsRequestBodyDto {
 
     @IsArray()
     @ArrayNotEmpty()
+    @ArrayUnique()
     @IsUUID(4, { each: true })
     skillIds: string[];
 }
