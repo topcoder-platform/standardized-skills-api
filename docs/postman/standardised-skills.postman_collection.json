@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "9edc73aa-1d16-44a4-b0c4-c481b2e4233e",
+		"_postman_id": "4d0c9d6a-ee8d-4483-878b-9847fef93a20",
 		"name": "standardised-skills",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "215943"
+		"_exporter_id": "30186453"
 	},
 	"item": [
 		{
@@ -106,7 +106,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"workId\": \"\",\r\n  \"workTypeId\": \"test\",\r\n  \"skillIds\": [\"\"]\r\n}",
+							"raw": "{\r\n    \"workId\": \"fed687e1-4257-48bb-806c-38712f9bf14f\",\r\n    \"workTypeId\": \"413340e8-f56f-4061-8796-c916dfa82770\",\r\n    \"skillIds\": [\r\n        \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\r\n        \"0087514d-5ebc-4720-a635-17f0b5399692\"\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -120,38 +120,6 @@
 							],
 							"path": [
 								"work-skills"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "11",
-									"disabled": true
-								},
-								{
-									"key": "perPage",
-									"value": "50",
-									"disabled": true
-								},
-								{
-									"key": "sortBy",
-									"value": "name",
-									"disabled": true
-								},
-								{
-									"key": "sortOrder",
-									"value": "DESC",
-									"disabled": true
-								},
-								{
-									"key": "skillId",
-									"value": "d18b7aa7-cfe2-46ae-ba63-bc6c3e039d12",
-									"disabled": true
-								},
-								{
-									"key": "skillId",
-									"value": "a54a0041-77d5-4af6-b0e5-bee54b85d0e8",
-									"disabled": true
-								}
 							]
 						}
 					},
@@ -175,7 +143,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{base_url}}/skills",
+					"raw": "{{base_url}}/skills?page=1&perPage=50&sortBy=name&sortOrder=DESC",
 					"host": [
 						"{{base_url}}"
 					],
@@ -185,23 +153,19 @@
 					"query": [
 						{
 							"key": "page",
-							"value": "11",
-							"disabled": true
+							"value": "1"
 						},
 						{
 							"key": "perPage",
-							"value": "50",
-							"disabled": true
+							"value": "50"
 						},
 						{
 							"key": "sortBy",
-							"value": "name",
-							"disabled": true
+							"value": "name"
 						},
 						{
 							"key": "sortOrder",
-							"value": "DESC",
-							"disabled": true
+							"value": "DESC"
 						},
 						{
 							"key": "skillId",
