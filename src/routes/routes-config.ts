@@ -64,6 +64,10 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'UserSkillsController',
         method: 'createUserSkills',
         auth: true,
+        access: [
+            config.UserRoles.Admin,
+            config.UserRoles.User,
+        ],
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
         validation: {
             params: {
@@ -80,6 +84,10 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'UserSkillsController',
         method: 'updateUserSkills',
         auth: true,
+        access: [
+            config.UserRoles.Admin,
+            config.UserRoles.User,
+        ],
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         validation: {
             params: {

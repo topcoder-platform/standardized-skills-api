@@ -10,7 +10,7 @@ import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserCanValidateMemberSkills } from '../utils/helpers';
 
-const logger = new LoggerClient('SkillsService');
+const logger = new LoggerClient('UserSkillsService');
 
 export async function getUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
     try {
@@ -104,6 +104,7 @@ export async function updateDbUserSkills(
 
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
+        logger.info('Successfully associated user skills');
         return getUserSkills(userId, new GetUserSkillsQueryDto());
     });
 }
@@ -113,7 +114,13 @@ export async function createUserSkills(
     userId: number,
     skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
-    await ensureUserCanManageMemberSkills(currentUser, userId);
+    logger.info(
+        `Creating association for user skills based on the following request data: ${JSON.stringify(
+            {userId, ...UpdateUserSkillsRequestBodyDto},
+        )}`,
+    );
+
+    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const hasUserSkillsAlready = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (hasUserSkillsAlready) {
@@ -128,7 +135,13 @@ export async function updateUserSkills(
     userId: number,
     skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
-    await ensureUserCanManageMemberSkills(currentUser, userId);
+    logger.info(
+        `Updating association for user skills based on the following request data: ${JSON.stringify(
+            {userId, ...UpdateUserSkillsRequestBodyDto},
+        )}`,
+    );
+
+    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const hasUserSkillsAssociated = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (!hasUserSkillsAssociated) {
