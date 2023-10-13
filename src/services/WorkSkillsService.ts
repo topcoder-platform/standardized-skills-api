@@ -31,11 +31,6 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
             throw new NotFoundError('Skill(s) to be associated do not exist!');
         }
 
-        // unique skill ids
-        if (workSkillData.skillIds.length !== _.uniq(workSkillData.skillIds).length) {
-            throw new BadRequestError('Duplicate skills cannot be associated!');
-        }
-
         const workTypeDetail = await SourceType.findOne({
             where: {
                 id: workSkillData.workTypeId,
