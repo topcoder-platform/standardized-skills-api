@@ -1,4 +1,5 @@
-import elasticsearch from '@elastic/elasticsearch';
+import elasticsearch7 from 'elasticsearch7';
+import elasticsearch6 from 'elasticsearch6';
 import { envConfig } from '../config';
 import _ from 'lodash';
 import * as config from '../config';
@@ -6,14 +7,39 @@ import * as helper from '../utils/helpers';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as constants from '../config/constants';
 
-let skillsESClient: elasticsearch.Client;
+let skillsESClient: elasticsearch7.Client;
+let jobsESClient: elasticsearch7.Client;
+let challengesESClient: elasticsearch6.Client;
 const logger = new LoggerClient('es-helper');
 
 export function getSkillsESClient() {
     if (skillsESClient) return skillsESClient;
-    else return new elasticsearch.Client({ node: envConfig.SKILLS_ES.HOST });
+    else {
+        skillsESClient = new elasticsearch7.Client({ node: envConfig.SKILLS_ES.HOST });
+        return skillsESClient;
+    }
 }
 
+export function getChallengesESClient() {
+    if (challengesESClient) return challengesESClient;
+    else {
+        challengesESClient = new elasticsearch6.Client({ node: envConfig.CHALLENGES_ES.HOST });
+        return challengesESClient;
+    }
+}
+
+export function getJobsESClient() {
+    if (jobsESClient) return jobsESClient;
+    else {
+        jobsESClient = new elasticsearch7.Client({ node: envConfig.JOBS_ES.HOST });
+        return jobsESClient;
+    }
+}
+
+/**
+ * Indexes skills in the standardized_skills_suggester elasticsearch in bulk
+ * @param {Array<{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}>} skills the skills to index in the skills autocomplete suggester ES
+ */
 export async function bulkCreateSkillsES(
     skills: {
         id: string;
@@ -54,7 +80,15 @@ export async function bulkCreateSkillsES(
     }
 }
 
-export const autocompleteSkills = async (query: { term: string; size: number }) => {
+/**
+ * Searches elasticsearch and returns an array of skills that match the query
+ * @param {{ term: string; size: number }} query the query object to use for autocomplete
+ * @returns {Promise<Array<Record<string, any>>>}
+ */
+export const autocompleteSkills = async (query: {
+    term: string;
+    size: number;
+}): Promise<Array<Record<string, any>>> => {
     logger.info(`Querying ES index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete suggestions of skill`);
     try {
         skillsESClient = getSkillsESClient();
@@ -101,4 +135,100 @@ export const autocompleteSkills = async (query: { term: string; size: number }) 
         );
         throw error;
     }
+};
+
+/**
+ * Searches elasticsearch challenge index by the challenge id
+ * @param {String} id the uuid v4 id of the challenge
+ * @returns {Promise<Record<string, any>>} the challenge object if found or empty object
+ */
+export const getChallengeById = async (id: string): Promise<Record<string, any>> => {
+    logger.info(`Fetch challenge with id: ${id} from ES`);
+    try {
+        challengesESClient = getChallengesESClient();
+        const challenge: Record<string, any> = challengesESClient.get({
+            id,
+            index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
+            type: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
+            refresh: envConfig.CHALLENGES_ES.REFRESH as boolean,
+        });
+        logger.info(`Challenge with id: ${id} found in ES`);
+        return challenge.body._source;
+    } catch (error) {
+        logger.error(`Unable to fetch challenge with id: ${id} from ES`);
+        return {};
+    }
+};
+
+/**
+ * Searches elasticsearch job index by the job id
+ * @param {String} id the uuid v4 id of the gig
+ * @returns {Promise<Record<string, any>>} the gig object if found or empty object
+ */
+export const getJobById = async (id: string): Promise<Record<string, any>> => {
+    logger.info(`Fetch job with id: ${id} from ES`);
+    try {
+        jobsESClient = getJobsESClient();
+        const job: Record<string, any> = jobsESClient.get({
+            id,
+            index: envConfig.JOBS_ES.JOB_INDEX,
+            type: envConfig.JOBS_ES.JOB_DOCUMENT_TYPE,
+            refresh: envConfig.JOBS_ES.REFRESH as boolean,
+        });
+        logger.info(`Job with id: ${id} found in ES`);
+        return job.body._source;
+    } catch (error) {
+        logger.error(`Unable to fetch job with id: ${id} from ES`);
+        return {};
+    }
+};
+
+/**
+ * Updates the elasticsearch challenge document indentified by id with the provided skills
+ * @param {String} id the uuid v4 id of the challenge to update
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills the skills to update in the challenge
+ */
+export const updateSkillsInChallengeES = async (
+    id: string,
+    skills: { id: string; name: string; category: { id: string; name: string } }[],
+) => {
+    logger.info(`Update skills in challenge ${id} with skills: ${JSON.stringify(skills)}`);
+
+    challengesESClient = getChallengesESClient();
+    await challengesESClient.update({
+        index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
+        type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
+        id,
+        body: {
+            doc: {
+                skills,
+            },
+        },
+    });
+    logger.info(`Challenge ${id} successfully updated with skills`);
+};
+
+/**
+ * Updates the elasticsearch job document indentified by id with the provided skills
+ * @param {String} id the uuid v4 id of the gig to update
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} jobSkills the skills to update in the gig
+ */
+export const updateSkillsInJobES = async (
+    id: string,
+    jobSkills: { id: string; name: string; category: { id: string; name: string } }[],
+) => {
+    logger.info(`Update skills in challenge ${id} with skills: ${JSON.stringify(jobSkills)}`);
+
+    jobsESClient = getJobsESClient();
+    await jobsESClient.update({
+        index: envConfig.JOBS_ES.JOB_INDEX,
+        type: envConfig.JOBS_ES.JOB_DOCUMENT_TYPE,
+        id,
+        body: {
+            doc: {
+                jobSkills,
+            },
+        },
+    });
+    logger.info(`Job ${id} successfully updated with skills`);
 };

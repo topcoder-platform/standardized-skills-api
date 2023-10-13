@@ -24,3 +24,8 @@ export enum UserSkillLevels {
     selfDeclared = 'self-declared',
     verified = 'verified',
 }
+
+export enum WORK_TYPE {
+    challenge = 'challenge',
+    gig = 'gig',
+}
