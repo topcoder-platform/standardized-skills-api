@@ -16,3 +16,10 @@ services:
         - "discovery.type=single-node"
       ports:
         - "9200:9200"
+  elasticsearch6:
+    container_name: elasticsearch6
+    image: "docker.elastic.co/elasticsearch/elasticsearch:6.8.0"
+    ports:
+      - "9201:9200"
+    environment:
+      - "discovery.type=single-node"      
