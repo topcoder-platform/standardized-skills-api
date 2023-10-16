@@ -34,5 +34,11 @@ export const envConfig = {
         JOB_DOCUMENT_TYPE: process.env.JOBS_ES_DOCUMENT_TYPE || '_doc',
         REFRESH: process.env.JOBS_ES_REFRESH || false,
     },
+    MEMBERS_ES: {
+        HOST: process.env.MEMBERS_ES_HOST || 'http://localhost:9201',
+        MEMBERS_INDEX: process.env.MEMBERS_ES_INDEX || 'members-2020-01',
+        MEMBERS_DOCUMENT_TYPE: process.env.MEMBERS_ES_DOCUMENT_TYPE || 'profiles',
+        REFRESH: process.env.MEMBERS_ES_REFRESH || false,
+    },
     API_BASE: '/v5/standardized-skills',
 };
