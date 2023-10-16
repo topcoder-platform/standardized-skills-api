@@ -55,18 +55,20 @@ export async function findAndCountPaginated<T>(
     model: DbModelsType,
     modelName: string,
     queryOptions: BasePaginatedSortedRequest,
-    extraQueryOptions?: FindAndCountOptions
+    extraQueryOptions?: FindAndCountOptions,
 ) {
     const DbModel = getModelCtor(model);
     const entriesKey = `${modelName}s`;
 
     const isPaginationDisabled = `${queryOptions.disablePagination}` === 'true';
-    
-    const pgQuery: FindAndCountOptions = isPaginationDisabled ? {...extraQueryOptions} : {
-        limit: queryOptions.perPage,
-        offset: (queryOptions.page - 1) * queryOptions.perPage,
-        ...extraQueryOptions,
-    };
+
+    const pgQuery: FindAndCountOptions = isPaginationDisabled
+        ? { ...extraQueryOptions }
+        : {
+              limit: queryOptions.perPage,
+              offset: (queryOptions.page - 1) * queryOptions.perPage,
+              ...extraQueryOptions,
+          };
 
     if (queryOptions.sortBy) {
         // sorting is optional
@@ -87,12 +89,14 @@ export async function findAndCountPaginated<T>(
     const results = {
         [entriesKey]: resultsAndCount.rows as unknown as T[],
     };
-    
-    return isPaginationDisabled ? results : {
-        ...results,
-        page: queryOptions.page,
-        perPage: queryOptions.perPage,
-        total: resultsAndCount.count,
-        totalPages: Math.ceil(resultsAndCount.count / queryOptions.perPage),
-    };
+
+    return isPaginationDisabled
+        ? results
+        : {
+              ...results,
+              page: queryOptions.page,
+              perPage: queryOptions.perPage,
+              total: resultsAndCount.count,
+              totalPages: Math.ceil(resultsAndCount.count / queryOptions.perPage),
+          };
 }

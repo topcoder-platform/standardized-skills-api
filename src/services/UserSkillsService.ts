@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { map, uniqBy } from 'lodash';
+import { uniqBy, map, toString, isEmpty } from 'lodash';
 
 import { UserSkillLevels } from '../config';
 import db, { Skill, SkillCategory, UserSkill, UserSkillLevel } from '../db';
@@ -9,6 +9,7 @@ import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-help
 import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserCanValidateMemberSkills } from '../utils/helpers';
+import * as esHelper from '../utils/es-helper';
 
 const logger = new LoggerClient('UserSkillsService');
 
@@ -40,13 +41,35 @@ export async function getUserSkills(userId: string | number, query: GetUserSkill
             ],
         });
 
+        const allSkills: {
+            id: string;
+            name: string;
+            category: { id: string; name: string };
+            levels: { id: string; name: string; description: string }[];
+        }[] = [];
+        for (const skill of skills as Skill[]) {
+            const levels: { id: string; name: string; description: string }[] = [];
+            for (const uskill of skill.user_skills) {
+                levels.push({
+                    id: uskill.user_skill_level.id,
+                    name: uskill.user_skill_level.name,
+                    description: uskill.user_skill_level.description ?? '',
+                });
+            }
+            allSkills.push({
+                id: skill.id,
+                name: skill.name,
+                category: {
+                    id: skill.category.id,
+                    name: skill.category.name,
+                },
+                levels,
+            });
+        }
+
         return {
             ...paginationData,
-            skills: (skills as Skill[]).map((skill) => ({
-                ...skill.dataValues,
-                user_skills: undefined,
-                levels: skill.user_skills.map((uskill) => uskill.user_skill_level),
-            })),
+            skills: allSkills,
         };
     } catch (error) {
         logger.error('Unable to fetch all user\'s skills');
@@ -105,7 +128,10 @@ export async function updateDbUserSkills(
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
         logger.info('Successfully associated user skills');
-        return getUserSkills(userId, ({...new GetUserSkillsQueryDto(), disablePagination: true}));
+        const allSkills = await getUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: true });
+        await esHelper.updateSkillsInMemberES(toString(userId), allSkills.skills);
+
+        return allSkills;
     });
 }
 
@@ -115,10 +141,16 @@ export async function createUserSkills(
     skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
     logger.info(
-        `Creating association for user skills based on the following request data: ${JSON.stringify(
-            {userId, ...UpdateUserSkillsRequestBodyDto},
-        )}`,
+        `Creating association for user skills based on the following request data: ${JSON.stringify({
+            userId,
+            ...UpdateUserSkillsRequestBodyDto,
+        })}`,
     );
+
+    const member = await esHelper.getMemberById(toString(userId));
+    if (isEmpty(member)) {
+        throw new NotFoundError(`Member ${userId} does not exist!`);
+    }
 
     ensureUserCanManageMemberSkills(currentUser, userId);
 
@@ -136,10 +168,16 @@ export async function updateUserSkills(
     skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
     logger.info(
-        `Updating association for user skills based on the following request data: ${JSON.stringify(
-            {userId, ...UpdateUserSkillsRequestBodyDto},
-        )}`,
+        `Updating association for user skills based on the following request data: ${JSON.stringify({
+            userId,
+            ...UpdateUserSkillsRequestBodyDto,
+        })}`,
     );
+
+    const member = await esHelper.getMemberById(toString(userId));
+    if (isEmpty(member)) {
+        throw new NotFoundError(`Member ${userId} does not exist!`);
+    }
 
     ensureUserCanManageMemberSkills(currentUser, userId);
 
