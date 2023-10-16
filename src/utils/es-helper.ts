@@ -10,6 +10,7 @@ import * as constants from '../config/constants';
 let skillsESClient: elasticsearch7.Client;
 let jobsESClient: elasticsearch7.Client;
 let challengesESClient: elasticsearch6.Client;
+let membersESClient: elasticsearch6.Client;
 const logger = new LoggerClient('es-helper');
 
 export function getSkillsESClient() {
@@ -33,6 +34,14 @@ export function getJobsESClient() {
     else {
         jobsESClient = new elasticsearch7.Client({ node: envConfig.JOBS_ES.HOST });
         return jobsESClient;
+    }
+}
+
+export function getMembersESClient() {
+    if (membersESClient) return membersESClient;
+    else {
+        membersESClient = new elasticsearch6.Client({ node: envConfig.MEMBERS_ES.HOST });
+        return membersESClient;
     }
 }
 
@@ -140,13 +149,13 @@ export const autocompleteSkills = async (query: {
 /**
  * Searches elasticsearch challenge index by the challenge id
  * @param {String} id the uuid v4 id of the challenge
- * @returns {Promise<Record<string, any>>} the challenge object if found or empty object
+ * @returns {Promise<Record<string, any>>} the challenge document if found or empty object
  */
 export const getChallengeById = async (id: string): Promise<Record<string, any>> => {
     logger.info(`Fetch challenge with id: ${id} from ES`);
     try {
         challengesESClient = getChallengesESClient();
-        const challenge: Record<string, any> = challengesESClient.get({
+        const challenge: Record<string, any> = await challengesESClient.get({
             id,
             index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
             type: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
@@ -163,13 +172,13 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
 /**
  * Searches elasticsearch job index by the job id
  * @param {String} id the uuid v4 id of the gig
- * @returns {Promise<Record<string, any>>} the gig object if found or empty object
+ * @returns {Promise<Record<string, any>>} the gig document if found or empty object
  */
 export const getJobById = async (id: string): Promise<Record<string, any>> => {
     logger.info(`Fetch job with id: ${id} from ES`);
     try {
         jobsESClient = getJobsESClient();
-        const job: Record<string, any> = jobsESClient.get({
+        const job: Record<string, any> = await jobsESClient.get({
             id,
             index: envConfig.JOBS_ES.JOB_INDEX,
             type: envConfig.JOBS_ES.JOB_DOCUMENT_TYPE,
@@ -179,6 +188,29 @@ export const getJobById = async (id: string): Promise<Record<string, any>> => {
         return job.body._source;
     } catch (error) {
         logger.error(`Unable to fetch job with id: ${id} from ES`);
+        return {};
+    }
+};
+
+/**
+ * Searches elasticsearch members-2020-01 index by the member id
+ * @param {String} id the uuid v4 id of the member
+ * @returns {Promise<Record<string, any>>} the member document if found or empty object
+ */
+export const getMemberById = async (id: string): Promise<Record<string, any>> => {
+    logger.info(`Fetch member with id: ${id} from ES`);
+    try {
+        membersESClient = getMembersESClient();
+        const member: Record<string, any> = await membersESClient.get({
+            id,
+            index: envConfig.MEMBERS_ES.MEMBERS_INDEX,
+            type: envConfig.MEMBERS_ES.MEMBERS_DOCUMENT_TYPE,
+            refresh: envConfig.MEMBERS_ES.REFRESH as boolean,
+        });
+        logger.info(`Member with id: ${id} found in ES`);
+        return member.body._source;
+    } catch (error) {
+        logger.error(`Unable to fetch member with id: ${id} from ES`);
         return {};
     }
 };
@@ -231,4 +263,34 @@ export const updateSkillsInJobES = async (
         },
     });
     logger.info(`Job ${id} successfully updated with skills`);
+};
+
+/**
+ * Updates the elasticsearch member profiles indentified by id with the provided skills
+ * @param {String} id the uuid v4 id of the member to update
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string };
+ * levels: {id: string; name: string; description: string}[]}>} skills the skills to update in the member profile
+ */
+export const updateSkillsInMemberES = async (
+    id: string,
+    skills: {
+        id: string;
+        name: string;
+        category: { id: string; name: string };
+        levels: { id: string; name: string; description: string }[];
+    }[],
+) => {
+    logger.info(`Update skills in member ${id} with skills: ${JSON.stringify(skills)}`);
+    membersESClient = getMembersESClient();
+    await membersESClient.update({
+        id,
+        index: envConfig.MEMBERS_ES.MEMBERS_INDEX,
+        type: envConfig.MEMBERS_ES.MEMBERS_DOCUMENT_TYPE,
+        body: {
+            doc: {
+                skills,
+            },
+        },
+    });
+    logger.info(`Member ${id} successfully updated with skills`);
 };
