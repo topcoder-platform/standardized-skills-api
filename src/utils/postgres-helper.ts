@@ -55,14 +55,17 @@ export async function findAndCountPaginated<T>(
     model: DbModelsType,
     modelName: string,
     queryOptions: BasePaginatedSortedRequest,
-    extraQueryOptions?: FindAndCountOptions,
+    extraQueryOptions?: FindAndCountOptions
 ) {
     const DbModel = getModelCtor(model);
     const entriesKey = `${modelName}s`;
 
+    const isPaginationDisabled = `${queryOptions.disablePagination}` === 'true';
+    const itemsPerPage = isPaginationDisabled ? Number.MAX_SAFE_INTEGER : queryOptions.perPage;
+    
     const pgQuery: FindAndCountOptions = {
-        limit: queryOptions.perPage,
-        offset: (queryOptions.page - 1) * queryOptions.perPage,
+        limit: itemsPerPage,
+        offset: (queryOptions.page - 1) * itemsPerPage,
         ...extraQueryOptions,
     };
 
@@ -85,8 +88,8 @@ export async function findAndCountPaginated<T>(
     return {
         [entriesKey]: resultsAndCount.rows as unknown as T[],
         page: queryOptions.page,
-        perPage: queryOptions.perPage,
+        perPage: itemsPerPage,
         total: resultsAndCount.count,
-        totalPages: Math.ceil(resultsAndCount.count / queryOptions.perPage),
+        totalPages: Math.ceil(resultsAndCount.count / itemsPerPage),
     };
 }
