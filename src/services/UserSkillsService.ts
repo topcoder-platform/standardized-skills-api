@@ -129,6 +129,7 @@ export async function updateDbUserSkills(
 
         logger.info('Successfully associated user skills');
         const allSkills = await getUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: true });
+        
         await esHelper.updateSkillsInMemberES(toString(userId), allSkills.skills);
 
         return allSkills;

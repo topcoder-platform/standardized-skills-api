@@ -268,7 +268,8 @@ export const updateSkillsInJobES = async (
 /**
  * Updates the elasticsearch member profiles indentified by id with the provided skills
  * @param {String} id the uuid v4 id of the member to update
- * @param {Array<{ id: string; name: string; category: { id: string; name: string }; levels: {id: string; name: string; description: string}[]}>} skills the skills to update in the member profile
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string }; 
+ * levels: {id: string; name: string; description: string}[]}>} skills the skills to update in the member profile
  */
 export const updateSkillsInMemberES = async (
     id: string,
