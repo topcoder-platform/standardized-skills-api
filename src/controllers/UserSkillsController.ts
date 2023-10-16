@@ -16,7 +16,9 @@ export default class UserSkillsController {
     ) {
         try {
             const skills = await UserSkillsService.getUserSkills(req.params.userId as string, req.query);
-            setResHeaders(res, skills);
+            if (!req.query.disablePagination) {
+                setResHeaders(res, skills);
+            }
             res.status(200).json(skills.skills);
         } catch (error) {
             next(error);
@@ -39,7 +41,6 @@ export default class UserSkillsController {
     ) {
         try {
             const skills = await UserSkillsService.createUserSkills(req.authUser, Number(req.params.userId), req.body);
-            setResHeaders(res, skills);
             res.status(201).json(skills.skills);
         } catch (error) {
             next(error);
@@ -61,7 +62,6 @@ export default class UserSkillsController {
     ) {
         try {
             const skills = await UserSkillsService.updateUserSkills(req.authUser, Number(req.params.userId), req.body);
-            setResHeaders(res, skills);
             res.status(200).json(skills.skills);
         } catch (error) {
             next(error);

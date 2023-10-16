@@ -25,4 +25,7 @@ export abstract class BasePaginatedSortedRequest {
     @IsNotEmpty()
     @IsIn(['ASC', 'DESC'])
     sortOrder: 'ASC' | 'DESC' = DEFAULT_SORT_ORDER;
+
+    @IsOptional()
+    disablePagination: boolean;
 }

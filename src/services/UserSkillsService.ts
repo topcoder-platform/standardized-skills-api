@@ -105,7 +105,7 @@ export async function updateDbUserSkills(
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
         logger.info('Successfully associated user skills');
-        return getUserSkills(userId, new GetUserSkillsQueryDto());
+        return getUserSkills(userId, ({...new GetUserSkillsQueryDto(), disablePagination: true}));
     });
 }
 
