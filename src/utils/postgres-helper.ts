@@ -61,11 +61,10 @@ export async function findAndCountPaginated<T>(
     const entriesKey = `${modelName}s`;
 
     const isPaginationDisabled = `${queryOptions.disablePagination}` === 'true';
-    const itemsPerPage = isPaginationDisabled ? Number.MAX_SAFE_INTEGER : queryOptions.perPage;
     
-    const pgQuery: FindAndCountOptions = {
-        limit: itemsPerPage,
-        offset: (queryOptions.page - 1) * itemsPerPage,
+    const pgQuery: FindAndCountOptions = isPaginationDisabled ? {...extraQueryOptions} : {
+        limit: queryOptions.perPage,
+        offset: (queryOptions.page - 1) * queryOptions.perPage,
         ...extraQueryOptions,
     };
 
@@ -85,11 +84,15 @@ export async function findAndCountPaginated<T>(
         };
     }
 
-    return {
+    const results = {
         [entriesKey]: resultsAndCount.rows as unknown as T[],
+    };
+    
+    return isPaginationDisabled ? results : {
+        ...results,
         page: queryOptions.page,
-        perPage: itemsPerPage,
+        perPage: queryOptions.perPage,
         total: resultsAndCount.count,
-        totalPages: Math.ceil(resultsAndCount.count / itemsPerPage),
+        totalPages: Math.ceil(resultsAndCount.count / queryOptions.perPage),
     };
 }
