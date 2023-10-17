@@ -25,7 +25,15 @@ export enum UserSkillLevels {
     verified = 'verified',
 }
 
-export enum WORK_TYPE {
+export enum WorkType {
     challenge = 'challenge',
     gig = 'gig',
+}
+
+export enum SkillEventTopic {
+    challengeUpdate = 'challenge.notification.update',
+}
+
+export enum SkillEventChallengeUpdateStatus {
+    completed = 'Completed',
 }
