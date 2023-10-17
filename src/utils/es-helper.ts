@@ -158,7 +158,7 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
         const challenge: Record<string, any> = await challengesESClient.get({
             id,
             index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
-            type: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
+            type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
             refresh: envConfig.CHALLENGES_ES.REFRESH as boolean,
         });
         logger.info(`Challenge with id: ${id} found in ES`);
