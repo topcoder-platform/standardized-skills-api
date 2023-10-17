@@ -1,4 +1,6 @@
-import { IsArray, IsNumberString, IsOptional, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsArray, IsNumberString, IsOptional, IsUUID, ValidateNested } from 'class-validator';
+
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 
 export class GetUserSkillsQueryDto extends BasePaginatedSortedRequest {}
@@ -19,5 +21,7 @@ export class UserIdParamDto {
 
 export class UpdateUserSkillsRequestBodyDto extends BasePaginatedSortedRequest {
     @IsArray()
+    @ValidateNested()
+    @Type(() => UserSkillSkillRequestDto)
     skills: UserSkillSkillRequestDto[];
 }
