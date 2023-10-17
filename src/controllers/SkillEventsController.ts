@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 
 import { AuthorizedRequest } from '../types';
-import { SkilLEventRequestBodyDto } from '../dto';
+import { SkillEventRequestBodyDto } from '../dto';
 import * as skillEventsService from '../services/SkillEventsService';
 
 export default class SkillEventsController {
@@ -9,7 +9,7 @@ export default class SkillEventsController {
      * Process the skill events
      */
     async processSkillEvent(
-        req: AuthorizedRequest<{ [key: string]: string }, any, any, SkilLEventRequestBodyDto, Record<string, any>>,
+        req: AuthorizedRequest<{ [key: string]: string }, any, any, SkillEventRequestBodyDto, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {

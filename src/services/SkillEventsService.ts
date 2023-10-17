@@ -1,7 +1,7 @@
 import { isEmpty, map, toString } from 'lodash';
 
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, UserSkillLevels } from '../config';
-import { ChallengeUpdateSkillEventPayload, GetUserSkillsQueryDto, SkilLEventRequestBodyDto } from '../dto';
+import { ChallengeUpdateSkillEventPayload, GetUserSkillsQueryDto, SkillEventRequestBodyDto } from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserCanValidateMemberSkills } from '../utils/helpers';
 import { getUserSkills } from './UserSkillsService';
@@ -21,7 +21,7 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
         return;
     }
 
-    // ensure passesd skill ids are valid
+    // ensure passed skill ids are valid
     if (!(await bulkCheckValidIds(Skill, map(payload.skills, 'id')))) {
         throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
     }
@@ -65,7 +65,7 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
     });
 }
 
-export function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkilLEventRequestBodyDto) {
+export function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
     // Ensure skill-events are only executed by admins or machine users
     ensureUserCanValidateMemberSkills(currentUser);
 

@@ -55,7 +55,7 @@ const topicToPayloadMap = {
     [SkillEventTopic.challengeUpdate]: ChallengeUpdateSkillEventPayload,
 };
 
-export class SkilLEventRequestBodyDto {
+export class SkillEventRequestBodyDto {
     @IsEnum(SkillEventTopic)
     topic: SkillEventTopic;
 
