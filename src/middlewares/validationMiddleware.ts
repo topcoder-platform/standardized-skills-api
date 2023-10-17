@@ -3,6 +3,19 @@ import { plainToInstance } from 'class-transformer';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { NextFunction, Request, Response } from 'express';
 
+function getValidationErrorsMessage(errors: ValidationError[]): string {
+    return errors
+        .map((error: ValidationError) => {
+            if (error.constraints) {
+                return Object.values<string>(error.constraints);
+            } else if (error.children?.length) {
+                return `${error.property}: [${getValidationErrorsMessage(error.children)}]`;
+            }
+            return '';
+        })
+        .join(', ');
+}
+
 /**
  * @name validationMiddleware
  * @description Allows use of decorator and non-decorator based validation
@@ -27,15 +40,7 @@ export const validationMiddleware = (
                 next();
             })
             .catch((errors: ValidationError[]) => {
-                const message = errors
-                    .map((error: ValidationError) => {
-                        if (error.constraints) {
-                            return Object.values<string>(error.constraints);
-                        }
-                        return '';
-                    })
-                    .join(', ');
-
+                const message = getValidationErrorsMessage(errors);
                 next(new BadRequestError(message));
             });
     };
