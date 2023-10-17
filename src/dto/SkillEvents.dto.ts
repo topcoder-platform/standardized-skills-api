@@ -6,7 +6,7 @@ import { SkillEventTopic } from '../config';
 export class UserSkillDto {
     @IsUUID('all')
     id: string;
-    
+
     // exclude data we're not interested in
     @Exclude()
     name: string;
@@ -49,9 +49,7 @@ export class ChallengeUpdateSkillEventPayload {
     tags: string[];
 }
 
-export type SkillEventPayloadType =
-    | ChallengeUpdateSkillEventPayload
-;
+export type SkillEventPayloadType = ChallengeUpdateSkillEventPayload;
 
 const topicToPayloadMap = {
     [SkillEventTopic.challengeUpdate]: ChallengeUpdateSkillEventPayload,
@@ -62,7 +60,7 @@ export class SkilLEventRequestBodyDto {
     topic: SkillEventTopic;
 
     @ValidateNested()
-    @Type((d?: TypeHelpOptions) => topicToPayloadMap[(d?.object.topic) as SkillEventTopic])
+    @Type((d?: TypeHelpOptions) => topicToPayloadMap[d?.object.topic as SkillEventTopic])
     payload: SkillEventPayloadType;
 
     // exclude data we're not interested in

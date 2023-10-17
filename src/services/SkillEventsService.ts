@@ -1,11 +1,7 @@
 import { isEmpty, map, toString } from 'lodash';
 
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, UserSkillLevels } from '../config';
-import {
-    ChallengeUpdateSkillEventPayload,
-    GetUserSkillsQueryDto,
-    SkilLEventRequestBodyDto,
-} from '../dto';
+import { ChallengeUpdateSkillEventPayload, GetUserSkillsQueryDto, SkilLEventRequestBodyDto } from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserCanValidateMemberSkills } from '../utils/helpers';
 import { getUserSkills } from './UserSkillsService';
@@ -26,15 +22,10 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
     }
 
     // ensure passesd skill ids are valid
-    if (
-        !(await bulkCheckValidIds(
-            Skill,
-            map(payload.skills, 'id'),
-        ))
-    ) {
+    if (!(await bulkCheckValidIds(Skill, map(payload.skills, 'id')))) {
         throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
     }
-    
+
     // fetch the DB id for the verified user skill level
     const verifiedSkillLevel = await UserSkillLevel.findOne({ where: { name: UserSkillLevels.verified } });
     if (!verifiedSkillLevel) {
@@ -42,13 +33,13 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
     }
 
     // ensure all users in the payload exist
-    const membersPromises = payload.winners.map(user => esHelper.getMemberById(toString(user.userId)));
+    const membersPromises = payload.winners.map((user) => esHelper.getMemberById(toString(user.userId)));
     const members = await Promise.all(membersPromises);
     const existingMembers = members.map(isEmpty);
     if (existingMembers.length !== payload.winners.length) {
         throw new NotFoundError('Some members have invalid userIds!');
     }
-    
+
     return db.sequelize.transaction(async () => {
         // update each user with the skills data
         for (const user of payload.winners) {
@@ -60,25 +51,24 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
-            const allSkills = await getUserSkills(user.userId, { ...new GetUserSkillsQueryDto(), disablePagination: true });
+            const allSkills = await getUserSkills(user.userId, {
+                ...new GetUserSkillsQueryDto(),
+                disablePagination: true,
+            });
 
             await esHelper.updateSkillsInMemberES(toString(user.userId), allSkills.skills);
 
             return allSkills;
         }
-        
+
         logger.info('Successfully associated user skills via challenge completed skill event');
     });
-
 }
 
-export function processSkillEvent(
-    currentUser: AuthUser,
-    {topic, payload}: SkilLEventRequestBodyDto
-) {
+export function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkilLEventRequestBodyDto) {
     // Ensure skill-events are only executed by admins or machine users
     ensureUserCanValidateMemberSkills(currentUser);
-    
+
     // handle each event topic differently
     switch (topic) {
         case SkillEventTopic.challengeUpdate:
