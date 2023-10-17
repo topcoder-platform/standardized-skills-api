@@ -85,7 +85,7 @@ export async function updateDbUserSkills(
     // fetch the DB id for the selfDeclared user skill level
     const selfDeclaredSkillLevel = await UserSkillLevel.findOne({ where: { name: UserSkillLevels.selfDeclared } });
     if (!selfDeclaredSkillLevel) {
-        throw new Error('User self-declared skill not found!');
+        throw new Error('User self-declared skill level not found!');
     }
 
     // ensure that only designated users can mark skills as other than "selfDeclared"

@@ -7,6 +7,7 @@ import {
     UpdateUserSkillsRequestBodyDto,
     SetWorkSkillsRequestBodyDto,
     UserIdParamDto,
+    SkillEventRequestBodyDto,
 } from '../dto';
 
 const RouteDefinitions: RouteDefinition[] = [
@@ -101,6 +102,20 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             body: {
                 dto: SetWorkSkillsRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/skill-events',
+        verb: 'post',
+        controller: 'SkillEventsController',
+        method: 'processSkillEvent',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
+        validation: {
+            body: {
+                dto: SkillEventRequestBodyDto,
             },
         },
     },
