@@ -9,6 +9,7 @@ import {
     UserIdParamDto,
     SkillEventRequestBodyDto,
 } from '../dto';
+import { AllCategoryRequestDto } from '../dto/CategoryRequest.dto';
 
 const RouteDefinitions: RouteDefinition[] = [
     {
@@ -116,6 +117,19 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             body: {
                 dto: SkillEventRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/categories',
+        verb: 'get',
+        controller: 'SkillCategoryController',
+        method: 'getAllCategroies',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.READ],
+        validation: {
+            query: {
+                dto: AllCategoryRequestDto,
             },
         },
     },
