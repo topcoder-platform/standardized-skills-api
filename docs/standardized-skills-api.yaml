@@ -134,7 +134,7 @@ paths:
           name: sortBy
           schema:
             type: string
-            enum: ['name']
+            enum: ['name', 'description', 'createdAt', 'updatedAt']
         - in: query
           name: sortOrder
           schema:
@@ -178,6 +178,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+    post:
+      operationId: createSkillCategories
+      tags: ['Standardized Skills API']
+      description: 'This endpoint creates a new category from the data in the request body if and only if the category name does not already exist'
+      requestBody:
+          description: 'The request body for creating a new skill category'
+          content:
+            application/json:
+              schema:
+                type: object
+                required: ['name']
+                properties:
+                  name:
+                    type: string
+                  description:
+                    type: string
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'            
   /categories/{id}:
     get:
       operationId: getSkillCategoryById
@@ -825,6 +860,10 @@ components:
       properties:
         message:
           type: string
+    ConflictErrorResponse:
+      properties:
+        message:
+          type: string      
     ServiceUnavailableErrorResponse:
       properties:
         message:

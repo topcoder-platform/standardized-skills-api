@@ -8,3 +8,13 @@ export class AllCategoryRequestDto extends BasePaginatedSortedRequest {
     @IsIn(['name', 'description', 'createdAt', 'updatedAt'])
     sortBy?: string;
 }
+
+export class NewCategoryRequestDto {
+    @IsString()
+    @IsNotEmpty()
+    name: string;
+
+    @IsOptional()
+    @IsString()
+    description?: string;
+}
