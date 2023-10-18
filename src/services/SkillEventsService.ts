@@ -41,6 +41,7 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
     }
 
     return db.sequelize.transaction(async () => {
+        const allSkills = [];
         // update each user with the skills data
         for (const user of payload.winners) {
             const userSkills = payload.skills.map((skill) => ({
@@ -51,14 +52,18 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
-            const allSkills = await getUserSkills(user.userId, {
+            const allUserSkills = await getUserSkills(user.userId, {
                 ...new GetUserSkillsQueryDto(),
                 disablePagination: true,
             });
 
-            await esHelper.updateSkillsInMemberES(toString(user.userId), allSkills.skills);
+            allSkills.push({userId: toString(user.userId), skills: allUserSkills.skills});
+        }
 
-            return allSkills;
+        // do the ES update only after we make sure all user skill db updates have been successfull,
+        // otherwise we can't revert ES updates if db update fails
+        for (const {userId, skills} of allSkills) {
+            await esHelper.updateSkillsInMemberES(userId, skills);
         }
 
         logger.info('Successfully associated user skills via challenge completed skill event');
