@@ -288,9 +288,8 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                 - $ref: '#/components/schemas/CategoryDetails'
-                 - $ref: '#/components/schemas/Timestamps'
+                $ref: '#/components/schemas/CategoryDetails'
+                 
         '404':
           description: 'Not Found Error'
           content:

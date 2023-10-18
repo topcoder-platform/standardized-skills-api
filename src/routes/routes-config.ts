@@ -11,7 +11,7 @@ import {
 } from '../dto';
 import {
     AllCategoryRequestQueryDto,
-    DeleteCategoryRequestPathParamDto,
+    CategoryIdRequestPathParamDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
@@ -126,6 +126,19 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/categories/:categoryId',
+        verb: 'get',
+        controller: 'SkillCategoryController',
+        method: 'getCategoryById',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+        },
+    },
+    {
         path: '/categories',
         verb: 'get',
         controller: 'SkillCategoryController',
@@ -176,7 +189,7 @@ const RouteDefinitions: RouteDefinition[] = [
         scopes: [config.envConfig.SCOPES.DELETE, config.envConfig.SCOPES.ALL],
         validation: {
             params: {
-                dto: DeleteCategoryRequestPathParamDto,
+                dto: CategoryIdRequestPathParamDto,
             },
         },
     },

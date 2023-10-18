@@ -13,6 +13,21 @@ import { hasAdminRole } from '../utils/helpers';
 
 const logger = new LoggerClient('SkillCategoryService');
 
+export const getCategoryById = async (id: string) => {
+    logger.info(`Retrieve category with id ${id}`);
+
+    return await db.sequelize.transaction(async () => {
+        if (!(await categoryIdExists(id))) {
+            throw new NotFoundError(`Category with id ${id} does not exist!`);
+        }
+
+        const category = await SkillCategory.findByPk(id);
+        logger.info(`Catgeory with id ${id} retrieved successfully`);
+
+        return pick(category, ['id', 'name', 'description']);
+    });
+};
+
 export const getAllCategories = async (query: AllCategoryRequestQueryDto) => {
     logger.info(`Fetching all categories with query: ${JSON.stringify(query)}`);
     const { categories, ...paginationValues } = await findAndCountPaginated<SkillCategory>(
