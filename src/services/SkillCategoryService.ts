@@ -6,14 +6,19 @@ import {
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
 import { LoggerClient } from '../utils/LoggerClient';
-import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
-import { hasAdminRole } from '../utils/helpers';
+import { ensureUserCanManageCategories } from '../utils/helpers';
 
 const logger = new LoggerClient('SkillCategoryService');
 
-export const getCategoryById = async (id: string) => {
+/**
+ * Gets a category by its id
+ * @param { string } id the uuid id of category
+ * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the category
+ */
+export const getCategoryById = async (id: string): Promise<Partial<SkillCategory>> => {
     logger.info(`Retrieve category with id ${id}`);
 
     return await db.sequelize.transaction(async () => {
@@ -28,11 +33,34 @@ export const getCategoryById = async (id: string) => {
     });
 };
 
-export const getAllCategories = async (query: AllCategoryRequestQueryDto) => {
+/**
+ * Gets all categories with pagination
+ * @param {AllCategoryRequestQueryDto} query the request query params for pagination and sorting
+ * @returns {Promise<{ categories: number | SkillCategory[];}
+ * | {page: number;
+ *    perPage: number;
+ *    total: number;
+ *    totalPages: number;
+ *    categories: number | SkillCategory[];}>} An array of category id, names and description along with pagination values
+ */
+export const getAllCategories = async (
+    query: AllCategoryRequestQueryDto,
+): Promise<
+    | {
+          categories: number | SkillCategory[];
+      }
+    | {
+          page: number;
+          perPage: number;
+          total: number;
+          totalPages: number;
+          categories: number | SkillCategory[];
+      }
+> => {
     logger.info(`Fetching all categories with query: ${JSON.stringify(query)}`);
     const { categories, ...paginationValues } = await findAndCountPaginated<SkillCategory>(
         SkillCategory,
-        'categorie',
+        'categories',
         query,
         {
             attributes: ['id', 'name', 'description'],
@@ -41,7 +69,7 @@ export const getAllCategories = async (query: AllCategoryRequestQueryDto) => {
     if (isEmpty(categories)) {
         throw new NotFoundError('No categories exist!');
     }
-    logger.info(`Fethced categories successfully: ${JSON.stringify(categories)}`);
+    logger.info(`Fetched categories successfully: ${JSON.stringify(categories)}`);
 
     return {
         categories,
@@ -49,12 +77,20 @@ export const getAllCategories = async (query: AllCategoryRequestQueryDto) => {
     };
 };
 
-export const createNewCategory = async (user: AuthUser, body: NewCategoryRequestBodyDto) => {
+/**
+ * Creates a new category from the name and description in the payload
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {NewCategoryRequestBodyDto} body the name and description of the new category
+ * @returns {Promise<{ id: string; name: string; description: string | undefined; }>} the newly
+ * created category
+ */
+export const createNewCategory = async (
+    user: AuthUser,
+    body: NewCategoryRequestBodyDto,
+): Promise<{ id: string; name: string; description: string | undefined }> => {
     logger.info(`Creating new category as per data ${JSON.stringify(body)}`);
 
-    if (!user.isMachine && !hasAdminRole(user)) {
-        throw new ForbiddenError('You are not allowed to perform this action');
-    }
+    ensureUserCanManageCategories(user);
 
     return await db.sequelize.transaction(async () => {
         if (!(await categoryNameIsUnique(body.name))) {
@@ -75,12 +111,20 @@ export const createNewCategory = async (user: AuthUser, body: NewCategoryRequest
     });
 };
 
-export const updateCategory = async (user: AuthUser, body: UpdateCategoryRequestBodyDto) => {
+/**
+ * Updates a category by its id
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {UpdateCategoryRequestBodyDto} body the id, name and description values of the category to update
+ * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
+ * created category
+ */
+export const updateCategory = async (
+    user: AuthUser,
+    body: UpdateCategoryRequestBodyDto,
+): Promise<Partial<SkillCategory>> => {
     logger.info(`Updating category ${body.id} with data ${JSON.stringify(omit(body, 'id'))}`);
 
-    if (!user.isMachine && !hasAdminRole(user)) {
-        throw new ForbiddenError('You are not allowed to perform this action');
-    }
+    ensureUserCanManageCategories(user);
 
     return await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(body.id))) {
@@ -108,12 +152,15 @@ export const updateCategory = async (user: AuthUser, body: UpdateCategoryRequest
     });
 };
 
+/**
+ * Deletes a category by its id
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {string} id the uuid id of category
+ */
 export const deleteCategory = async (user: AuthUser, id: string) => {
     logger.info(`Deleting category with id ${id}`);
 
-    if (!user.isMachine && !hasAdminRole(user)) {
-        throw new ForbiddenError('You are not allowed to perform this action');
-    }
+    ensureUserCanManageCategories(user);
 
     await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(id))) {
@@ -140,6 +187,11 @@ export const deleteCategory = async (user: AuthUser, id: string) => {
     });
 };
 
+/**
+ * Checks whether the category name is unique
+ * @param {string} name the name of the category
+ * @returns {Promise<boolean>} a boolean result wrapped in a promise
+ */
 const categoryNameIsUnique = async (name: string): Promise<boolean> => {
     return (
         (await SkillCategory.findOne({
@@ -150,6 +202,11 @@ const categoryNameIsUnique = async (name: string): Promise<boolean> => {
     );
 };
 
+/**
+ * Checks whether the id of the category exists
+ * @param id the uuid id of the category
+ * @returns {Promise<boolean>} a boolean result wrapped in a promise
+ */
 const categoryIdExists = async (id: string): Promise<boolean> => {
     return (await SkillCategory.findByPk(id)) !== null;
 };

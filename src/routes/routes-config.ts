@@ -142,7 +142,7 @@ const RouteDefinitions: RouteDefinition[] = [
         path: '/categories',
         verb: 'get',
         controller: 'SkillCategoryController',
-        method: 'getAllCategroies',
+        method: 'getAllCategories',
         auth: true,
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
         validation: {
