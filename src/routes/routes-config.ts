@@ -10,7 +10,7 @@ import {
     SkillEventRequestBodyDto,
 } from '../dto';
 import {
-    AllCategoryRequestQueryDto,
+    AllCategoriesRequestQueryDto,
     CategoryIdRequestPathParamDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryRequestBodyDto,
@@ -147,7 +147,7 @@ const RouteDefinitions: RouteDefinition[] = [
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
         validation: {
             query: {
-                dto: AllCategoryRequestQueryDto,
+                dto: AllCategoriesRequestQueryDto,
             },
         },
     },

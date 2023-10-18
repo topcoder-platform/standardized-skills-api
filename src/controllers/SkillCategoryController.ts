@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import {
-    AllCategoryRequestQueryDto,
+    AllCategoriesRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
@@ -30,7 +30,7 @@ export default class SkillCategoryController {
      * Gets all categories with pagination
      */
     async getAllCategories(
-        req: Request<{ [key: string]: string }, any, any, AllCategoryRequestQueryDto, Record<string, any>>,
+        req: Request<{ [key: string]: string }, any, any, AllCategoriesRequestQueryDto, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {

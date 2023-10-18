@@ -1,7 +1,7 @@
 import { IsIn, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { BasePaginatedSortedRequest } from '.';
 
-export class AllCategoryRequestQueryDto extends BasePaginatedSortedRequest {
+export class AllCategoriesRequestQueryDto extends BasePaginatedSortedRequest {
     @IsOptional()
     @IsString()
     @IsNotEmpty()

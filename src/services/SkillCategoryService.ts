@@ -1,7 +1,7 @@
 import { isEmpty, omit, pick } from 'lodash';
 import db, { Skill, SkillCategory } from '../db';
 import {
-    AllCategoryRequestQueryDto,
+    AllCategoriesRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
@@ -44,7 +44,7 @@ export const getCategoryById = async (id: string): Promise<Partial<SkillCategory
  *    categories: number | SkillCategory[];}>} An array of category id, names and description along with pagination values
  */
 export const getAllCategories = async (
-    query: AllCategoryRequestQueryDto,
+    query: AllCategoriesRequestQueryDto,
 ): Promise<
     | {
           categories: number | SkillCategory[];
@@ -167,13 +167,7 @@ export const deleteCategory = async (user: AuthUser, id: string) => {
             throw new NotFoundError(`Category with id ${id} does not exist!`);
         }
 
-        if (
-            (await Skill.count({
-                where: {
-                    category_id: id,
-                },
-            })) > 0
-        ) {
+        if (await categoryHasSkills(id)) {
             throw new BadRequestError(`Cannot delete category with id ${id} as it has skills associated with it!`);
         }
 
@@ -209,4 +203,14 @@ const categoryNameIsUnique = async (name: string): Promise<boolean> => {
  */
 const categoryIdExists = async (id: string): Promise<boolean> => {
     return (await SkillCategory.findByPk(id)) !== null;
+};
+
+const categoryHasSkills = async (id: string): Promise<boolean> => {
+    return (
+        (await Skill.count({
+            where: {
+                category_id: id,
+            },
+        })) > 0
+    );
 };
