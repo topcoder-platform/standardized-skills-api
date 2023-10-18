@@ -16,9 +16,13 @@ export default class UserSkillsController {
     ) {
         try {
             const skills = await UserSkillsService.getUserSkills(req.params.userId as string, req.query);
-            if (!req.query.disablePagination) {
+
+            const isPaginationDisabled =
+                req.query.disablePagination !== undefined && `${req.query.disablePagination}` !== 'false';
+            if (!isPaginationDisabled) {
                 setResHeaders(res, skills);
             }
+
             res.status(200).json(skills.skills);
         } catch (error) {
             next(error);
