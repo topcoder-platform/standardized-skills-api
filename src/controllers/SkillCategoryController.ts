@@ -1,13 +1,17 @@
 import { NextFunction, Request, Response } from 'express';
-import { AllCategoryRequestDto, NewCategoryRequestDto } from '../dto/CategoryRequest.dto';
-import { createNewCategory, getAllCategories } from '../services/SkillCategoryService';
+import {
+    AllCategoryRequestQueryDto,
+    NewCategoryRequestBodyDto,
+    UpdateCategoryRequestBodyDto,
+} from '../dto/CategoryRequest.dto';
+import { createNewCategory, getAllCategories, updateCategory } from '../services/SkillCategoryService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
 import * as core from 'express-serve-static-core';
 
 export default class SkillCategoryController {
     async getAllCategroies(
-        req: Request<{ [key: string]: string }, any, any, AllCategoryRequestDto, Record<string, any>>,
+        req: Request<{ [key: string]: string }, any, any, AllCategoryRequestQueryDto, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {
@@ -23,12 +27,37 @@ export default class SkillCategoryController {
     }
 
     async createCategory(
-        req: AuthorizedRequest<{ [key: string]: string }, any, NewCategoryRequestDto, core.Query, Record<string, any>>,
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            NewCategoryRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
         res: Response,
         next: NextFunction,
     ) {
         try {
             const category = await createNewCategory(req.authUser, req.body);
+            res.status(201).json(category);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async updateCategory(
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            UpdateCategoryRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const category = await updateCategory(req.authUser, req.body);
             res.status(201).json(category);
         } catch (error) {
             next(error);

@@ -9,7 +9,11 @@ import {
     UserIdParamDto,
     SkillEventRequestBodyDto,
 } from '../dto';
-import { AllCategoryRequestDto, NewCategoryRequestDto } from '../dto/CategoryRequest.dto';
+import {
+    AllCategoryRequestQueryDto,
+    NewCategoryRequestBodyDto,
+    UpdateCategoryRequestBodyDto,
+} from '../dto/CategoryRequest.dto';
 
 const RouteDefinitions: RouteDefinition[] = [
     {
@@ -129,7 +133,7 @@ const RouteDefinitions: RouteDefinition[] = [
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
         validation: {
             query: {
-                dto: AllCategoryRequestDto,
+                dto: AllCategoryRequestQueryDto,
             },
         },
     },
@@ -143,7 +147,21 @@ const RouteDefinitions: RouteDefinition[] = [
         scopes: [config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.ALL],
         validation: {
             body: {
-                dto: NewCategoryRequestDto,
+                dto: NewCategoryRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/categories',
+        verb: 'put',
+        controller: 'SkillCategoryController',
+        method: 'updateCategory',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
+        validation: {
+            body: {
+                dto: UpdateCategoryRequestBodyDto,
             },
         },
     },

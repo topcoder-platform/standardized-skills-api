@@ -181,19 +181,19 @@ paths:
     post:
       operationId: createSkillCategories
       tags: ['Standardized Skills API']
-      description: 'This endpoint creates a new category from the data in the request body if and only if the category name does not already exist'
+      description: 'This endpoint creates a new category with the data in the request body if and only if the category name does not already exist'
       requestBody:
-          description: 'The request body for creating a new skill category'
-          content:
-            application/json:
-              schema:
-                type: object
-                required: ['name']
-                properties:
-                  name:
-                    type: string
-                  description:
-                    type: string
+        description: 'The request body for creating a new skill category'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['name']
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
       responses:
         '201':
           description: 'Created'
@@ -213,6 +213,44 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'            
+    put:
+      operationId: updateSkillCategories
+      tags: ['Standardized Skills API']
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category'
+      requestBody:
+        description: 'The request body for updating an existing skill category'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['id', 'name', 'description']
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                        
   /categories/{id}:
     get:
       operationId: getSkillCategoryById

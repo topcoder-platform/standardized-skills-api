@@ -343,6 +343,42 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "update category information",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": \"f58f6644-8cb0-415c-84af-de35712b2951\",\n    \"name\": \"Test Category Postman Update\",\n    \"description\": \"Test Description 1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

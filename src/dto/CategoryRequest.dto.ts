@@ -1,7 +1,7 @@
-import { IsIn, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
 import { BasePaginatedSortedRequest } from '.';
 
-export class AllCategoryRequestDto extends BasePaginatedSortedRequest {
+export class AllCategoryRequestQueryDto extends BasePaginatedSortedRequest {
     @IsOptional()
     @IsString()
     @IsNotEmpty()
@@ -9,7 +9,7 @@ export class AllCategoryRequestDto extends BasePaginatedSortedRequest {
     sortBy?: string;
 }
 
-export class NewCategoryRequestDto {
+export class NewCategoryRequestBodyDto {
     @IsString()
     @IsNotEmpty()
     name: string;
@@ -17,4 +17,15 @@ export class NewCategoryRequestDto {
     @IsOptional()
     @IsString()
     description?: string;
+}
+
+export class UpdateCategoryRequestBodyDto extends NewCategoryRequestBodyDto {
+    @IsString()
+    @IsNotEmpty()
+    @IsUUID('all')
+    id: string;
+
+    @IsOptional()
+    @IsString()
+    description: string;
 }
