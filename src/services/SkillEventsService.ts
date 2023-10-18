@@ -52,8 +52,6 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
-            await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
-
             const allUserSkills = await getUserSkills(user.userId, {
                 ...new GetUserSkillsQueryDto(),
                 disablePagination: true,
