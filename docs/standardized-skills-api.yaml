@@ -179,7 +179,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
     post:
-      operationId: createSkillCategories
+      operationId: createSkillCategory
       tags: ['Standardized Skills API']
       description: 'This endpoint creates a new category with the data in the request body if and only if the category name does not already exist'
       requestBody:
@@ -201,6 +201,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryDetails'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
         '409':
           description: 'Conflict Error'
           content:
@@ -214,7 +220,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'            
     put:
-      operationId: updateSkillCategories
+      operationId: updateSkillCategory
       tags: ['Standardized Skills API']
       description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category'
       requestBody:
@@ -239,6 +245,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryDetails'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'         
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'        
         '409':
           description: 'Conflict Error'
           content:
@@ -251,14 +269,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'                        
-  /categories/{id}:
+  /categories/{categoryId}:
     get:
       operationId: getSkillCategoryById
       tags: ['Standardized Skills API']
       description: 'This endpoint gets the details of the skill category identified by the given id'
       parameters:
         - in: path
-          name: id
+          name: categoryId
           schema:
             type: string
             format: uuid
@@ -285,6 +303,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+    delete:
+      operationId: deleteSkillCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint deletes an existing category'
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'The id of the category to delete'
+      responses:
+        '204':
+          description: 'No Content'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'  
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                                    
   /categories/{id}/skills:
     get:
       operationId: getSkillsByCategory
@@ -905,7 +962,7 @@ components:
     ServiceUnavailableErrorResponse:
       properties:
         message:
-          type: string
+          type: string     
     ForbiddenErrorResponse:
       properties:
         version:

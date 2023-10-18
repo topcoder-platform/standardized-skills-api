@@ -1,12 +1,12 @@
-import { isEmpty, isNull, omit, pick } from 'lodash';
-import db, { SkillCategory } from '../db';
+import { isEmpty, omit, pick } from 'lodash';
+import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoryRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
 import { LoggerClient } from '../utils/LoggerClient';
-import { ConflictError, ForbiddenError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, ForbiddenError, NotFoundError } from '../utils/errors';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
 import { hasAdminRole } from '../utils/helpers';
@@ -42,15 +42,7 @@ export const createNewCategory = async (user: AuthUser, body: NewCategoryRequest
     }
 
     return await db.sequelize.transaction(async () => {
-        if (
-            !isNull(
-                await SkillCategory.findOne({
-                    where: {
-                        name: body.name,
-                    },
-                }),
-            )
-        ) {
+        if (!(await categoryNameIsUnique(body.name))) {
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
@@ -76,15 +68,11 @@ export const updateCategory = async (user: AuthUser, body: UpdateCategoryRequest
     }
 
     return await db.sequelize.transaction(async () => {
-        if (
-            !isNull(
-                await SkillCategory.findOne({
-                    where: {
-                        name: body.name,
-                    },
-                }),
-            )
-        ) {
+        if (!(await categoryIdExists(body.id))) {
+            throw new NotFoundError(`Category with id ${body.id} does not exist!`);
+        }
+
+        if (!(await categoryNameIsUnique(body.name))) {
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
@@ -103,4 +91,50 @@ export const updateCategory = async (user: AuthUser, body: UpdateCategoryRequest
         logger.info(`Category ${body.id} updated successfully`);
         return pick(await SkillCategory.findByPk(body.id), ['id', 'name', 'description']);
     });
+};
+
+export const deleteCategory = async (user: AuthUser, id: string) => {
+    logger.info(`Deleting category with id ${id}`);
+
+    if (!user.isMachine && !hasAdminRole(user)) {
+        throw new ForbiddenError('You are not allowed to perform this action');
+    }
+
+    await db.sequelize.transaction(async () => {
+        if (!(await categoryIdExists(id))) {
+            throw new NotFoundError(`Category with id ${id} does not exist!`);
+        }
+
+        if (
+            (await Skill.count({
+                where: {
+                    category_id: id,
+                },
+            })) > 0
+        ) {
+            throw new BadRequestError(`Cannot delete category with id ${id} as it has skills associated with it!`);
+        }
+
+        await SkillCategory.destroy({
+            where: {
+                id,
+            },
+        });
+        logger.info(`Catgeory with ${id} deleted successfully`);
+        return;
+    });
+};
+
+const categoryNameIsUnique = async (name: string): Promise<boolean> => {
+    return (
+        (await SkillCategory.findOne({
+            where: {
+                name,
+            },
+        })) === null
+    );
+};
+
+const categoryIdExists = async (id: string): Promise<boolean> => {
+    return (await SkillCategory.findByPk(id)) !== null;
 };

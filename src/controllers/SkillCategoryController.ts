@@ -4,7 +4,7 @@ import {
     NewCategoryRequestBodyDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
-import { createNewCategory, getAllCategories, updateCategory } from '../services/SkillCategoryService';
+import { createNewCategory, deleteCategory, getAllCategories, updateCategory } from '../services/SkillCategoryService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
 import * as core from 'express-serve-static-core';
@@ -59,6 +59,19 @@ export default class SkillCategoryController {
         try {
             const category = await updateCategory(req.authUser, req.body);
             res.status(201).json(category);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteCategory(
+        req: AuthorizedRequest<{ [key: string]: string }, any, any, core.Query, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            await deleteCategory(req.authUser, req.params.categoryId);
+            res.status(204).send();
         } catch (error) {
             next(error);
         }

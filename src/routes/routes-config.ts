@@ -11,6 +11,7 @@ import {
 } from '../dto';
 import {
     AllCategoryRequestQueryDto,
+    DeleteCategoryRequestPathParamDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
@@ -162,6 +163,20 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             body: {
                 dto: UpdateCategoryRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId',
+        verb: 'delete',
+        controller: 'SkillCategoryController',
+        method: 'deleteCategory',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.DELETE, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: DeleteCategoryRequestPathParamDto,
             },
         },
     },

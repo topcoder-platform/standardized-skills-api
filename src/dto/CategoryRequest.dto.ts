@@ -29,3 +29,10 @@ export class UpdateCategoryRequestBodyDto extends NewCategoryRequestBodyDto {
     @IsString()
     description: string;
 }
+
+export class DeleteCategoryRequestPathParamDto {
+    @IsString()
+    @IsNotEmpty()
+    @IsUUID('all')
+    categoryId: string;
+}

@@ -325,7 +325,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Machine Learning and AI\",\n    \"description\": \"Test Description 1\"\n}",
+							"raw": "{\n    \"name\": \"Test Cat Postman 1\",\n    \"description\": \"Test Description 1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -361,7 +361,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"f58f6644-8cb0-415c-84af-de35712b2951\",\n    \"name\": \"Test Category Postman Update\",\n    \"description\": \"Test Description 1\"\n}",
+							"raw": "{\n    \"id\": \"05d4697f-7edd-4431-af2f-84a1995fbd66\",\n    \"name\": \"Test Cat Postman 3\",\n    \"description\": \"Test Description 1\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -375,6 +375,34 @@
 							],
 							"path": [
 								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete category by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/05d4697f-7edd-4431-af2f-84a1995fbd66",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"05d4697f-7edd-4431-af2f-84a1995fbd66"
 							]
 						}
 					},
