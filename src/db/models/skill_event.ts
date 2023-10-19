@@ -110,6 +110,7 @@ export class skill_event
                 tableName: 'skill_event',
                 schema: 'public',
                 timestamps: true,
+                updatedAt: false,
                 indexes: [
                     {
                         name: 'fki_fk_event',
@@ -122,6 +123,11 @@ export class skill_event
                     {
                         name: 'fki_fk_source_type',
                         fields: [{ name: 'source_type_id' }],
+                    },
+                    {
+                        name: 'uniq_skill_source_id',
+                        unique: true,
+                        fields: [{ name: 'skill_id' }, { name: 'source_id' }, { name: 'skill_event_type_id' }],
                     },
                     {
                         name: 'skill_event_pkey',
