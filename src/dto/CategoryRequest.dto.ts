@@ -25,6 +25,16 @@ export class UpdateCategoryRequestBodyDto extends NewCategoryRequestBodyDto {
     description: string;
 }
 
+export class UpdateCategoryPartialRequestDto {
+    @IsString()
+    @IsOptional()
+    name?: string;
+
+    @IsOptional()
+    @IsString()
+    description?: string;
+}
+
 export class CategoryIdRequestPathParamDto {
     @IsString()
     @IsNotEmpty()

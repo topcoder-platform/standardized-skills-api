@@ -3,6 +3,7 @@ import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoriesRequestQueryDto,
     NewCategoryRequestBodyDto,
+    UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
 import { LoggerClient } from '../utils/LoggerClient';
@@ -114,9 +115,9 @@ export const createNewCategory = async (
  * Updates a category by its id
  * @param {AuthUser} user the authenticated user details from the JWT
  * @param {string} id the the id of the category to update
- * @param {UpdateCategoryRequestBodyDto} body the id, name and description values of the category to update
+ * @param {UpdateCategoryRequestBodyDto} body the name and description values of the category to update
  * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
- * created category
+ * updated category
  */
 export const updateCategory = async (
     user: AuthUser,
@@ -147,6 +148,56 @@ export const updateCategory = async (
                 },
             },
         );
+
+        logger.info(`Category ${id} updated successfully`);
+        return pick(await SkillCategory.findByPk(id), ['id', 'name', 'description']);
+    });
+};
+
+/**
+ * Updates a category by its id partially
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {string} id the the id of the category to update
+ * @param {UpdateCategoryPartialRequestDto} body the name and description values of the category to update
+ * where the name or description or a combination of both can be provided
+ * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
+ * updated category
+ */
+export const UpdateCategoryPartial = async (
+    user: AuthUser,
+    id: string,
+    body: UpdateCategoryPartialRequestDto,
+): Promise<Partial<SkillCategory>> => {
+    logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
+
+    ensureUserCanManageCategories(user);
+
+    return await db.sequelize.transaction(async () => {
+        if (!body.name && !body.description) {
+            throw new BadRequestError('No data provided for category update');
+        }
+
+        if (!(await categoryIdExists(id))) {
+            throw new NotFoundError(`Category with id ${id} does not exist!`);
+        }
+
+        if (body.name && !(await categoryNameIsUnique(body.name))) {
+            throw new ConflictError(`Category with name ${body.name} already exists!`);
+        }
+
+        const propertiesToUpdate: { name?: string; description?: string } = {};
+        if (body.name) {
+            propertiesToUpdate['name'] = body.name;
+        }
+        if (body.description) {
+            propertiesToUpdate['description'] = body.description;
+        }
+
+        await SkillCategory.update(propertiesToUpdate, {
+            where: {
+                id,
+            },
+        });
 
         logger.info(`Category ${id} updated successfully`);
         return pick(await SkillCategory.findByPk(id), ['id', 'name', 'description']);

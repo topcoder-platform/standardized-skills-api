@@ -301,6 +301,60 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'                                    
+    patch:
+      operationId: updatePartialSkillCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. This can be used for updating either name or description or a combination of the two'
+      parameters:
+        - in: path
+          required: true
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          description: 'the id of the category to update'  
+      requestBody:
+        description: 'The request body for updating an existing skill category'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'         
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'        
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                                                
     delete:
       operationId: deleteSkillCategory
       tags: ['Standardized Skills API']

@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import {
     AllCategoriesRequestQueryDto,
     NewCategoryRequestBodyDto,
+    UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
 import * as SkillCategoryService from '../services/SkillCategoryService';
@@ -84,6 +85,33 @@ export default class SkillCategoryController {
         try {
             const category = await SkillCategoryService.updateCategory(req.authUser, req.params.categoryId, req.body);
             res.status(201).json(category);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Updates the name or description or a combination of both
+     * of an existing category
+     */
+    async updateCategoryPartial(
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            UpdateCategoryPartialRequestDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const category = await SkillCategoryService.UpdateCategoryPartial(
+                req.authUser,
+                req.params.categoryId,
+                req.body,
+            );
+            res.status(201).send(category);
         } catch (error) {
             next(error);
         }

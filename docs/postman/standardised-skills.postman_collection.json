@@ -382,6 +382,43 @@
 					"response": []
 				},
 				{
+					"name": "update category information partial",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Cat Postman 13\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/e2419ddf-4d62-4af6-86fa-c993873cde9f",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"e2419ddf-4d62-4af6-86fa-c993873cde9f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "delete category by id",
 					"request": {
 						"auth": {

@@ -13,6 +13,7 @@ import {
     AllCategoriesRequestQueryDto,
     CategoryIdRequestPathParamDto,
     NewCategoryRequestBodyDto,
+    UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
 
@@ -179,6 +180,23 @@ const RouteDefinitions: RouteDefinition[] = [
             },
             body: {
                 dto: UpdateCategoryRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId',
+        verb: 'patch',
+        controller: 'SkillCategoryController',
+        method: 'updateCategoryPartial',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+            body: {
+                dto: UpdateCategoryPartialRequestDto,
             },
         },
     },
