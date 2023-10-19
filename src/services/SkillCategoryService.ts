@@ -1,4 +1,4 @@
-import { isEmpty, isNull, pick } from 'lodash';
+import { isEmpty, isNull, omit, pick } from 'lodash';
 import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoriesRequestQueryDto,
@@ -11,6 +11,7 @@ import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
 import { ensureUserCanManageCategories } from '../utils/helpers';
+import { FindAndCountOptions, Op } from 'sequelize';
 
 const logger = new LoggerClient('SkillCategoryService');
 
@@ -58,13 +59,25 @@ export const getAllCategories = async (
       }
 > => {
     logger.info(`Fetching all categories with query: ${JSON.stringify(query)}`);
+
+    // build the search query
+    const findAndCountOptions: FindAndCountOptions = {
+        attributes: ['id', 'name', 'description'],
+    };
+    if (query.name) {
+        findAndCountOptions['where'] = {
+            name: {
+                [Op.iLike]: `%${query.name}%`,
+            },
+        };
+        query = omit(query, 'name');
+    }
+
     const { categories, ...paginationValues } = await findAndCountPaginated<SkillCategory>(
         SkillCategory,
         'categories',
         query,
-        {
-            attributes: ['id', 'name', 'description'],
-        },
+        findAndCountOptions,
     );
 
     isEmpty(categories)
@@ -133,7 +146,7 @@ export const updateCategory = async (
             throw new NotFoundError(`Category with id ${id} does not exist!`);
         }
 
-        if (!(await categoryNameIsUnique(body.name))) {
+        if (!(await categoryNameIsUnique(body.name, id))) {
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
@@ -181,7 +194,7 @@ export const UpdateCategoryPartial = async (
             throw new NotFoundError(`Category with id ${id} does not exist!`);
         }
 
-        if (body.name && !(await categoryNameIsUnique(body.name))) {
+        if (body.name && !(await categoryNameIsUnique(body.name, id))) {
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
@@ -228,7 +241,7 @@ export const deleteCategory = async (user: AuthUser, id: string) => {
                 id,
             },
         });
-        logger.info(`Catgeory with ${id} deleted successfully`);
+        logger.info(`Category with ${id} deleted successfully`);
         return;
     });
 };
@@ -238,14 +251,25 @@ export const deleteCategory = async (user: AuthUser, id: string) => {
  * @param {string} name the name of the category
  * @returns {Promise<boolean>} a boolean result wrapped in a promise
  */
-const categoryNameIsUnique = async (name: string): Promise<boolean> => {
-    return (
-        (await SkillCategory.findOne({
-            where: {
-                name,
-            },
-        })) === null
-    );
+const categoryNameIsUnique = async (name: string, id?: string): Promise<boolean> => {
+    const existingCategory = await SkillCategory.findOne({
+        where: {
+            name,
+        },
+    });
+
+    /**
+     * no category exists with the specified name RETURN false
+     * category exists and the provided id to check against is same as of the category we want to update RETURN true
+     * category exists and no id is supplied for comparison (used for creating new category) RETURN false
+     */
+    if (existingCategory === null) {
+        return true;
+    } else if (id && existingCategory.id === id) {
+        return true;
+    } else {
+        return false;
+    }
 };
 
 /**

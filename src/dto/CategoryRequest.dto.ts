@@ -7,6 +7,11 @@ export class AllCategoriesRequestQueryDto extends BasePaginatedSortedRequest {
     @IsNotEmpty()
     @IsIn(['name', 'description', 'createdAt', 'updatedAt'])
     sortBy?: string;
+
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    name?: string;
 }
 
 export class NewCategoryRequestBodyDto {
@@ -28,10 +33,12 @@ export class UpdateCategoryRequestBodyDto extends NewCategoryRequestBodyDto {
 export class UpdateCategoryPartialRequestDto {
     @IsString()
     @IsOptional()
+    @IsNotEmpty()
     name?: string;
 
     @IsOptional()
     @IsString()
+    @IsNotEmpty()
     description?: string;
 }
 
