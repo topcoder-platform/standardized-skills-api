@@ -1,4 +1,4 @@
-import { isEmpty, omit, pick } from 'lodash';
+import { isEmpty, isNull, pick } from 'lodash';
 import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoriesRequestQueryDto,
@@ -22,11 +22,10 @@ export const getCategoryById = async (id: string): Promise<Partial<SkillCategory
     logger.info(`Retrieve category with id ${id}`);
 
     return await db.sequelize.transaction(async () => {
-        if (!(await categoryIdExists(id))) {
+        const category = await SkillCategory.findByPk(id);
+        if (isNull(category)) {
             throw new NotFoundError(`Category with id ${id} does not exist!`);
         }
-
-        const category = await SkillCategory.findByPk(id);
         logger.info(`Catgeory with id ${id} retrieved successfully`);
 
         return pick(category, ['id', 'name', 'description']);
@@ -66,10 +65,10 @@ export const getAllCategories = async (
             attributes: ['id', 'name', 'description'],
         },
     );
-    if (isEmpty(categories)) {
-        throw new NotFoundError('No categories exist!');
-    }
-    logger.info(`Fetched categories successfully: ${JSON.stringify(categories)}`);
+
+    isEmpty(categories)
+        ? logger.info('No categories found!')
+        : logger.info(`Fetched categories successfully: ${JSON.stringify(categories)}`);
 
     return {
         categories,
@@ -114,21 +113,23 @@ export const createNewCategory = async (
 /**
  * Updates a category by its id
  * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {string} id the the id of the category to update
  * @param {UpdateCategoryRequestBodyDto} body the id, name and description values of the category to update
  * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
  * created category
  */
 export const updateCategory = async (
     user: AuthUser,
+    id: string,
     body: UpdateCategoryRequestBodyDto,
 ): Promise<Partial<SkillCategory>> => {
-    logger.info(`Updating category ${body.id} with data ${JSON.stringify(omit(body, 'id'))}`);
+    logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
 
     ensureUserCanManageCategories(user);
 
     return await db.sequelize.transaction(async () => {
-        if (!(await categoryIdExists(body.id))) {
-            throw new NotFoundError(`Category with id ${body.id} does not exist!`);
+        if (!(await categoryIdExists(id))) {
+            throw new NotFoundError(`Category with id ${id} does not exist!`);
         }
 
         if (!(await categoryNameIsUnique(body.name))) {
@@ -142,13 +143,13 @@ export const updateCategory = async (
             },
             {
                 where: {
-                    id: body.id,
+                    id,
                 },
             },
         );
 
-        logger.info(`Category ${body.id} updated successfully`);
-        return pick(await SkillCategory.findByPk(body.id), ['id', 'name', 'description']);
+        logger.info(`Category ${id} updated successfully`);
+        return pick(await SkillCategory.findByPk(id), ['id', 'name', 'description']);
     });
 };
 

@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "c3e99995-c7c4-467b-a621-99674d0d8fb8",
-		"name": "standardised-skills",
+		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30186453"
 	},
@@ -361,7 +361,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"id\": \"05d4697f-7edd-4431-af2f-84a1995fbd66\",\n    \"name\": \"Test Cat Postman 3\",\n    \"description\": \"Test Description 1\"\n}",
+							"raw": "{\n    \"name\": \"Test Cat Postman 12\",\n    \"description\": \"Test Description 12\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -369,12 +369,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/categories",
+							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"categories"
+								"categories",
+								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
 							]
 						}
 					},
@@ -396,13 +397,13 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/categories/05d4697f-7edd-4431-af2f-84a1995fbd66",
+							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"categories",
-								"05d4697f-7edd-4431-af2f-84a1995fbd66"
+								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
 							]
 						}
 					},
@@ -424,13 +425,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/categories/481b5ebc-2fe6-45ed-a90c-736936d458d7",
+							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"categories",
-								"481b5ebc-2fe6-45ed-a90c-736936d458d7"
+								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
 							]
 						}
 					},

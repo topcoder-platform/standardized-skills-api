@@ -20,11 +20,6 @@ export class NewCategoryRequestBodyDto {
 }
 
 export class UpdateCategoryRequestBodyDto extends NewCategoryRequestBodyDto {
-    @IsString()
-    @IsNotEmpty()
-    @IsUUID('all')
-    id: string;
-
     @IsOptional()
     @IsString()
     description: string;

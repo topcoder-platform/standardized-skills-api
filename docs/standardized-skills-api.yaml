@@ -166,12 +166,6 @@ paths:
               schema:
                 type: integer
               description: 'The total number of pages'
-        '404':
-          description: 'Not Found Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundErrorResponse'
         '500':
           description: 'Server Error'
           content:
@@ -219,21 +213,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'            
+  /categories/{categoryId}:
+    get:
+      operationId: getSkillCategoryById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint gets the details of the skill category identified by the given id'
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'The id of the category to retrieve'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+                 
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
     put:
       operationId: updateSkillCategory
       tags: ['Standardized Skills API']
       description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category'
+      parameters:
+        - in: path
+          required: true
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          description: 'the id of the category to update'  
       requestBody:
         description: 'The request body for updating an existing skill category'
         content:
           application/json:
             schema:
               type: object
-              required: ['id', 'name', 'description']
+              required: ['name', 'description']
               properties:
-                id:
-                  type: string
-                  format: uuid
                 name:
                   type: string
                 description:
@@ -268,40 +300,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServerErrorResponse'                        
-  /categories/{categoryId}:
-    get:
-      operationId: getSkillCategoryById
-      tags: ['Standardized Skills API']
-      description: 'This endpoint gets the details of the skill category identified by the given id'
-      parameters:
-        - in: path
-          name: categoryId
-          schema:
-            type: string
-            format: uuid
-          required: true
-          description: 'The id of the category to retrieve'
-      responses:
-        '200':
-          description: 'OK'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CategoryDetails'
-                 
-        '404':
-          description: 'Not Found Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundErrorResponse'
-        '500':
-          description: 'Server Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServerErrorResponse'
+                $ref: '#/components/schemas/ServerErrorResponse'                                    
     delete:
       operationId: deleteSkillCategory
       tags: ['Standardized Skills API']

@@ -82,7 +82,7 @@ export default class SkillCategoryController {
         next: NextFunction,
     ) {
         try {
-            const category = await SkillCategoryService.updateCategory(req.authUser, req.body);
+            const category = await SkillCategoryService.updateCategory(req.authUser, req.params.categoryId, req.body);
             res.status(201).json(category);
         } catch (error) {
             next(error);

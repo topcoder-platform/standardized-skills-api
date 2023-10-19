@@ -166,7 +166,7 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
-        path: '/categories',
+        path: '/categories/:categoryId',
         verb: 'put',
         controller: 'SkillCategoryController',
         method: 'updateCategory',
@@ -174,6 +174,9 @@ const RouteDefinitions: RouteDefinition[] = [
         access: [config.UserRoles.Admin],
         scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
         validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
             body: {
                 dto: UpdateCategoryRequestBodyDto,
             },
