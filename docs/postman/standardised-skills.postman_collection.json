@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "4d0c9d6a-ee8d-4483-878b-9847fef93a20",
+		"_postman_id": "ddc97d68-a93a-40a3-9f0e-b8446021117e",
 		"name": "standardised-skills",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30186453"
+		"_exporter_id": "215943"
 	},
 	"item": [
 		{
@@ -174,6 +174,11 @@
 									"key": "sortOrder",
 									"value": "DESC",
 									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": null,
+									"disabled": true
 								}
 							]
 						}
@@ -249,6 +254,47 @@
 							"path": [
 								"user-skills",
 								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SkillEvents",
+			"item": [
+				{
+					"name": "ChallengeUpdateSkillEvent",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"topic\": \"challenge.notification.update\",\r\n    \"originator\": \"topcoder-challenges-api\",\r\n    \"timestamp\": \"2022-10-03T00:27:16.291Z\",\r\n    \"mime-type\": \"application/json\",\r\n    \"payload\": {\r\n        \"status\": \"Completed\",\r\n        \"description\": \"Java Backend Developer with Kubernetes circleci angular nodejs javascript microsoft WCF knowledge\",\r\n        \"id\": \"813ce9a4-e213-4b34-875b-f3ad87b4baa5\",\r\n        \"tags\": [\r\n            \"Java\"\r\n        ],\r\n        \"skills\": [\r\n            {\r\n                \"id\": \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\r\n                \"name\": \"Spring Data\",\r\n                \"category\": {\r\n                    \"name\": \"Programming and Development\",\r\n                    \"id\": \"481b5ebc-2fe6-45ed-a90c-736936d458d7\"\r\n                }\r\n            },\r\n            {\r\n                \"id\": \"02ef295b-7b65-487f-9172-2a31360b3363\",\r\n                \"name\": \"Spring Boot\",\r\n                \"category\": {\r\n                    \"name\": \"Programming and Development\",\r\n                    \"id\": \"481b5ebc-2fe6-45ed-a90c-736936d458d7\"\r\n                }\r\n            }\r\n        ],\r\n        \"winners\": [\r\n            {\r\n                \"handle\": \"devolariu\",\r\n                \"placement\": 1,\r\n                \"userId\": 88779225\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skill-events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skill-events"
 							]
 						}
 					},
