@@ -15,7 +15,7 @@ const logger = new LoggerClient('UserSkillsService');
 
 export async function getUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
     try {
-        const { skills, ...paginationData } = await findAndCountPaginated(Skill, 'skill', query, {
+        const { skills, ...paginationData } = await findAndCountPaginated(Skill, 'skills', query, {
             attributes: ['id', 'name'],
             include: [
                 {
