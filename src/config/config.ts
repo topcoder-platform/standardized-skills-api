@@ -41,4 +41,6 @@ export const envConfig = {
         REFRESH: process.env.MEMBERS_ES_REFRESH || false,
     },
     API_BASE: '/v5/standardized-skills',
+
+    HASHING_SECRET: process.env.HASHING_SECRET || 'thisissecret',
 };

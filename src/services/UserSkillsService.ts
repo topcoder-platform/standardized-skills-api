@@ -1,7 +1,6 @@
-import { Op, Order } from 'sequelize';
+import { Op } from 'sequelize';
 import { uniqBy, map, toString, isEmpty } from 'lodash';
 
-import { UserSkillLevels } from '../config';
 import db, { Skill, SkillCategory, UserSkill, UserSkillLevel } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
 import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
@@ -11,6 +10,7 @@ import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserCanValidateMemberSkills } from '../utils/helpers';
 import * as esHelper from '../utils/es-helper';
 import { getOrderBy } from '../utils/user-skills-helper';
+import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
 
 const logger = new LoggerClient('UserSkillsService');
 
@@ -104,11 +104,7 @@ export async function updateDbUserSkills(
     userId: number,
     skillsData: UpdateUserSkillsRequestBodyDto,
 ) {
-    // fetch the DB id for the selfDeclared user skill level
-    const selfDeclaredSkillLevel = await UserSkillLevel.findOne({ where: { name: UserSkillLevels.selfDeclared } });
-    if (!selfDeclaredSkillLevel) {
-        throw new Error('User self-declared skill level not found!');
-    }
+    const selfDeclaredSkillLevel = await fetchSelfDeclaredSkillLevel();
 
     // ensure that only designated users can mark skills as other than "selfDeclared"
     if (skillsData.skills.some((skill) => skill.levelId && skill.levelId !== selfDeclaredSkillLevel.id)) {

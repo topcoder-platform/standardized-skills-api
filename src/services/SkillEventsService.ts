@@ -1,19 +1,34 @@
-import { isEmpty, map, toString } from 'lodash';
+import { map, toString } from 'lodash';
 
-import { SkillEventChallengeUpdateStatus, SkillEventTopic, UserSkillLevels } from '../config';
+import { SkillEventChallengeUpdateStatus, SkillEventTopic, WorkType } from '../config';
 import { ChallengeUpdateSkillEventPayload, GetUserSkillsQueryDto, SkillEventRequestBodyDto } from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserCanValidateMemberSkills } from '../utils/helpers';
 import { getUserSkills } from './UserSkillsService';
-import db, { Skill, UserSkill, UserSkillLevel } from '../db';
+import db, { Skill, UserSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
-import { BadRequestError, NotFoundError } from '../utils/errors';
+import { BadRequestError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
+import { fetchSourceType, fetchVerifiedSkillLevel } from '../utils/skills-helper';
+import {
+    createAndEnsureEventNotProcessedAlready,
+    ensurePayloadWinnersAreValidUsers,
+    createSkillEventsForUser,
+} from '../utils/skill-events-helper';
 
 const logger = new LoggerClient('SkillEventsService');
 
-export async function processChallengeCompletedSkillEvent(payload: ChallengeUpdateSkillEventPayload) {
+/**
+ * Processes challenge completed events and
+ * assigns any challenge skills to the winners of the challange
+ * It also records specific SkillEvents for each added UserSkill to keep track of the source of the event
+ * 
+ * @param eventId 
+ * @param payload 
+ * @returns 
+ */
+export async function processChallengeCompletedSkillEvent(eventId: string, payload: ChallengeUpdateSkillEventPayload) {
     logger.info(`Handling challenge update skill event using payload ${JSON.stringify(payload)}`);
 
     if (payload.status !== SkillEventChallengeUpdateStatus.completed) {
@@ -26,21 +41,14 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
         throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
     }
 
-    // fetch the DB id for the verified user skill level
-    const verifiedSkillLevel = await UserSkillLevel.findOne({ where: { name: UserSkillLevels.verified } });
-    if (!verifiedSkillLevel) {
-        throw new Error('User verified skill level not found!');
-    }
-
     // ensure all users in the payload exist
-    const membersPromises = payload.winners.map((user) => esHelper.getMemberById(toString(user.userId)));
-    const members = await Promise.all(membersPromises);
-    const existingMembers = members.map(isEmpty);
-    if (existingMembers.length !== payload.winners.length) {
-        throw new NotFoundError('Some members have invalid userIds!');
-    }
+    await ensurePayloadWinnersAreValidUsers(payload.winners);
 
-    return db.sequelize.transaction(async () => {
+    // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
+    const sourceType = await fetchSourceType(WorkType.challenge);
+    const verifiedSkillLevel = await fetchVerifiedSkillLevel();
+
+    return db.sequelize.transaction(async (tx) => {
         const allSkills = [];
         // update each user with the skills data
         for (const user of payload.winners) {
@@ -52,17 +60,19 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
+            await createSkillEventsForUser(user, payload.skills, eventId, payload.id, sourceType.id, tx);
+
             const allUserSkills = await getUserSkills(user.userId, {
                 ...new GetUserSkillsQueryDto(),
                 disablePagination: true,
             });
 
-            allSkills.push({userId: toString(user.userId), skills: allUserSkills.skills});
+            allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });
         }
 
         // do the ES update only after we make sure all user skill db updates have been successfull,
         // otherwise we can't revert ES updates if db update fails
-        for (const {userId, skills} of allSkills) {
+        for (const { userId, skills } of allSkills) {
             await esHelper.updateSkillsInMemberES(userId, skills);
         }
 
@@ -70,14 +80,16 @@ export async function processChallengeCompletedSkillEvent(payload: ChallengeUpda
     });
 }
 
-export function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
+export async function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
     // Ensure skill-events are only executed by admins or machine users
     ensureUserCanValidateMemberSkills(currentUser);
+
+    const event = await createAndEnsureEventNotProcessedAlready(topic, payload);
 
     // handle each event topic differently
     switch (topic) {
         case SkillEventTopic.challengeUpdate:
-            return processChallengeCompletedSkillEvent(payload);
+            return processChallengeCompletedSkillEvent(event.id, payload);
         default:
             logger.info(`Skill event with topic ${topic} not handled!`);
     }
