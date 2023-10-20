@@ -139,7 +139,7 @@ paths:
           name: sortBy
           schema:
             type: string
-            enum: ['name']
+            enum: ['name', 'description', 'createdAt', 'updatedAt']
         - in: query
           name: sortOrder
           schema:
@@ -171,26 +171,61 @@ paths:
               schema:
                 type: integer
               description: 'The total number of pages'
-        '404':
-          description: 'Not Found Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundErrorResponse'
         '500':
           description: 'Server Error'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
-  /categories/{id}:
+    post:
+      operationId: createSkillCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint creates a new category with the data in the request body if and only if the category name does not already exist'
+      requestBody:
+        description: 'The request body for creating a new skill category'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['name']
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'            
+  /categories/{categoryId}:
     get:
       operationId: getSkillCategoryById
       tags: ['Standardized Skills API']
       description: 'This endpoint gets the details of the skill category identified by the given id'
       parameters:
         - in: path
-          name: id
+          name: categoryId
           schema:
             type: string
             format: uuid
@@ -202,9 +237,8 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                 - $ref: '#/components/schemas/CategoryDetails'
-                 - $ref: '#/components/schemas/Timestamps'
+                $ref: '#/components/schemas/CategoryDetails'
+                 
         '404':
           description: 'Not Found Error'
           content:
@@ -217,6 +251,154 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+    put:
+      operationId: updateSkillCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category'
+      parameters:
+        - in: path
+          required: true
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          description: 'the id of the category to update'  
+      requestBody:
+        description: 'The request body for updating an existing skill category'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['name', 'description']
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'         
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'        
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                                    
+    patch:
+      operationId: updatePartialSkillCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. This can be used for updating either name or description or a combination of the two'
+      parameters:
+        - in: path
+          required: true
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          description: 'the id of the category to update'  
+      requestBody:
+        description: 'The request body for updating an existing skill category'
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryDetails'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'         
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'        
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                                                
+    delete:
+      operationId: deleteSkillCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint deletes an existing category'
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'The id of the category to delete'
+      responses:
+        '204':
+          description: 'No Content'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'  
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                                    
   /categories/{id}/skills:
     get:
       operationId: getSkillsByCategory
@@ -830,10 +1012,14 @@ components:
       properties:
         message:
           type: string
+    ConflictErrorResponse:
+      properties:
+        message:
+          type: string      
     ServiceUnavailableErrorResponse:
       properties:
         message:
-          type: string
+          type: string     
     ForbiddenErrorResponse:
       properties:
         version:

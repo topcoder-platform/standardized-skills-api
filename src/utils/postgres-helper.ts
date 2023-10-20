@@ -53,12 +53,11 @@ export const bulkCheckValidIds = async (model: DbModelsType, ids: string[]): Pro
 
 export async function findAndCountPaginated<T>(
     model: DbModelsType,
-    modelName: string,
+    recordName: string,
     queryOptions: BasePaginatedSortedRequest,
     extraQueryOptions?: FindAndCountOptions,
 ) {
     const DbModel = getModelCtor(model);
-    const entriesKey = `${modelName}s`;
 
     const isPaginationDisabled = `${queryOptions.disablePagination}` === 'true';
 
@@ -86,7 +85,7 @@ export async function findAndCountPaginated<T>(
 
     if (isEmpty(rows) || isUndefined(rows)) {
         return {
-            [entriesKey]: [] as T[],
+            [recordName]: [] as T[],
             page: 1,
             perPage: 0,
             total: 0,
@@ -95,7 +94,7 @@ export async function findAndCountPaginated<T>(
     }
 
     const results = {
-        [entriesKey]: rows as unknown as T[],
+        [recordName]: rows as unknown as T[],
     };
 
     return isPaginationDisabled

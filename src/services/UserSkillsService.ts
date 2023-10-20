@@ -29,7 +29,7 @@ export async function getUserSkills(userId: string | number, query: GetUserSkill
         
         const { skills, ...paginationData } = await findAndCountPaginated(
             Skill,
-            'skill',
+            'skills',
             {...query, sortBy},
             {
                 attributes: ['id', 'name'],
