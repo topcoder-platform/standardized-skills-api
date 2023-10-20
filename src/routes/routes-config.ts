@@ -9,6 +9,13 @@ import {
     UserIdParamDto,
     SkillEventRequestBodyDto,
 } from '../dto';
+import {
+    AllCategoriesRequestQueryDto,
+    CategoryIdRequestPathParamDto,
+    NewCategoryRequestBodyDto,
+    UpdateCategoryPartialRequestDto,
+    UpdateCategoryRequestBodyDto,
+} from '../dto/CategoryRequest.dto';
 
 const RouteDefinitions: RouteDefinition[] = [
     {
@@ -35,7 +42,6 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getAutocompleteSuggestions',
-        auth: true,
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             query: {
@@ -117,6 +123,94 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             body: {
                 dto: SkillEventRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId',
+        verb: 'get',
+        controller: 'SkillCategoryController',
+        method: 'getCategoryById',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+        },
+    },
+    {
+        path: '/categories',
+        verb: 'get',
+        controller: 'SkillCategoryController',
+        method: 'getAllCategories',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        validation: {
+            query: {
+                dto: AllCategoriesRequestQueryDto,
+            },
+        },
+    },
+    {
+        path: '/categories',
+        verb: 'post',
+        controller: 'SkillCategoryController',
+        method: 'createCategory',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.ALL],
+        validation: {
+            body: {
+                dto: NewCategoryRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId',
+        verb: 'put',
+        controller: 'SkillCategoryController',
+        method: 'updateCategory',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+            body: {
+                dto: UpdateCategoryRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId',
+        verb: 'patch',
+        controller: 'SkillCategoryController',
+        method: 'updateCategoryPartial',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+            body: {
+                dto: UpdateCategoryPartialRequestDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId',
+        verb: 'delete',
+        controller: 'SkillCategoryController',
+        method: 'deleteCategory',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.DELETE, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
             },
         },
     },

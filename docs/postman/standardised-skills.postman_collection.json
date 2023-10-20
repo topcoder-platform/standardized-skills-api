@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "ddc97d68-a93a-40a3-9f0e-b8446021117e",
-		"name": "standardised-skills",
+		"_postman_id": "c3e99995-c7c4-467b-a621-99674d0d8fb8",
+		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "215943"
 	},
@@ -295,6 +295,231 @@
 							],
 							"path": [
 								"skill-events"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Skill Category",
+			"item": [
+				{
+					"name": "all categories",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "20",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "createdAt",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "vel",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Cat Postman 1\",\n    \"description\": \"Test Description 1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update category information",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Cat Postman 12\",\n    \"description\": \"Test Description 12\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update category information partial",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Cat Postman 13\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/e2419ddf-4d62-4af6-86fa-c993873cde9f",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"e2419ddf-4d62-4af6-86fa-c993873cde9f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete category by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get category by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
 							]
 						}
 					},
