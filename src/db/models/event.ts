@@ -63,6 +63,7 @@ export class event extends Model<eventAttributes, eventCreationAttributes> imple
                 tableName: 'event',
                 schema: 'public',
                 timestamps: true,
+                updatedAt: false,
                 indexes: [
                     {
                         name: 'event_pkey',

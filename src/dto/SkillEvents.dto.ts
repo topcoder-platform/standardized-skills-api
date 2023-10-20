@@ -1,5 +1,5 @@
 import { Exclude, Type, TypeHelpOptions } from 'class-transformer';
-import { IsArray, ArrayNotEmpty, IsNumber, IsEnum, ValidateNested, IsString, IsUUID } from 'class-validator';
+import { IsArray, ArrayNotEmpty, IsNumber, IsEnum, ValidateNested, IsString, IsUUID, Allow } from 'class-validator';
 
 import { SkillEventTopic } from '../config';
 
@@ -14,15 +14,16 @@ export class UserSkillDto {
     category: any;
 }
 
-class ChallengeWinnerDto {
+export class ChallengeWinnerDto {
     @IsNumber()
     userId: string;
+
+    @IsNumber()
+    placement: number;
 
     // exclude data we're not interested in
     @Exclude()
     handle: string;
-    @Exclude()
-    placement: string;
 }
 
 export class ChallengeUpdateSkillEventPayload {
@@ -40,12 +41,13 @@ export class ChallengeUpdateSkillEventPayload {
     @IsString()
     status: string;
 
-    // exclude data we're not interested in
-    @Exclude()
-    description: string;
-    @Exclude()
+    @IsString()
     id: string;
-    @Exclude()
+
+    // exclude data we're not interested in
+    @Allow()
+    description: string;
+    @Allow()
     tags: string[];
 }
 
