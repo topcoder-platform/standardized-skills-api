@@ -74,14 +74,14 @@ export async function findAndCountPaginated<T>(
         pgQuery.order = [
             [queryOptions.sortBy, queryOptions.sortOrder],
             // secondary custom order by
-            ...(extraQueryOptions?.order as any[] ?? []),
+            ...((extraQueryOptions?.order as any[]) ?? []),
         ];
     }
 
     const [count, rows] = await Promise.all([
-        DbModel.count({...pgQuery, attributes: [], distinct: true, col: 'id'}),
+        DbModel.count({ ...pgQuery, attributes: [], distinct: true, col: 'id' }),
         DbModel.findAll(pgQuery),
-    ]) ;
+    ]);
 
     if (isEmpty(rows) || isUndefined(rows)) {
         return {

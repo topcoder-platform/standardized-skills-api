@@ -23,10 +23,10 @@ const logger = new LoggerClient('SkillEventsService');
  * Processes challenge completed events and
  * assigns any challenge skills to the winners of the challange
  * It also records specific SkillEvents for each added UserSkill to keep track of the source of the event
- * 
- * @param eventId 
- * @param payload 
- * @returns 
+ *
+ * @param eventId
+ * @param payload
+ * @returns
  */
 export async function processChallengeCompletedSkillEvent(eventId: string, payload: ChallengeUpdateSkillEventPayload) {
     logger.info(`Handling challenge update skill event using payload ${JSON.stringify(payload)}`);

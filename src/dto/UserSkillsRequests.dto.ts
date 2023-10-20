@@ -1,5 +1,14 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+    IsArray,
+    IsIn,
+    IsNotEmpty,
+    IsNumberString,
+    IsOptional,
+    IsString,
+    IsUUID,
+    ValidateNested,
+} from 'class-validator';
 
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 

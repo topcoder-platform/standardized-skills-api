@@ -22,15 +22,15 @@ export async function getUserSkills(userId: string | number, query: GetUserSkill
     if (isEmpty(member)) {
         throw new NotFoundError(`Member ${userId} does not exist!`);
     }
-    
+
     try {
         // manually handle sortBy in here
-        const {order, sortBy} = getOrderBy(query);
-        
+        const { order, sortBy } = getOrderBy(query);
+
         const { skills, ...paginationData } = await findAndCountPaginated(
             Skill,
             'skills',
-            {...query, sortBy},
+            { ...query, sortBy },
             {
                 attributes: ['id', 'name'],
                 include: [
@@ -56,7 +56,7 @@ export async function getUserSkills(userId: string | number, query: GetUserSkill
                     },
                 ],
                 order,
-            }
+            },
         );
 
         // Map the database data into skill items that contain category & the levels objects

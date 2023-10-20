@@ -5,26 +5,20 @@ import { GetUserSkillsQueryDto } from '../dto';
 export function getOrderBy(query: GetUserSkillsQueryDto) {
     let order: Order = [];
     let sortBy = query.sortBy;
-    
+
     if (query.sortBy) {
         switch (query.sortBy) {
             case 'level':
                 order = [
                     [
-                        {model: UserSkill, as: 'user_skills'},
-                        {model: UserSkillLevel, as: 'user_skill_level'},
+                        { model: UserSkill, as: 'user_skills' },
+                        { model: UserSkillLevel, as: 'user_skill_level' },
                         'name',
                         query.sortOrder || 'asc',
                     ],
                 ];
             case 'category':
-                order = [
-                    [
-                        {model: SkillCategory, as: 'category'},
-                        'name',
-                        query.sortOrder || 'asc',
-                    ],
-                ];
+                order = [[{ model: SkillCategory, as: 'category' }, 'name', query.sortOrder || 'asc']];
             case 'level':
             case 'category':
                 // secondary sort by skill name
@@ -32,9 +26,10 @@ export function getOrderBy(query: GetUserSkillsQueryDto) {
                 // clear sort criteria as it is unknown to db
                 sortBy = undefined;
                 break;
-            default: break;
+            default:
+                break;
         }
     }
 
-    return {order, sortBy};
+    return { order, sortBy };
 }
