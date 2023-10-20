@@ -4,6 +4,11 @@ info:
   title: standardized-skills-api
   description: 'Topcoder Standardized Skills API Backend <br> <br>
                 All endpoints are JWT protected except GET /skills/autocomplete'
+servers:
+  - url: https://api.topcoder-dev.com/v5/standardized-skills
+    description: Development server
+  - url:  https://local.topcoder-dev.com/v5/standardized-skills
+    description: Local Server
 security:
   - Bearer: []
 paths:
@@ -303,7 +308,7 @@ paths:
           name: sortBy
           schema:
             type: string
-            enum: ['name']
+            enum: ['name', 'category', 'level']
         - in: query
           name: sortOrder
           schema:

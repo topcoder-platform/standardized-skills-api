@@ -7,7 +7,7 @@ import { AuthorizedRequest } from '../types';
 
 export default class UserSkillsController {
     /**
-     * Create association for the User & provided skills
+     * Get the associated skills for the User
      */
     async getUserSkills(
         req: AuthorizedRequest<{ [key: string]: string }, any, any, GetUserSkillsQueryDto, Record<string, any>>,
@@ -51,7 +51,7 @@ export default class UserSkillsController {
         }
     }
     /**
-     * Create association for the User & provided skills
+     * Update association for the User & provided skills
      */
     async updateUserSkills(
         req: AuthorizedRequest<

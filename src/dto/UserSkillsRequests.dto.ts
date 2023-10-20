@@ -1,9 +1,15 @@
 import { Type } from 'class-transformer';
-import { IsArray, IsNumberString, IsOptional, IsUUID, ValidateNested } from 'class-validator';
+import { IsArray, IsIn, IsNotEmpty, IsNumberString, IsOptional, IsString, IsUUID, ValidateNested } from 'class-validator';
 
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 
-export class GetUserSkillsQueryDto extends BasePaginatedSortedRequest {}
+export class GetUserSkillsQueryDto extends BasePaginatedSortedRequest {
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    @IsIn(['name', 'category', 'level'])
+    sortBy?: string;
+}
 
 class UserSkillSkillRequestDto {
     @IsUUID('all')
@@ -19,7 +25,7 @@ export class UserIdParamDto {
     userId: string;
 }
 
-export class UpdateUserSkillsRequestBodyDto extends BasePaginatedSortedRequest {
+export class UpdateUserSkillsRequestBodyDto {
     @IsArray()
     @ValidateNested()
     @Type(() => UserSkillSkillRequestDto)
