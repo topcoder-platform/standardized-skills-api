@@ -16,7 +16,7 @@ export const hashData = (data: any, digest: BinaryToTextEncoding = 'base64', sec
     crypto.createHmac('sha1', secret).update(JSON.stringify(data)).digest(digest);
 
 /**
- * Ensures event was not processed already based on the pased payload
+ * Ensures event was not processed already based on the passed payload
  * If event was not processed already, create and return an event db entry
  * If event was processed already, throws a conflict error
  * @param topic

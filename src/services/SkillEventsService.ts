@@ -19,6 +19,15 @@ import {
 
 const logger = new LoggerClient('SkillEventsService');
 
+/**
+ * Processes challenge completed events and
+ * assigns any challenge skills to the winners of the challange
+ * It also records specific SkillEvents for each added UserSkill to keep track of the source of the event
+ * 
+ * @param eventId 
+ * @param payload 
+ * @returns 
+ */
 export async function processChallengeCompletedSkillEvent(eventId: string, payload: ChallengeUpdateSkillEventPayload) {
     logger.info(`Handling challenge update skill event using payload ${JSON.stringify(payload)}`);
 
@@ -35,7 +44,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     // ensure all users in the payload exist
     await ensurePayloadWinnersAreValidUsers(payload.winners);
 
-    // fetch soruceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
+    // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
     const sourceType = await fetchSourceType(WorkType.challenge);
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
 
