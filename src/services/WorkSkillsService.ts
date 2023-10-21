@@ -65,6 +65,15 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
             skill_id: skillId,
         }));
 
+        // remove existing association and create new skills association
+        await WorkSkill.destroy({
+            where: {
+                work_id: workSkillData.workId,
+                work_type_id: workSkillData.workTypeId,
+            },
+        });
+        await WorkSkill.bulkCreate(workSkills);
+
         const skillsToAssociate = await Skill.findAll({
             attributes: ['name', 'id'],
             include: {
@@ -78,15 +87,6 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
                 },
             },
         });
-
-        // remove existing association and create new skills association
-        await WorkSkill.destroy({
-            where: {
-                work_id: workSkillData.workId,
-                work_type_id: workSkillData.workTypeId,
-            },
-        });
-        await WorkSkill.bulkCreate(workSkills);
 
         // update ES indices to reflect the new association
         if (workTypeDetail.name === constants.WorkType.challenge) {
