@@ -2,6 +2,12 @@ import { Order } from 'sequelize';
 import { UserSkill, UserSkillLevel, SkillCategory } from '../db';
 import { GetUserSkillsQueryDto } from '../dto';
 
+/**
+ * Get's the sorting criteria based on the url query params
+ * For `level` and `category` sorting, a secondary sorting will be applied for the skill name
+ * @param query
+ * @returns
+ */
 export function getOrderBy(query: GetUserSkillsQueryDto) {
     let order: Order = [];
     let sortBy = query.sortBy;
