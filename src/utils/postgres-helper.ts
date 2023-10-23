@@ -71,11 +71,19 @@ export async function findAndCountPaginated<T>(
 
     if (queryOptions.sortBy) {
         // sorting is optional
-        pgQuery.order = [[queryOptions.sortBy, queryOptions.sortOrder]];
+        pgQuery.order = [
+            [queryOptions.sortBy, queryOptions.sortOrder],
+            // secondary custom order by
+            ...((extraQueryOptions?.order as any[]) ?? []),
+        ];
     }
 
-    const resultsAndCount = await DbModel.findAndCountAll(pgQuery);
-    if (isEmpty(resultsAndCount) || isUndefined(resultsAndCount)) {
+    const [count, rows] = await Promise.all([
+        DbModel.count({ ...pgQuery, attributes: [], distinct: true, col: 'id' }),
+        DbModel.findAll(pgQuery),
+    ]);
+
+    if (isEmpty(rows) || isUndefined(rows)) {
         return {
             [recordName]: [] as T[],
             page: 1,
@@ -86,7 +94,7 @@ export async function findAndCountPaginated<T>(
     }
 
     const results = {
-        [recordName]: resultsAndCount.rows as unknown as T[],
+        [recordName]: rows as unknown as T[],
     };
 
     return isPaginationDisabled
@@ -95,7 +103,7 @@ export async function findAndCountPaginated<T>(
               ...results,
               page: queryOptions.page,
               perPage: queryOptions.perPage,
-              total: resultsAndCount.count,
-              totalPages: Math.ceil(resultsAndCount.count / queryOptions.perPage),
+              total: count,
+              totalPages: Math.ceil(count / queryOptions.perPage),
           };
 }

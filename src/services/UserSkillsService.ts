@@ -9,38 +9,57 @@ import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserCanValidateMemberSkills } from '../utils/helpers';
 import * as esHelper from '../utils/es-helper';
+import { getOrderBy } from '../utils/user-skills-helper';
 import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
 
 const logger = new LoggerClient('UserSkillsService');
 
+/**
+ * Gets user's skills with the attached skill category & skill levels
+ */
 export async function getUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
-    try {
-        const { skills, ...paginationData } = await findAndCountPaginated(Skill, 'skills', query, {
-            attributes: ['id', 'name'],
-            include: [
-                {
-                    model: SkillCategory,
-                    as: 'category',
-                    attributes: ['id', 'name'],
-                },
-                {
-                    model: UserSkill,
-                    as: 'user_skills',
-                    where: {
-                        user_id: userId,
-                    },
-                    include: [
-                        {
-                            model: UserSkillLevel,
-                            as: 'user_skill_level',
-                            attributes: ['id', 'name', 'description'],
-                        },
-                    ],
-                    attributes: ['id'],
-                },
-            ],
-        });
+    const member = await esHelper.getMemberById(toString(userId));
+    if (isEmpty(member)) {
+        throw new NotFoundError(`Member ${userId} does not exist!`);
+    }
 
+    try {
+        // manually handle sortBy in here
+        const { order, sortBy } = getOrderBy(query);
+
+        const { skills, ...paginationData } = await findAndCountPaginated(
+            Skill,
+            'skills',
+            { ...query, sortBy },
+            {
+                attributes: ['id', 'name'],
+                include: [
+                    {
+                        model: SkillCategory,
+                        as: 'category',
+                        attributes: ['id', 'name'],
+                    },
+                    {
+                        model: UserSkill,
+                        as: 'user_skills',
+                        where: {
+                            user_id: userId,
+                        },
+                        include: [
+                            {
+                                model: UserSkillLevel,
+                                as: 'user_skill_level',
+                                attributes: ['id', 'name', 'description'],
+                            },
+                        ],
+                        attributes: ['id'],
+                    },
+                ],
+                order,
+            },
+        );
+
+        // Map the database data into skill items that contain category & the levels objects
         const allSkills: {
             id: string;
             name: string;
@@ -77,6 +96,9 @@ export async function getUserSkills(userId: string | number, query: GetUserSkill
     }
 }
 
+/**
+ * Takes care of updating the db records for the user skills
+ */
 export async function updateDbUserSkills(
     currentUser: AuthUser,
     userId: number,
@@ -132,6 +154,9 @@ export async function updateDbUserSkills(
     });
 }
 
+/**
+ * Handles requests to create the initial set of user skills
+ */
 export async function createUserSkills(
     currentUser: AuthUser,
     userId: number,
@@ -159,6 +184,9 @@ export async function createUserSkills(
     return updateDbUserSkills(currentUser, userId, skillsData);
 }
 
+/**
+ * Handles requests to update an existing set of user skills
+ */
 export async function updateUserSkills(
     currentUser: AuthUser,
     userId: number,
