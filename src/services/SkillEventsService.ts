@@ -15,6 +15,7 @@ import {
     createAndEnsureEventNotProcessedAlready,
     ensurePayloadWinnersAreValidUsers,
     createSkillEventsForUser,
+    ensurePayloadChallengeExists,
 } from '../utils/skill-events-helper';
 
 const logger = new LoggerClient('SkillEventsService');
@@ -36,6 +37,9 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
         return;
     }
 
+    // ensure the payload.id is an existent challenge
+    await ensurePayloadChallengeExists(payload.id);
+    
     // ensure passed skill ids are valid
     if (!(await bulkCheckValidIds(Skill, map(payload.skills, 'id')))) {
         throw new NotFoundError('Some of the passed \'skills.id\' don\'t exist!');
