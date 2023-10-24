@@ -27,8 +27,7 @@ export async function createAndEnsureEventNotProcessedAlready(topic: string, pay
     const payloadHash = hashData(payload);
 
     try {
-        const [event] = await Event.findOrCreate({ where: { topic, payload, payload_hash: payloadHash } });
-        return event;
+        return await Event.create({ topic, payload, payload_hash: payloadHash });
     } catch (error) {
         if (error instanceof UniqueConstraintError) {
             throw new ConflictError('Event has already been processed!');

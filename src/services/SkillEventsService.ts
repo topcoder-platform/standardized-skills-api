@@ -7,7 +7,7 @@ import { ensureUserCanValidateMemberSkills } from '../utils/helpers';
 import { getUserSkills } from './UserSkillsService';
 import db, { Skill, UserSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
-import { BadRequestError } from '../utils/errors';
+import { NotFoundError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import { fetchSourceType, fetchVerifiedSkillLevel } from '../utils/skills-helper';
@@ -38,7 +38,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
     // ensure passed skill ids are valid
     if (!(await bulkCheckValidIds(Skill, map(payload.skills, 'id')))) {
-        throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
+        throw new NotFoundError('Some of the passed \'skills.id\' don\'t exist!');
     }
 
     // ensure all users in the payload exist
