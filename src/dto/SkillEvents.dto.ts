@@ -42,7 +42,7 @@ export class ChallengeUpdateSkillEventPayload {
     @IsIn(['Completed'])
     status: string;
 
-    @IsString()
+    @IsUUID('all')
     id: string;
 
     // exclude data we're not interested in
