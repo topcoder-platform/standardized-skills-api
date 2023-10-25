@@ -1,4 +1,4 @@
-import { Exclude, Type, TypeHelpOptions } from 'class-transformer';
+import { Type, TypeHelpOptions } from 'class-transformer';
 import {
     IsArray,
     ArrayNotEmpty,
@@ -8,7 +8,6 @@ import {
     ValidateNested,
     IsString,
     IsUUID,
-    Allow,
 } from 'class-validator';
 
 import { SkillEventTopic } from '../config';

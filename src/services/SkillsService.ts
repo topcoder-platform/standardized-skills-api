@@ -82,22 +82,17 @@ export async function autocompleteSkills(query: GetAutocompleteRequestQueryDto) 
 export async function getSkillById(skillId: string) {
     logger.info(`Fetching skill by id ${skillId}`);
 
-    try {
-        const skill = await Skill.findByPk(skillId, {
-            include:
-                // expand the category information in the response
-                {
-                    model: db.models.SkillCategory,
-                    as: 'category',
-                },
-        });
-        if (!skill || isNull(skill)) {
-            throw new NotFoundError(`Skill with id ${skillId} does not exist!`);
-        }
-        logger.info(`Skill with id ${skillId} retrieved successfully`);
-        return pick(skill, ['id', 'name', 'category.name', 'category.id', 'description', 'createdAt', 'updatedAt']);
-    } catch (error) {
-        logger.error(`Unable to fetch skill by id ${skillId}`);
-        throw error;
+    const skill = await Skill.findByPk(skillId, {
+        include:
+            // expand the category information in the response
+            {
+                model: db.models.SkillCategory,
+                as: 'category',
+            },
+    });
+    if (!skill || isNull(skill)) {
+        throw new NotFoundError(`Skill with id ${skillId} does not exist!`);
     }
+    logger.info(`Skill with id ${skillId} retrieved successfully`);
+    return pick(skill, ['id', 'name', 'category.name', 'category.id', 'description', 'createdAt', 'updatedAt']);
 }
