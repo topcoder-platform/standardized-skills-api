@@ -39,7 +39,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
     // ensure the payload.id is an existent challenge
     await ensurePayloadChallengeExists(payload.id);
-    
+
     // ensure passed skill ids are valid
     if (!(await bulkCheckValidIds(Skill, map(payload.skills, 'id')))) {
         throw new NotFoundError('Some of the passed \'skills.id\' don\'t exist!');

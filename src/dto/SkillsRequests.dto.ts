@@ -3,6 +3,13 @@ import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 import { Type } from 'class-transformer';
 import { DEFAULT_SUGGESTIONS_SIZE } from '../config';
 
+export class SkillIdRequestPathParamDto {
+    @IsString()
+    @IsNotEmpty()
+    @IsUUID('all')
+    skillId: string;
+}
+
 export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsOptional()
     @IsUUID('all', { each: true })
