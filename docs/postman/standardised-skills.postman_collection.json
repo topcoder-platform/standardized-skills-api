@@ -157,27 +157,29 @@
 							"query": [
 								{
 									"key": "page",
-									"value": "11",
+									"value": "1",
 									"disabled": true
 								},
 								{
 									"key": "perPage",
-									"value": "50",
+									"value": "2",
 									"disabled": true
 								},
 								{
 									"key": "sortBy",
-									"value": "name",
+									"value": "level",
+									"description": "name, level, category",
 									"disabled": true
 								},
 								{
 									"key": "sortOrder",
 									"value": "DESC",
+									"description": "ASC, DESC",
 									"disabled": true
 								},
 								{
 									"key": "disablePagination",
-									"value": null,
+									"value": "",
 									"disabled": true
 								}
 							]
@@ -528,59 +530,96 @@
 			]
 		},
 		{
-			"name": "all skills",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{token}}",
-							"type": "string"
+			"name": "Skills",
+			"item": [
+				{
+					"name": "all skills",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "name",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"disabled": true
+								},
+								{
+									"key": "skillId",
+									"value": "d18b7aa7-cfe2-46ae-ba63-bc6c3e039d12",
+									"disabled": true
+								},
+								{
+									"key": "skillId",
+									"value": "a54a0041-77d5-4af6-b0e5-bee54b85d0e8",
+									"disabled": true
+								}
+							]
 						}
-					]
+					},
+					"response": []
 				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "{{base_url}}/skills?page=1&perPage=50&sortBy=name&sortOrder=DESC",
-					"host": [
-						"{{base_url}}"
-					],
-					"path": [
-						"skills"
-					],
-					"query": [
-						{
-							"key": "page",
-							"value": "1"
+				{
+					"name": "get skill by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
 						},
-						{
-							"key": "perPage",
-							"value": "50"
-						},
-						{
-							"key": "sortBy",
-							"value": "name"
-						},
-						{
-							"key": "sortOrder",
-							"value": "DESC"
-						},
-						{
-							"key": "skillId",
-							"value": "d18b7aa7-cfe2-46ae-ba63-bc6c3e039d12",
-							"disabled": true
-						},
-						{
-							"key": "skillId",
-							"value": "a54a0041-77d5-4af6-b0e5-bee54b85d0e8",
-							"disabled": true
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/skills/00038ad8-9bd1-47b4-8477-256e214a9f82",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"00038ad8-9bd1-47b4-8477-256e214a9f82"
+							]
 						}
-					]
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		},
 		{
 			"name": "autocomplete skills suggestion",
