@@ -39,6 +39,18 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/skills/autocomplete',
+        verb: 'get',
+        controller: 'SkillsController',
+        method: 'getAutocompleteSuggestions',
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        validation: {
+            query: {
+                dto: GetAutocompleteRequestQueryDto,
+            },
+        },
+    },
+    {
         path: '/skills/:skillId',
         verb: 'get',
         controller: 'SkillsController',
@@ -48,18 +60,6 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             params: {
                 dto: SkillIdRequestPathParamDto,
-            },
-        },
-    },
-    {
-        path: '/skills/autocomplete',
-        verb: 'get',
-        controller: 'SkillsController',
-        method: 'getAutocompleteSuggestions',
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
-        validation: {
-            query: {
-                dto: GetAutocompleteRequestQueryDto,
             },
         },
     },
