@@ -8,6 +8,7 @@ import {
     SetWorkSkillsRequestBodyDto,
     UserIdParamDto,
     SkillEventRequestBodyDto,
+    SkillIdRequestPathParamDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -34,6 +35,19 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             query: {
                 dto: GetSkillsQueryRequestDto,
+            },
+        },
+    },
+    {
+        path: '/skills/:skillId',
+        verb: 'get',
+        controller: 'SkillsController',
+        method: 'getSkillById',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        validation: {
+            params: {
+                dto: SkillIdRequestPathParamDto,
             },
         },
     },

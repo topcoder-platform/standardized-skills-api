@@ -1,14 +1,14 @@
 import * as skillsService from '../services/SkillsService';
 import { NextFunction, Request, Response } from 'express';
 import * as helper from '../utils/helpers';
-import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto } from '../dto';
+import * as dtos from '../dto/SkillsRequests.dto';
 
 export default class SkillsController {
     /**
      * Get all skills
      */
     getSkills = async (
-        req: Request<{ [key: string]: string }, any, any, GetSkillsQueryRequestDto, Record<string, any>>,
+        req: Request<{ [key: string]: string }, any, any, dtos.GetSkillsQueryRequestDto, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -21,8 +21,24 @@ export default class SkillsController {
         }
     };
 
+    /**
+     * Gets a skill by id
+     */
+    getSkillById = async (
+        req: Request<{ [key: string]: string }, any, any, dtos.SkillIdRequestPathParamDto, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.getSkillById(req.params.skillId);
+            res.status(200).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
     getAutocompleteSuggestions = async (
-        req: Request<{ [key: string]: string }, any, any, GetAutocompleteRequestQueryDto, Record<string, any>>,
+        req: Request<{ [key: string]: string }, any, any, dtos.GetAutocompleteRequestQueryDto, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) => {
