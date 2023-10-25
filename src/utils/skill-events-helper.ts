@@ -40,7 +40,7 @@ export async function createAndEnsureEventNotProcessedAlready(topic: string, pay
  * Checks the payload id (which is a challenge.id) to make sure the linked challenge exists in ES
  */
 export async function ensurePayloadChallengeExists(id: string) {
-    const challenge = esHelper.getChallengeById(id);
+    const challenge = await esHelper.getChallengeById(id);
 
     if (!challenge || isEmpty(challenge)) {
         throw new NotFoundError(`Challenge with id '${id}' does not exist!`);

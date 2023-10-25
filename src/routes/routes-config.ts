@@ -136,6 +136,7 @@ const RouteDefinitions: RouteDefinition[] = [
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         validation: {
             body: {
+                forbidNonWhitelisted: false,
                 dto: SkillEventRequestBodyDto,
             },
         },
