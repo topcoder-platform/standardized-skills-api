@@ -6,12 +6,6 @@ import { SkillEventTopic } from '../config';
 export class UserSkillDto {
     @IsUUID('all')
     id: string;
-
-    // exclude data we're not interested in
-    @Exclude()
-    name: string;
-    @Exclude()
-    category: any;
 }
 
 export class ChallengeWinnerDto {
@@ -20,10 +14,6 @@ export class ChallengeWinnerDto {
 
     @IsNumber()
     placement: number;
-
-    // exclude data we're not interested in
-    @Exclude()
-    handle: string;
 }
 
 export class ChallengeUpdateSkillEventPayload {
@@ -44,12 +34,6 @@ export class ChallengeUpdateSkillEventPayload {
 
     @IsUUID('all')
     id: string;
-
-    // exclude data we're not interested in
-    @Allow()
-    description: string;
-    @Allow()
-    tags: string[];
 }
 
 export type SkillEventPayloadType = ChallengeUpdateSkillEventPayload;
@@ -65,12 +49,4 @@ export class SkillEventRequestBodyDto {
     @ValidateNested()
     @Type((d?: TypeHelpOptions) => topicToPayloadMap[d?.object.topic as SkillEventTopic])
     payload: SkillEventPayloadType;
-
-    // exclude data we're not interested in
-    @Exclude()
-    originator: string;
-    @Exclude()
-    timestamp: string;
-    @Exclude()
-    'mime-type': string;
 }
