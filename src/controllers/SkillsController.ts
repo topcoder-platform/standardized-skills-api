@@ -16,7 +16,9 @@ export default class SkillsController {
     ) => {
         try {
             const skills = await skillsService.getAllSkills(req.query);
-            helper.setResHeaders(res, skills);
+            if (!req.query.disablePagination) {
+                helper.setResHeaders(res, skills);
+            }
             res.status(200).json(skills.skills);
         } catch (error) {
             next(error);

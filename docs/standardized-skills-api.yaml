@@ -16,7 +16,7 @@ paths:
     get:
       operationId: searchSkills
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria. <br> ids should be a comma-separated skills uuids. <br> All search criteria will be applied with And operator  <br> If no criteria is provided, all available  skills are fetched'
+      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria <br> skillIds should be a comma-separated skills uuids <br> When the skillIds are specified, the name parameter is ignored <br> If no criteria is provided, all available  skills are fetched'
       parameters:
         - in: query
           name: name
@@ -54,6 +54,10 @@ paths:
           schema:
             type: string
             enum: ['ASC', 'DESC']
+        - in: query
+          name: disablePagination
+          schema:
+            type: boolean
       responses:
         '200':
           description: 'OK'
@@ -218,6 +222,10 @@ paths:
           schema:
             type: string
             enum: ['ASC', 'DESC']
+        - in: query
+          name: disablePagination
+          schema:
+            type: boolean    
       responses:
         '200':
           description: 'OK'
@@ -569,6 +577,10 @@ paths:
           schema:
             type: string
             enum: ['ASC', 'DESC']
+        - in: query
+          name: disablePagination
+          schema:
+            type: boolean
       responses:
         '200':
           description: 'OK'

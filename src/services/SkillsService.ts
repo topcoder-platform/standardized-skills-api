@@ -1,7 +1,7 @@
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import { FindAndCountOptions } from 'sequelize';
-import { isEmpty, isNull, isUndefined } from 'lodash';
+import { isEmpty, isNull } from 'lodash';
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto, SkillCreationRequestBodyDto } from '../dto';
 import db, { Skill, SkillCategory } from '../db';
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
@@ -9,62 +9,79 @@ import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import dayjs from 'dayjs';
 import * as constants from '../config/constants';
+import { Op } from 'sequelize';
+import { findAndCountPaginated } from '../utils/postgres-helper';
 
 const logger = new LoggerClient('SkillsService');
 
 /**
- * Gets all skills (including category) as paginated response
- * @param {GetSkillsQueryRequestDto} query the request query params for pagination and sorting
+ * Gets all skills that match the given criteria, with the skillIds being given
+ * the highest preference for search followed by name only if skillIds are
+ * not provided
+ * @param {GetSkillsQueryRequestDto} query the request query parameters
+ * @returns {Promise<{
+ *    skills: number | Skill[];}
+ * | {
+ * page: number;
+ * perPage: number;
+ * total: number;
+ * totalPages: number;
+ * skills: number | Skill[];}>}
  */
-export async function getAllSkills(query: GetSkillsQueryRequestDto) {
-    const response = {
-        skills: [] as Skill[],
-        page: 1,
-        perPage: 0,
-        total: 0,
-        totalPages: 0,
+export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
+    | {
+          skills: number | Skill[];
+      }
+    | {
+          page: number;
+          perPage: number;
+          total: number;
+          totalPages: number;
+          skills: number | Skill[];
+      }
+> {
+    logger.info(`Fetching skills based on request ${JSON.stringify(query)}`);
+
+    // attributes of skill and category to be fetched
+    const findAndCountOptions: FindAndCountOptions = {
+        attributes: ['id', 'name', 'description'],
+        include: {
+            model: SkillCategory,
+            as: 'category',
+            attributes: ['id', 'name', 'description'],
+        },
     };
 
-    const pgQuery: FindAndCountOptions = {
-        limit: query.perPage,
-        offset: (query.page - 1) * query.perPage,
-        include: [
-            // expand the category information in the response
-            {
-                model: db.models.SkillCategory,
-                as: 'category',
-            },
-        ],
-    };
-
-    if (query.sortBy) {
-        // sorting is optional
-        pgQuery.order = [[query.sortBy, query.sortOrder]];
-    }
-
+    // if skillIds have been specified
     if (query.skillId) {
-        // filtering by skillId is optional
-        pgQuery.where = {
-            id: [].concat(query.skillId as any),
+        findAndCountOptions['where'] = {
+            id: query.skillId,
         };
     }
 
-    try {
-        const skillsAndCount = await Skill.findAndCountAll(pgQuery);
-        if (isEmpty(skillsAndCount) || isUndefined(skillsAndCount)) {
-            return response;
-        } else {
-            response.skills = skillsAndCount.rows;
-            response.page = query.page;
-            response.perPage = query.perPage;
-            response.total = skillsAndCount.count;
-            response.totalPages = Math.ceil(skillsAndCount.count / query.perPage);
-            return response;
-        }
-    } catch (error) {
-        logger.error('Unable to fetch all skills');
-        throw error;
+    // if name has been specified but not skillIds as skillIds take preference
+    if (query.name && !query.skillId) {
+        findAndCountOptions['where'] = {
+            name: {
+                [Op.iLike]: `%${query.name}%`,
+            },
+        };
     }
+
+    const { skills, ...paginationValues } = await findAndCountPaginated<Skill>(
+        Skill,
+        'skills',
+        query,
+        findAndCountOptions,
+    );
+    isEmpty(skills)
+        ? logger.info('No skills found!')
+        : logger.info(`Fetched skills successfully: ${JSON.stringify(skills)}`);
+
+    return {
+        skills,
+        ...paginationValues,
+    };
 }
 
 /**

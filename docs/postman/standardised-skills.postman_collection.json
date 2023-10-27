@@ -585,6 +585,16 @@
 									"key": "skillId",
 									"value": "a54a0041-77d5-4af6-b0e5-bee54b85d0e8",
 									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "dev",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "true",
+									"disabled": true
 								}
 							]
 						}
