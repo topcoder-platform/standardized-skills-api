@@ -151,7 +151,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardizedSkillDetails'
+                $ref: '#/components/schemas/StandardizedSkill'
         '404':
           description: 'Not Found Error'
           content:
@@ -981,7 +981,7 @@ components:
           type: string
         category:
           $ref: '#/components/schemas/Category'
-    StandardizedSkillDetails:
+    Category:
       properties:
         id:
           type: string
@@ -989,21 +989,6 @@ components:
         name:
           type: string
         description:
-          type: string
-        category:
-          $ref: '#/components/schemas/Category'
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
-    Category:
-      properties:
-        id:
-          type: string
-          format: uuid
-        name:
           type: string
     CategoryDetails:
       properties:
@@ -1014,14 +999,6 @@ components:
           type: string
         description:
           type: string
-    Timestamps:
-      properties:
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
     UserSkillCreateRequest:
       required: ['id']
       properties:

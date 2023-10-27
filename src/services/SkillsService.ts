@@ -1,7 +1,7 @@
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import { FindAndCountOptions } from 'sequelize';
-import { isEmpty, isNull, isUndefined, pick } from 'lodash';
+import { isEmpty, isNull, isUndefined } from 'lodash';
 import { GetAutocompleteRequestQueryDto, GetSkillsQueryRequestDto, SkillCreationRequestBodyDto } from '../dto';
 import db, { Skill, SkillCategory } from '../db';
 import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
@@ -82,8 +82,15 @@ export async function autocompleteSkills(query: GetAutocompleteRequestQueryDto) 
 
 /**
  * Gets a skill by its id
+ * @param skillId the id of the skill to be fetched
+ * @returns {{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined;} }}
  */
-export async function getSkillById(skillId: string) {
+export async function getSkillById(skillId: string): Promise<{
+    id: string;
+    name: string;
+    description: string | undefined;
+    category: { id: string; name: string; description: string | undefined };
+}> {
     logger.info(`Fetching skill by id ${skillId}`);
 
     const skill = await Skill.findByPk(skillId, {
@@ -98,20 +105,34 @@ export async function getSkillById(skillId: string) {
         throw new NotFoundError(`Skill with id ${skillId} does not exist!`);
     }
     logger.info(`Skill with id ${skillId} retrieved successfully`);
-    return pick(skill, ['id', 'name', 'category.name', 'category.id', 'description', 'createdAt', 'updatedAt']);
+    return {
+        id: skill.id,
+        name: skill.name,
+        description: skill.description,
+        category: {
+            id: skill.category.id,
+            name: skill.category.name,
+            description: skill.category.description,
+        },
+    };
 }
 
 /**
  * creates a new skill and assigns it to an existing category
  * @param {AuthUser} user the authenticated user details from the JWT
  * @param {SkillCreationRequestBodyDto} newSkill the name, description and the category of the new skill
- * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string;} }>}
+ * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined } }>}
  * the newly created skill along with its category information
  */
 export const createSkill = async (
     user: AuthUser,
     newSkill: SkillCreationRequestBodyDto,
-): Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string } }> => {
+): Promise<{
+    id: string;
+    name: string;
+    description: string | undefined;
+    category: { id: string; name: string; description: string | undefined };
+}> => {
     logger.info(`Creating skill from data ${JSON.stringify(newSkill)}`);
 
     ensureUserHasAdminPrivilege(user);
@@ -155,6 +176,7 @@ export const createSkill = async (
             category: {
                 id: category.id,
                 name: category.name,
+                description: category.description,
             },
         };
     });
