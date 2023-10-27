@@ -168,6 +168,58 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+    put:
+      operationId: updateSkillById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint updates an existing skill with the information supplied in the request body'
+      parameters:
+        - in: path
+          required: true
+          name: skillId
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the skill to update'
+      requestBody:
+        description: 'The update skill request body'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['name', 'categoryId']
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                categoryId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardizedSkill'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'        
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'            
     delete:
       operationId: deleteSkillById
       tags: ['Standardized Skills API']

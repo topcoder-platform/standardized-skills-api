@@ -10,6 +10,7 @@ import {
     SkillEventRequestBodyDto,
     SkillIdRequestPathParamDto,
     SkillCreationRequestBodyDto,
+    SkillUpdatePutRequestBodyDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -75,6 +76,23 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             params: {
                 dto: SkillIdRequestPathParamDto,
+            },
+        },
+    },
+    {
+        path: '/skills/:skillId',
+        verb: 'put',
+        controller: 'SkillsController',
+        method: 'updateSkillViaPut',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.UPDATE],
+        access: [config.UserRoles.Admin],
+        validation: {
+            params: {
+                dto: SkillIdRequestPathParamDto,
+            },
+            body: {
+                dto: SkillUpdatePutRequestBodyDto,
             },
         },
     },

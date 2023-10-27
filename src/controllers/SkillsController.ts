@@ -64,6 +64,28 @@ export default class SkillsController {
     };
 
     /**
+     * Updates an existing skill
+     */
+    updateSkillViaPut = async (
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            dtos.SkillUpdatePutRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.updateSkillViaPut(req.authUser, req.body, req.params.skillId);
+            res.status(201).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
      * Deletes an existing skill
      */
     deleteSkill = async (

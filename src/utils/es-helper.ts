@@ -324,6 +324,32 @@ export const createSkillInAutocompleteES = async (skill: {
 };
 
 /**
+ * Updates the skill with the latest information in skills autocomplete ES
+ * @param {{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}} skill
+ * the skill to update in skills autocomplete ES
+ */
+export const updateSkillInAutocompleteES = async (skill: {
+    id: string;
+    name: string;
+    category: { id: string; name: string };
+    createdAt: string;
+    updatedAt: string;
+}) => {
+    logger.info(`Updating skill ${skill.id} in skills autocomplete ES as per data ${JSON.stringify(skill)}`);
+
+    skillsESClient = getSkillsESClient();
+    const doc = assign({}, skill, { name_suggest: helper.generateEmsiSkillSuggestionInputs(skill.name) });
+    await skillsESClient.update({
+        id: skill.id,
+        index: envConfig.SKILLS_ES.INDEX,
+        body: {
+            doc,
+        },
+    });
+    logger.info(`Skill ${skill.id} successfully updated in skills autocomplete ES`);
+};
+
+/**
  * Deletes a skill from the skills autocomplete ES
  * @param {string} id the id of the skill to be deleted
  */
