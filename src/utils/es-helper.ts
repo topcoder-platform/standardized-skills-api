@@ -1,7 +1,7 @@
 import elasticsearch7 from 'elasticsearch7';
 import elasticsearch6 from 'elasticsearch6';
 import { envConfig } from '../config';
-import _ from 'lodash';
+import _, { assign } from 'lodash';
 import * as config from '../config';
 import * as helper from '../utils/helpers';
 import { LoggerClient } from '../utils/LoggerClient';
@@ -293,4 +293,32 @@ export const updateSkillsInMemberES = async (
         },
     });
     logger.info(`Member ${id} successfully updated with skills`);
+};
+
+/**
+ * Creates the skill in skills autocomplete ES
+ * @param {{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}} skill
+ * the skill to be created
+ */
+export const createSkillInAutocompleteES = async (skill: {
+    id: string;
+    name: string;
+    category: { id: string; name: string };
+    createdAt: string;
+    updatedAt: string;
+}) => {
+    logger.info(`Creating skill in skills autocomplete ES ${JSON.stringify(skill)}`);
+    skillsESClient = getSkillsESClient();
+
+    // generate the name suggestions on which ES will provide autocomplete feature
+    const doc = assign({}, skill, { name_suggest: helper.generateEmsiSkillSuggestionInputs(skill.name) });
+    await skillsESClient.create({
+        id: skill.id,
+        index: envConfig.SKILLS_ES.INDEX,
+        body: {
+            doc,
+        },
+        refresh: envConfig.SKILLS_ES.REFRESH as boolean,
+    });
+    logger.info('Skill created successfully in skills autocomplete ES');
 };

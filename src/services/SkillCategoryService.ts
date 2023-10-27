@@ -259,7 +259,7 @@ const categoryNameIsUnique = async (name: string, id?: string): Promise<boolean>
     });
 
     /**
-     * no category exists with the specified name RETURN false
+     * no category exists with the specified name RETURN true
      * category exists and the provided id to check against is same as of the category we want to update RETURN true
      * category exists and no id is supplied for comparison (used for creating new category) RETURN false
      */

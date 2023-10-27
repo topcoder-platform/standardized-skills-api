@@ -17,6 +17,22 @@ export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     skillId: string[];
 }
 
+export class SkillCreationRequestBodyDto {
+    @IsString()
+    @IsNotEmpty()
+    name: string;
+
+    @IsString()
+    @IsOptional()
+    @IsNotEmpty()
+    description?: string;
+
+    @IsString()
+    @IsUUID('all')
+    @IsNotEmpty()
+    categoryId: string;
+}
+
 export class GetAutocompleteRequestQueryDto {
     @IsString()
     @IsNotEmpty()

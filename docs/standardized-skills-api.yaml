@@ -86,6 +86,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+    post:
+      operationId: createSkill
+      tags: ['Standardized Skills API']
+      description: 'This endpoint creates a new skill and assigns it to an existing category if and only if the skill name is unique'
+      requestBody:
+        description: 'The request body for creating a new skill'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['name', 'categoryId']
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                categoryId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardizedSkill'
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'          
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
   /skills/{id}:
     get:
       operationId: getSkillById

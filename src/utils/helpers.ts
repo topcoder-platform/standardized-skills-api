@@ -34,6 +34,12 @@ export const ensureUserCanManageCategories = (currentUser: AuthUser) => {
     }
 };
 
+export const ensureUserHasAdminPrivilege = (currentUser: AuthUser) => {
+    if (!currentUser.isMachine && !hasAdminRole(currentUser)) {
+        throw new ForbiddenError('You are not allowed to perform this action');
+    }
+};
+
 export function checkIfExists<T>(arr1: Array<T>, arr2: Array<T>): boolean {
     return arr1.some((item) => arr2.includes(item));
 }

@@ -2,6 +2,8 @@ import * as skillsService from '../services/SkillsService';
 import { NextFunction, Request, Response } from 'express';
 import * as helper from '../utils/helpers';
 import * as dtos from '../dto/SkillsRequests.dto';
+import { AuthorizedRequest } from '../types';
+import * as core from 'express-serve-static-core';
 
 export default class SkillsController {
     /**
@@ -32,6 +34,28 @@ export default class SkillsController {
         try {
             const skill = await skillsService.getSkillById(req.params.skillId);
             res.status(200).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Creates a new skill and assigns it to an existing category
+     */
+    createSkill = async (
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            dtos.SkillCreationRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.createSkill(req.authUser, req.body);
+            res.status(201).json(skill);
         } catch (error) {
             next(error);
         }

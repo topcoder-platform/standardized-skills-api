@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "c3e99995-c7c4-467b-a621-99674d0d8fb8",
+		"_postman_id": "376831bd-be9c-4d93-b983-60bb13862086",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "215943"
+		"_exporter_id": "30186453"
 	},
 	"item": [
 		{
@@ -614,6 +614,42 @@
 							"path": [
 								"skills",
 								"00038ad8-9bd1-47b4-8477-256e214a9f82"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create skill",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"AWS Backup\",\n    \"description\": \"dasd\",\n    \"categoryId\": \"38fadd80-8721-4ce0-9387-cb6ad3ce48da\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills"
 							]
 						}
 					},
