@@ -61,6 +61,28 @@ export default class SkillsController {
         }
     };
 
+    /**
+     * Deletes an existing skill
+     */
+    deleteSkill = async (
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            any,
+            dtos.SkillIdRequestPathParamDto,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            await skillsService.deleteSkill(req.authUser, req.params.skillId);
+            res.status(204).send();
+        } catch (error) {
+            next(error);
+        }
+    };
+
     getAutocompleteSuggestions = async (
         req: Request<{ [key: string]: string }, any, any, dtos.GetAutocompleteRequestQueryDto, Record<string, any>>,
         res: Response,

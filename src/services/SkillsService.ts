@@ -161,6 +161,34 @@ export const createSkill = async (
 };
 
 /**
+ * Deletes a skill from the PostgreSQL and ES datastores
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {string} id the id of the skill to be deleted
+ */
+export const deleteSkill = async (user: AuthUser, id: string) => {
+    logger.info(`Deleting skill with id ${id}`);
+
+    ensureUserHasAdminPrivilege(user);
+
+    return await db.sequelize.transaction(async () => {
+        const skill = await Skill.findByPk(id);
+        if (isNull(skill)) {
+            throw new NotFoundError(`The skill with id ${id} does not exist!`);
+        }
+
+        await Skill.destroy({
+            where: {
+                id,
+            },
+        });
+
+        esHelper.deleteSkillFromAutocompleteES(id);
+
+        logger.info(`Successfully deleted skill with id ${id}`);
+    });
+};
+
+/**
  * Checks whether the skill name is unique
  * @param {string} name the name of the skill
  * @returns {Promise<boolean>} a boolean result wrapped in a promise

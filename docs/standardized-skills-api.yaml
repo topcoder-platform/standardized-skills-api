@@ -132,7 +132,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
-  /skills/{id}:
+  /skills/{skillId}:
     get:
       operationId: getSkillById
       tags: ['Standardized Skills API']
@@ -140,7 +140,7 @@ paths:
       parameters:
         - in: path
           required: true
-          name: id
+          name: skillId
           schema:
             type: string
             format: uuid
@@ -164,6 +164,33 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+    delete:
+      operationId: deleteSkillById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint deletes an existing skill'
+      parameters:
+        - in: path
+          required: true
+          name: skillId
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the skill to delete'
+      responses:
+        '204':
+          description: 'No Content'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'            
   /categories:
     get:
       operationId: searchSkillCategories

@@ -322,3 +322,20 @@ export const createSkillInAutocompleteES = async (skill: {
     });
     logger.info('Skill created successfully in skills autocomplete ES');
 };
+
+/**
+ * Deletes a skill from the skills autocomplete ES
+ * @param {string} id the id of the skill to be deleted
+ */
+export const deleteSkillFromAutocompleteES = async (id: string) => {
+    logger.info(`Deleting skill from autocomplete ES with id ${id}`);
+
+    skillsESClient = getSkillsESClient();
+    await skillsESClient.delete({
+        id,
+        index: envConfig.SKILLS_ES.INDEX,
+        refresh: envConfig.SKILLS_ES.REFRESH as boolean,
+    });
+
+    logger.info('Successfully delete skill from autocomplete ES with id $id}');
+};

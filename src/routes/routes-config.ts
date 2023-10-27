@@ -65,6 +65,20 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/skills/:skillId',
+        verb: 'delete',
+        controller: 'SkillsController',
+        method: 'deleteSkill',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.DELETE],
+        access: [config.UserRoles.Admin],
+        validation: {
+            params: {
+                dto: SkillIdRequestPathParamDto,
+            },
+        },
+    },
+    {
         path: '/skills',
         verb: 'post',
         controller: 'SkillsController',

@@ -654,6 +654,34 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "delete skill by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/skills/01ddce3a-9241-45f2-8a8e-62992a9cc6a3",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"01ddce3a-9241-45f2-8a8e-62992a9cc6a3"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
