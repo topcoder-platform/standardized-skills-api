@@ -646,7 +646,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"AWS Backup\",\n    \"description\": \"dasd\",\n    \"categoryId\": \"38fadd80-8721-4ce0-9387-cb6ad3ce48da\"\n}",
+							"raw": "{\n    \"name\": \"Test Skill 6\",\n    \"description\": null,\n    \"categoryId\": \"38fadd80-8721-4ce0-9387-cb6ad3ce48da\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -681,13 +681,13 @@
 						"method": "DELETE",
 						"header": [],
 						"url": {
-							"raw": "{{base_url}}/skills/01ddce3a-9241-45f2-8a8e-62992a9cc6a3",
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"skills",
-								"01ddce3a-9241-45f2-8a8e-62992a9cc6a3"
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
 							]
 						}
 					},
@@ -710,7 +710,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Data Transfer Object (DTO)\",\n    \"description\": \"In the field of programming a data transfer object (DTO) is an object that carries data between processes. The motivation for its use is that communication between processes is usually done resorting to remote interfaces, where each call is an expensive operation. Because the majority of the cost of each call is related to the round-trip time between the client and the server, one way of reducing the number of calls is to use an object that aggregates the data that would have been transferred by the several calls, but that is served by one call only.\",\n    \"categoryId\": \"481b5ebc-2fe6-45ed-a90c-736936d458d7\"\n}",
+							"raw": "{\n    \"name\": \"Test Skill 6\",\n    \"description\": null,\n    \"categoryId\": \"5aadafad-da63-488e-8499-32b596215789\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -718,13 +718,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/skills/ad0d49dd-1089-433d-948d-36a74ec959eb",
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"skills",
-								"ad0d49dd-1089-433d-948d-36a74ec959eb"
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
 							]
 						}
 					},
@@ -747,7 +747,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"categoryId\": \"481b5ebc-2fe6-45ed-a90c-736936d458d7\"\n}",
+							"raw": "{\n    \"description\": null\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -755,13 +755,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/skills/ad0d49dd-1089-433d-948d-36a74ec959eb",
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"skills",
-								"ad0d49dd-1089-433d-948d-36a74ec959eb"
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
 							]
 						}
 					},

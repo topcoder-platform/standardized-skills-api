@@ -1,4 +1,15 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Min, MinLength, Max, IsIn } from 'class-validator';
+import {
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString,
+    IsUUID,
+    Min,
+    MinLength,
+    Max,
+    IsIn,
+    ValidateIf,
+} from 'class-validator';
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 import { Type } from 'class-transformer';
 import { DEFAULT_SUGGESTIONS_SIZE } from '../config';
@@ -33,10 +44,10 @@ export class SkillCreationRequestBodyDto {
     @IsNotEmpty()
     name: string;
 
-    @IsString()
-    @IsOptional()
-    @IsNotEmpty()
-    description?: string;
+    @ValidateIf((o, v) => v !== null)
+    @IsString({ message: 'description must be a non-empty string or null' })
+    @IsNotEmpty({ message: 'description must be a non-empty string or null' })
+    description: string | null;
 
     @IsString()
     @IsUUID('all')
@@ -49,9 +60,10 @@ export class SkillUpdatePutRequestBodyDto {
     @IsNotEmpty()
     name: string;
 
-    @IsString()
-    @IsOptional()
-    description: string;
+    @ValidateIf((o, v) => v !== null)
+    @IsString({ message: 'description must be a non-empty string or null' })
+    @IsNotEmpty({ message: 'description must be a non-empty string or null' })
+    description: string | null;
 
     @IsString()
     @IsUUID('all')
@@ -65,9 +77,11 @@ export class SkillUpdatePatchRequestBodyDto {
     @IsOptional()
     name?: string;
 
-    @IsString()
+    @ValidateIf((o, v) => v !== null)
+    @IsString({ message: 'description must be a non-empty string or null' })
+    @IsNotEmpty({ message: 'description must be a non-empty string or null' })
     @IsOptional()
-    description?: string;
+    description?: string | null;
 
     @IsString()
     @IsUUID('all')

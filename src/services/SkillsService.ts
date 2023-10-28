@@ -320,7 +320,7 @@ export const updateSkillViaPatch = async (
 
     return await db.sequelize.transaction(async () => {
         // check for valid request body
-        if (!body.name && !body.description && !body.categoryId) {
+        if (!body.name && body.description === undefined && !body.categoryId) {
             throw new BadRequestError('No data provded for skill update');
         }
 
@@ -431,6 +431,7 @@ const skillNameIsUnique = async (name: string, id?: string): Promise<boolean> =>
         where: {
             name,
         },
+        paranoid: false,
     });
 
     /**

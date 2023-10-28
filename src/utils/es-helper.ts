@@ -339,7 +339,7 @@ export const updateSkillInAutocompleteES = async (skill: {
 
     skillsESClient = getSkillsESClient();
     const doc = assign({}, skill, { name_suggest: helper.generateEmsiSkillSuggestionInputs(skill.name) });
-    await skillsESClient.update({
+    await skillsESClient.index({
         id: skill.id,
         index: envConfig.SKILLS_ES.INDEX,
         body: {
