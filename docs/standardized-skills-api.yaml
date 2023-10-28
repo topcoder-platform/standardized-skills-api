@@ -703,7 +703,7 @@ paths:
     post:
       operationId: 'createUserSkills'
       tags: ['Standardized Skills API']
-      description: 'Creates an association between a user and the skills supplied in the request body <br> Each skill is identified by its unique id, the skill level represents how the user got the skill: `self-declared` or `verified` <br> The user to skill association will be created only if it does not already exist.'
+      description: 'Creates an association between a user and the skills supplied in the request body. <br> Each skill is identified by its unique id. <br> The skill level represents how the user got the skill: `self-declared` or `verified`. If skill level info is not sent, it will default to `self-declared`. <br> The user to skill association will be created only if it does not already exist.'
       parameters:
         - in: path
           name: userId
