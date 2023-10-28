@@ -729,6 +729,43 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "update skill partially",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"categoryId\": \"481b5ebc-2fe6-45ed-a90c-736936d458d7\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skills/ad0d49dd-1089-433d-948d-36a74ec959eb",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"ad0d49dd-1089-433d-948d-36a74ec959eb"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

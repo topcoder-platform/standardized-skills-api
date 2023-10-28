@@ -64,7 +64,7 @@ export default class SkillsController {
     };
 
     /**
-     * Updates an existing skill
+     * Updates an existing skill via put
      */
     updateSkillViaPut = async (
         req: AuthorizedRequest<
@@ -79,6 +79,28 @@ export default class SkillsController {
     ) => {
         try {
             const skill = await skillsService.updateSkillViaPut(req.authUser, req.body, req.params.skillId);
+            res.status(201).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Updates an existing skill partially via patch
+     */
+    updateSkillViaPatch = async (
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            dtos.SkillUpdatePatchRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.updateSkillViaPatch(req.authUser, req.body, req.params.skillId);
             res.status(201).json(skill);
         } catch (error) {
             next(error);

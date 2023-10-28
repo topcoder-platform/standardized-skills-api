@@ -59,6 +59,23 @@ export class SkillUpdatePutRequestBodyDto {
     categoryId: string;
 }
 
+export class SkillUpdatePatchRequestBodyDto {
+    @IsString()
+    @IsNotEmpty()
+    @IsOptional()
+    name?: string;
+
+    @IsString()
+    @IsOptional()
+    description?: string;
+
+    @IsString()
+    @IsUUID('all')
+    @IsNotEmpty()
+    @IsOptional()
+    categoryId?: string;
+}
+
 export class GetAutocompleteRequestQueryDto {
     @IsString()
     @IsNotEmpty()

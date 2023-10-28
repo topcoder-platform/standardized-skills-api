@@ -6,10 +6,11 @@ import {
     GetAutocompleteRequestQueryDto,
     GetSkillsQueryRequestDto,
     SkillCreationRequestBodyDto,
+    SkillUpdatePatchRequestBodyDto,
     SkillUpdatePutRequestBodyDto,
 } from '../dto';
 import db, { Skill, SkillCategory } from '../db';
-import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import dayjs from 'dayjs';
@@ -228,8 +229,7 @@ export const updateSkillViaPut = async (
 
     return await db.sequelize.transaction(async () => {
         // valid skillId is provided
-        let skill = await Skill.findByPk(id);
-        if (isNull(skill)) {
+        if (isNull(await Skill.findByPk(id))) {
             throw new NotFoundError(`Skill with id ${id} does not exist!`);
         }
 
@@ -239,37 +239,155 @@ export const updateSkillViaPut = async (
         }
 
         // the category to associate the skill with must be valid
-        const category = await SkillCategory.findByPk(body.categoryId);
-        if (isNull(category)) {
+        if (isNull(await SkillCategory.findByPk(body.categoryId))) {
             throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
         }
 
         //update the skill in PostgreSQL and ES datastore
-        skill.name = body.name;
-        skill.description = body.description;
-        skill.category_id = body.categoryId;
-        skill = await skill.save();
+        await Skill.update(
+            {
+                name: body.name,
+                description: body.description,
+                category_id: body.categoryId,
+            },
+            {
+                where: {
+                    id,
+                },
+            },
+        );
+
+        // fetch updated skill details from PostgreSQL
+        const skillDetails = await Skill.findByPk(id, {
+            attributes: ['id', 'name', 'description'],
+            include: {
+                model: SkillCategory,
+                as: 'category',
+                attributes: ['id', 'name', 'description'],
+            },
+        });
+
+        if (isNull(skillDetails)) {
+            throw new InternalServerError('Unable to fetch updated skill details from database!');
+        }
 
         await esHelper.updateSkillInAutocompleteES({
-            id: skill.id,
-            name: skill.name,
+            id: skillDetails.id,
+            name: skillDetails.name,
             category: {
-                id: skill.category.id,
-                name: skill.category.name,
+                id: skillDetails.category.id,
+                name: skillDetails.category.name,
             },
-            createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
-            updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
+            createdAt: dayjs(skillDetails.created_at).format(constants.ES_SKILL_TIME_FORMAT),
+            updatedAt: dayjs(skillDetails.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
         });
 
         logger.info(`Skill with id ${id} updated successfully`);
         return {
-            id: skill.id,
-            name: skill.name,
-            description: skill.description,
+            id: skillDetails.id,
+            name: skillDetails.name,
+            description: skillDetails.description,
             category: {
-                id: category.id,
-                name: category.name,
-                description: category.description,
+                id: skillDetails.category.id,
+                name: skillDetails.category.name,
+                description: skillDetails.category.description,
+            },
+        };
+    });
+};
+
+/**
+ * Updates a skill partially via patch in postgreSQL and ES datastore
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {SkillUpdatePatchRequestBodyDto} body the request body containing the new skills details
+ * @param id the id of the skill to update
+ * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined } }>}
+ * the newly updated skill along with its category information
+ */
+export const updateSkillViaPatch = async (
+    user: AuthUser,
+    body: SkillUpdatePatchRequestBodyDto,
+    id: string,
+): Promise<{
+    id: string;
+    name: string;
+    description: string | undefined;
+    category: { id: string; name: string; description: string | undefined };
+}> => {
+    logger.info(`Update skill ${id} as per data ${JSON.stringify(body)}`);
+
+    ensureUserHasAdminPrivilege(user);
+
+    return await db.sequelize.transaction(async () => {
+        // check for valid request body
+        if (!body.name && !body.description && !body.categoryId) {
+            throw new BadRequestError('No data provded for skill update');
+        }
+
+        // valid skillId is provided
+        const skill = await Skill.findByPk(id);
+        if (isNull(skill)) {
+            throw new NotFoundError(`Skill with id ${id} does not exist!`);
+        }
+
+        // skill name is unique
+        if (body.name && !(await skillNameIsUnique(body.name, id))) {
+            throw new ConflictError(`Skill with name ${body.name} already exists!`);
+        }
+
+        // the category to associate the skill with must be valid
+        if (body.categoryId && isNull(await SkillCategory.findByPk(body.categoryId))) {
+            throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
+        }
+
+        //update the skill in PostgreSQL and ES datastore
+        await Skill.update(
+            {
+                name: body.name,
+                description: body.description,
+                category_id: body.categoryId,
+            },
+            {
+                where: {
+                    id,
+                },
+            },
+        );
+
+        // fetch updated skill details from PostgreSQL
+        const skillDetails = await Skill.findByPk(id, {
+            attributes: ['id', 'name', 'description'],
+            include: {
+                model: SkillCategory,
+                as: 'category',
+                attributes: ['id', 'name', 'description'],
+            },
+        });
+
+        if (isNull(skillDetails)) {
+            throw new InternalServerError('Unable to fetch updated skill details from database!');
+        }
+
+        await esHelper.updateSkillInAutocompleteES({
+            id: skillDetails.id,
+            name: skillDetails.name,
+            category: {
+                id: skillDetails.category.id,
+                name: skillDetails.category.name,
+            },
+            createdAt: dayjs(skillDetails.created_at).format(constants.ES_SKILL_TIME_FORMAT),
+            updatedAt: dayjs(skillDetails.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
+        });
+
+        logger.info(`Skill with id ${id} updated successfully`);
+        return {
+            id: skillDetails.id,
+            name: skillDetails.name,
+            description: skillDetails.description,
+            category: {
+                id: skillDetails.category.id,
+                name: skillDetails.category.name,
+                description: skillDetails.category.description,
             },
         };
     });
