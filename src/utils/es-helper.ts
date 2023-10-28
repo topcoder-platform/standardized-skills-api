@@ -350,6 +350,37 @@ export const updateSkillInAutocompleteES = async (skill: {
 };
 
 /**
+ * Updates the category name of affected skills across the skills autocomplete index
+ * @param id the uuid id of the category
+ * @param name the updated name of the category
+ */
+export const updateSkillCategoryInAutocompleteES = async (id: string, name: string) => {
+    logger.info(`Updating affected skills in skills autocomplete ES with new category name: ${name}`);
+
+    skillsESClient = getSkillsESClient();
+    await skillsESClient.updateByQuery({
+        index: envConfig.SKILLS_ES.INDEX,
+        conflicts: 'proceed',
+        type: envConfig.SKILLS_ES.DOCUMENT_TYPE,
+        body: {
+            query: {
+                match_phrase: {
+                    'doc.category.id': id,
+                },
+            },
+            script: {
+                lang: 'painless',
+                source: 'ctx._source.doc.category.name = params.name',
+                params: {
+                    name: name,
+                },
+            },
+        },
+    });
+    logger.info('Skills successfully updated with new category in skills autocomplete ES');
+};
+
+/**
  * Deletes a skill from the skills autocomplete ES
  * @param {string} id the id of the skill to be deleted
  */

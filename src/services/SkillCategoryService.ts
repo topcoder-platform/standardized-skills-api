@@ -7,11 +7,12 @@ import {
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
 import { LoggerClient } from '../utils/LoggerClient';
-import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../utils/errors';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
 import { ensureUserCanManageCategories } from '../utils/helpers';
 import { FindAndCountOptions, Op } from 'sequelize';
+import { updateSkillCategoryInAutocompleteES } from '../utils/es-helper';
 
 const logger = new LoggerClient('SkillCategoryService');
 
@@ -112,7 +113,7 @@ export const createNewCategory = async (
 
         const category = await SkillCategory.create({
             name: body.name,
-            description: body.description ?? undefined,
+            description: body.description,
         });
 
         logger.info(`New category successfully created ${JSON.stringify(category)}`);
@@ -150,6 +151,7 @@ export const updateCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
+        // update category information in PostgreSQL and ES datastores
         await SkillCategory.update(
             {
                 name: body.name,
@@ -162,8 +164,18 @@ export const updateCategory = async (
             },
         );
 
+        // fetch updated category information
+        const category = await SkillCategory.findByPk(id, {
+            attributes: ['id', 'name', 'description'],
+        });
+        if (isNull(category)) {
+            throw new InternalServerError('Unable to connect to database!');
+        }
+
+        await updateSkillCategoryInAutocompleteES(category.id, category.name);
+
         logger.info(`Category ${id} updated successfully`);
-        return pick(await SkillCategory.findByPk(id), ['id', 'name', 'description']);
+        return category;
     });
 };
 
@@ -186,7 +198,7 @@ export const UpdateCategoryPartial = async (
     ensureUserCanManageCategories(user);
 
     return await db.sequelize.transaction(async () => {
-        if (!body.name && !body.description) {
+        if (!body.name && body.description === undefined) {
             throw new BadRequestError('No data provided for category update');
         }
 
@@ -198,22 +210,31 @@ export const UpdateCategoryPartial = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        const propertiesToUpdate: { name?: string; description?: string } = {};
-        if (body.name) {
-            propertiesToUpdate['name'] = body.name;
-        }
-        if (body.description) {
-            propertiesToUpdate['description'] = body.description;
+        // update category in PostgreSQL and ES datastores
+        await SkillCategory.update(
+            {
+                name: body.name,
+                description: body.description,
+            },
+            {
+                where: {
+                    id,
+                },
+            },
+        );
+
+        // fetch updated category information
+        const category = await SkillCategory.findByPk(id, {
+            attributes: ['id', 'name', 'description'],
+        });
+        if (isNull(category)) {
+            throw new InternalServerError('Unable to connect to database!');
         }
 
-        await SkillCategory.update(propertiesToUpdate, {
-            where: {
-                id,
-            },
-        });
+        await updateSkillCategoryInAutocompleteES(category.id, category.name);
 
         logger.info(`Category ${id} updated successfully`);
-        return pick(await SkillCategory.findByPk(id), ['id', 'name', 'description']);
+        return category;
     });
 };
 

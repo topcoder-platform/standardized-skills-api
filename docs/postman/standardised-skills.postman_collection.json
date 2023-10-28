@@ -414,7 +414,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test Cat Postman 12\",\n    \"description\": \"Test Description 12\"\n}",
+							"raw": "{\n    \"name\": \"Web Development\",\n    \"description\": \"For Web Dev Tools\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -422,13 +422,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
+							"raw": "{{base_url}}/categories/5aadafad-da63-488e-8499-32b596215789",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"categories",
-								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
+								"5aadafad-da63-488e-8499-32b596215789"
 							]
 						}
 					},
@@ -451,7 +451,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test Cat Postman 13\"\n}",
+							"raw": "{\n    \"description\": null\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -459,13 +459,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/categories/e2419ddf-4d62-4af6-86fa-c993873cde9f",
+							"raw": "{{base_url}}/categories/5aadafad-da63-488e-8499-32b596215789",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"categories",
-								"e2419ddf-4d62-4af6-86fa-c993873cde9f"
+								"5aadafad-da63-488e-8499-32b596215789"
 							]
 						}
 					},

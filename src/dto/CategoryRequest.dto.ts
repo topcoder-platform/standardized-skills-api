@@ -1,4 +1,4 @@
-import { IsIn, IsNotEmpty, IsOptional, IsString, IsUUID } from 'class-validator';
+import { IsIn, IsNotEmpty, IsOptional, IsString, IsUUID, ValidateIf } from 'class-validator';
 import { BasePaginatedSortedRequest } from '.';
 
 export class AllCategoriesRequestQueryDto extends BasePaginatedSortedRequest {
@@ -19,16 +19,13 @@ export class NewCategoryRequestBodyDto {
     @IsNotEmpty()
     name: string;
 
-    @IsOptional()
-    @IsString()
-    description?: string;
+    @ValidateIf((o, v) => v !== null)
+    @IsString({ message: 'description must be a non-empty string or null' })
+    @IsNotEmpty({ message: 'description must be a non-empty string or null' })
+    description: string | null;
 }
 
-export class UpdateCategoryRequestBodyDto extends NewCategoryRequestBodyDto {
-    @IsOptional()
-    @IsString()
-    description: string;
-}
+export class UpdateCategoryRequestBodyDto extends NewCategoryRequestBodyDto {}
 
 export class UpdateCategoryPartialRequestDto {
     @IsString()
@@ -36,10 +33,11 @@ export class UpdateCategoryPartialRequestDto {
     @IsNotEmpty()
     name?: string;
 
+    @ValidateIf((o, v) => v !== null)
     @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    description?: string;
+    @IsString({ message: 'description must be a non-empty string or null' })
+    @IsNotEmpty({ message: 'description must be a non-empty string or null' })
+    description: string | null;
 }
 
 export class CategoryIdRequestPathParamDto {
