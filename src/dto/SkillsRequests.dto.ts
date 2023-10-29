@@ -9,6 +9,7 @@ import {
     Max,
     IsIn,
     ValidateIf,
+    ArrayUnique,
 } from 'class-validator';
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 import { Type } from 'class-transformer';
@@ -30,7 +31,7 @@ export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsOptional()
     @IsString()
     @IsNotEmpty()
-    @IsIn(['name', 'description', 'createdAt', 'updatedAt'])
+    @IsIn(['name', 'description', 'created_at', 'updated_at'])
     sortBy?: string;
 
     @IsOptional()
@@ -106,5 +107,6 @@ export class GetAutocompleteRequestQueryDto {
 export class SkillIdsRequestBodyDto {
     @IsUUID('all', { each: true })
     @MinLength(1, { each: true })
+    @ArrayUnique({ message: 'Provided skill ids are not unique!' })
     skillIds: string[];
 }

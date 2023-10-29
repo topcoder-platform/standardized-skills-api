@@ -1,4 +1,4 @@
-import { isEmpty, isNull, map, omit, pick, uniqBy } from 'lodash';
+import { isEmpty, isNull, map, omit, pick } from 'lodash';
 import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoriesRequestQueryDto,
@@ -195,11 +195,6 @@ export const bulkAssignSkillsToCategories = async (
         const category = await SkillCategory.findByPk(categoryId);
         if (isNull(category)) {
             throw new NotFoundError(`Category with id ${categoryId} does not exist`);
-        }
-
-        // skill ids must be unique
-        if (skillIds.length !== uniqBy(skillIds, (ids) => ids).length) {
-            throw new BadRequestError('Provided skill ids are not unique!');
         }
 
         // check if the skill ids are valid
