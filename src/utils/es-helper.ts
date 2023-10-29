@@ -59,7 +59,7 @@ export async function bulkCreateSkillsES(
     }[],
 ) {
     logger.info(
-        `Bulk indexing skills for autocomplete: ${JSON.stringify(skills)} in ES index ${
+        `Bulk indexing skills for autocomplete: ${JSON.stringify(skills)} in Elasticsearch index ${
             config.envConfig.SKILLS_ES.INDEX
         }`,
     );
@@ -81,9 +81,11 @@ export async function bulkCreateSkillsES(
         ]);
 
         await skillsESClient.bulk({ body, refresh: config.envConfig.SKILLS_ES.REFRESH as boolean });
-        logger.info(`Bulk indexing successful in ${config.envConfig.SKILLS_ES.INDEX} ES index`);
+        logger.info(`Bulk indexing successful in ${config.envConfig.SKILLS_ES.INDEX} Elasticsearch index`);
     } catch (error) {
-        logger.error(`Error encountered while bulk indexing skills in ${config.envConfig.SKILLS_ES.INDEX} ES index`);
+        logger.error(
+            `Error encountered while bulk indexing skills in ${config.envConfig.SKILLS_ES.INDEX} Elasticsearch index`,
+        );
         logger.error(JSON.stringify(error));
         throw error;
     }
@@ -98,7 +100,9 @@ export const autocompleteSkills = async (query: {
     term: string;
     size: number;
 }): Promise<Array<Record<string, any>>> => {
-    logger.info(`Querying ES index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete suggestions of skill`);
+    logger.info(
+        `Querying Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete suggestions of skill`,
+    );
     try {
         skillsESClient = getSkillsESClient();
 
@@ -133,12 +137,12 @@ export const autocompleteSkills = async (query: {
                 };
             });
         logger.info(
-            `Successfully queried ES index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete skill suggestions`,
+            `Successfully queried Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete skill suggestions`,
         );
         return suggestedSkills;
     } catch (error) {
         logger.error(
-            `Failed to query ES index ${
+            `Failed to query Elasticsearch index ${
                 config.envConfig.SKILLS_ES.INDEX
             } for autocomplete suggestions, error in ES: ${JSON.stringify(error)}`,
         );
@@ -161,10 +165,10 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
             type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
             refresh: envConfig.CHALLENGES_ES.REFRESH as boolean,
         });
-        logger.info(`Challenge with id: ${id} found in ES`);
+        logger.info(`Challenge with id: ${id} found in Elasticsearch`);
         return challenge.body._source;
     } catch (error) {
-        logger.error(`Unable to fetch challenge with id: ${id} from ES`);
+        logger.error(`Unable to fetch challenge with id: ${id} from Elasticsearch`);
         return {};
     }
 };
@@ -184,10 +188,10 @@ export const getJobById = async (id: string): Promise<Record<string, any>> => {
             type: envConfig.JOBS_ES.JOB_DOCUMENT_TYPE,
             refresh: envConfig.JOBS_ES.REFRESH as boolean,
         });
-        logger.info(`Job with id: ${id} found in ES`);
+        logger.info(`Job with id: ${id} found in Elasticsearch`);
         return job.body._source;
     } catch (error) {
-        logger.error(`Unable to fetch job with id: ${id} from ES`);
+        logger.error(`Unable to fetch job with id: ${id} from Elasticsearch`);
         return {};
     }
 };
@@ -307,10 +311,10 @@ export const createSkillInAutocompleteES = async (skill: {
     createdAt: string;
     updatedAt: string;
 }) => {
-    logger.info(`Creating skill in skills autocomplete ES ${JSON.stringify(skill)}`);
+    logger.info(`Creating skill in skills autocomplete Elasticsearch ${JSON.stringify(skill)}`);
     skillsESClient = getSkillsESClient();
 
-    // generate the name suggestions on which ES will provide autocomplete feature
+    // generate the name suggestions on which Elasticsearch will provide autocomplete feature
     const doc = assign({}, skill, { name_suggest: helper.generateEmsiSkillSuggestionInputs(skill.name) });
     await skillsESClient.create({
         id: skill.id,
@@ -335,7 +339,9 @@ export const updateSkillInAutocompleteES = async (skill: {
     createdAt: string;
     updatedAt: string;
 }) => {
-    logger.info(`Updating skill ${skill.id} in skills autocomplete ES as per data ${JSON.stringify(skill)}`);
+    logger.info(
+        `Updating skill ${skill.id} in skills autocomplete Elasticsearch index as per data ${JSON.stringify(skill)}`,
+    );
 
     skillsESClient = getSkillsESClient();
     const doc = assign({}, skill, { name_suggest: helper.generateEmsiSkillSuggestionInputs(skill.name) });
@@ -355,7 +361,7 @@ export const updateSkillInAutocompleteES = async (skill: {
  * @param name the updated name of the category
  */
 export const updateSkillCategoryInAutocompleteES = async (id: string, name: string) => {
-    logger.info(`Updating affected skills in skills autocomplete ES with new category name: ${name}`);
+    logger.info(`Updating affected skills in skills autocomplete Elasticsearch index with new category name: ${name}`);
 
     skillsESClient = getSkillsESClient();
     await skillsESClient.updateByQuery({
@@ -385,7 +391,7 @@ export const updateSkillCategoryInAutocompleteES = async (id: string, name: stri
  * @param {string} id the id of the skill to be deleted
  */
 export const deleteSkillFromAutocompleteES = async (id: string) => {
-    logger.info(`Deleting skill from autocomplete ES with id ${id}`);
+    logger.info(`Deleting skill from autocomplete Elasticsearch index with id ${id}`);
 
     skillsESClient = getSkillsESClient();
     await skillsESClient.delete({
@@ -394,5 +400,5 @@ export const deleteSkillFromAutocompleteES = async (id: string) => {
         refresh: envConfig.SKILLS_ES.REFRESH as boolean,
     });
 
-    logger.info('Successfully delete skill from autocomplete ES with id $id}');
+    logger.info(`Successfully delete skill from autocomplete Elasticsearch index with id ${id}`);
 };

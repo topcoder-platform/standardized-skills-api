@@ -142,7 +142,7 @@ export default class SkillCategoryController {
      * Updates the name or description or a combination of both
      * of an existing category
      */
-    async updateCategoryPartial(
+    async patchCategory(
         req: AuthorizedRequest<
             CategoryIdRequestPathParamDto,
             any,
@@ -154,11 +154,7 @@ export default class SkillCategoryController {
         next: NextFunction,
     ) {
         try {
-            const category = await SkillCategoryService.UpdateCategoryPartial(
-                req.authUser,
-                req.params.categoryId,
-                req.body,
-            );
+            const category = await SkillCategoryService.patchCategory(req.authUser, req.params.categoryId, req.body);
             res.status(201).send(category);
         } catch (error) {
             next(error);

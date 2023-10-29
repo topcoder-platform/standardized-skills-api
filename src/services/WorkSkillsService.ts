@@ -88,7 +88,7 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
             },
         });
 
-        // update ES indices to reflect the new association
+        // update Elasticsearch index to reflect the new association
         if (workTypeDetail.name === constants.WorkType.challenge) {
             await esHelper.updateSkillsInChallengeES(workSkillData.workId, skillsToAssociate);
         }

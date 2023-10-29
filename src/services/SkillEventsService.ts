@@ -74,8 +74,8 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
             allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });
         }
 
-        // do the ES update only after we make sure all user skill db updates have been successfull,
-        // otherwise we can't revert ES updates if db update fails
+        // do the Elasticsearch index update only after we make sure all user skill db updates have been successful,
+        // otherwise we can't revert Elasticsearch index updates if db update fails
         for (const { userId, skills } of allSkills) {
             await esHelper.updateSkillsInMemberES(userId, skills);
         }

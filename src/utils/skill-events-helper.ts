@@ -48,7 +48,7 @@ export async function ensurePayloadChallengeExists(id: string) {
 }
 
 /**
- * Checks each payload winner's id against ES and make sure they exist
+ * Checks each payload winner's id against Elasticsearch index and make sure they exist
  */
 export async function ensurePayloadWinnersAreValidUsers(winners: { userId: string }[]) {
     const membersPromises = winners.map((winner) => esHelper.getMemberById(toString(winner.userId)));

@@ -8,7 +8,7 @@ import db, { Skill } from '../db';
 const logger = new LoggerClient('load-data-es');
 
 const loadSkillDataInES = async () => {
-    logger.info('Loading all skill data in ES for autocomplete');
+    logger.info('Loading all skill data in Elasticsearch index for autocomplete');
     let page = 1,
         totalPages = 1;
     do {
@@ -56,7 +56,7 @@ const loadSkillDataInES = async () => {
 
 loadSkillDataInES()
     .then(() => {
-        logger.info('All skill data indexed in ES for autocomplete');
+        logger.info('All skill data indexed in Elasticsearch index for autocomplete');
         process.exit(0);
     })
     .catch((err) => {

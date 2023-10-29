@@ -207,7 +207,7 @@ export const bulkAssignSkillsToCategories = async (
             throw new NotFoundError('Not all skill ids exist!');
         }
 
-        // update the category in PostgreSQL and ES datastores
+        // update the category in PostgreSQL and Elasticsearch index
         await Skill.update(
             {
                 category_id: categoryId,
@@ -278,7 +278,7 @@ export const updateCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        // update category information in PostgreSQL and ES datastores
+        // update category information in PostgreSQL and Elasticsearch index
         await SkillCategory.update(
             {
                 name: body.name,
@@ -315,7 +315,7 @@ export const updateCategory = async (
  * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
  * updated category
  */
-export const UpdateCategoryPartial = async (
+export const patchCategory = async (
     user: AuthUser,
     id: string,
     body: UpdateCategoryPartialRequestDto,
@@ -337,7 +337,7 @@ export const UpdateCategoryPartial = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        // update category in PostgreSQL and ES datastores
+        // update category in PostgreSQL andd Elasticsearch index
         await SkillCategory.update(
             {
                 name: body.name,

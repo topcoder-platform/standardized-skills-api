@@ -206,14 +206,14 @@ export const createSkill = async (
 };
 
 /**
- * Updates a skill in postgreSQL and ES datastore
+ * Updates a skill in postgreSQL and Elasticsearch index
  * @param {AuthUser} user the authenticated user details from the JWT
  * @param {SkillUpdatePutRequestBodyDto} body the request body containing the new skills details
  * @param id the id of the skill to update
  * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined } }>}
  * the newly updated skill along with its category information
  */
-export const updateSkillViaPut = async (
+export const updateSkill = async (
     user: AuthUser,
     body: SkillUpdatePutRequestBodyDto,
     id: string,
@@ -243,7 +243,7 @@ export const updateSkillViaPut = async (
             throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
         }
 
-        //update the skill in PostgreSQL and ES datastore
+        //update the skill in PostgreSQL and Elasticsearch index
         await Skill.update(
             {
                 name: body.name,
@@ -297,14 +297,14 @@ export const updateSkillViaPut = async (
 };
 
 /**
- * Updates a skill partially via patch in postgreSQL and ES datastore
+ * Updates a skill partially via patch in postgreSQL and Elasticsearch index
  * @param {AuthUser} user the authenticated user details from the JWT
  * @param {SkillUpdatePatchRequestBodyDto} body the request body containing the new skills details
  * @param id the id of the skill to update
  * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined } }>}
  * the newly updated skill along with its category information
  */
-export const updateSkillViaPatch = async (
+export const patchSkill = async (
     user: AuthUser,
     body: SkillUpdatePatchRequestBodyDto,
     id: string,
@@ -340,7 +340,7 @@ export const updateSkillViaPatch = async (
             throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
         }
 
-        //update the skill in PostgreSQL and ES datastore
+        //update the skill in PostgreSQL and Elasticsearch index
         await Skill.update(
             {
                 name: body.name,
@@ -394,7 +394,7 @@ export const updateSkillViaPatch = async (
 };
 
 /**
- * Deletes a skill from the PostgreSQL and ES datastores
+ * Deletes a skill from the PostgreSQL and Elasticsearch index
  * @param {AuthUser} user the authenticated user details from the JWT
  * @param {string} id the id of the skill to be deleted
  */
