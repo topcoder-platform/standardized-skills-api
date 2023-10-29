@@ -22,18 +22,6 @@ export const ensureUserCanManageMemberSkills = (currentUser: AuthUser, memberId:
     }
 };
 
-export const ensureUserCanValidateMemberSkills = (currentUser: AuthUser) => {
-    if (!currentUser.isMachine && !hasAdminRole(currentUser)) {
-        throw new ForbiddenError('You are not allowed to perform this action');
-    }
-};
-
-export const ensureUserCanManageCategories = (currentUser: AuthUser) => {
-    if (!currentUser.isMachine && !hasAdminRole(currentUser)) {
-        throw new ForbiddenError('You are not allowed to perform this action');
-    }
-};
-
 export const ensureUserHasAdminPrivilege = (currentUser: AuthUser) => {
     if (!currentUser.isMachine && !hasAdminRole(currentUser)) {
         throw new ForbiddenError('You are not allowed to perform this action');

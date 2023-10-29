@@ -3,7 +3,7 @@ import { map, toString } from 'lodash';
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, WorkType } from '../config';
 import { ChallengeUpdateSkillEventPayload, GetUserSkillsQueryDto, SkillEventRequestBodyDto } from '../dto';
 import { AuthUser } from '../types';
-import { ensureUserCanValidateMemberSkills } from '../utils/helpers';
+import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { getUserSkills } from './UserSkillsService';
 import db, { Skill, UserSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
@@ -86,7 +86,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
 export async function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
     // Ensure skill-events are only executed by admins or machine users
-    ensureUserCanValidateMemberSkills(currentUser);
+    ensureUserHasAdminPrivilege(currentUser);
 
     const event = await createAndEnsureEventNotProcessedAlready(topic, payload);
 

@@ -11,7 +11,7 @@ import { LoggerClient } from '../utils/LoggerClient';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../utils/errors';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
-import { ensureUserCanManageCategories } from '../utils/helpers';
+import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { FindAndCountOptions, Op } from 'sequelize';
 import { updateSkillCategoryInAutocompleteES } from '../utils/es-helper';
 
@@ -150,7 +150,7 @@ export const createNewCategory = async (
 ): Promise<{ id: string; name: string; description: string | undefined }> => {
     logger.info(`Creating new category as per data ${JSON.stringify(body)}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         if (!(await categoryNameIsUnique(body.name))) {
@@ -186,7 +186,7 @@ export const updateCategory = async (
 ): Promise<Partial<SkillCategory>> => {
     logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(id))) {
@@ -241,7 +241,7 @@ export const UpdateCategoryPartial = async (
 ): Promise<Partial<SkillCategory>> => {
     logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         if (!body.name && body.description === undefined) {
@@ -292,7 +292,7 @@ export const UpdateCategoryPartial = async (
 export const deleteCategory = async (user: AuthUser, id: string) => {
     logger.info(`Deleting category with id ${id}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(id))) {

@@ -7,7 +7,7 @@ import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-helper';
 import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
-import { ensureUserCanManageMemberSkills, ensureUserCanValidateMemberSkills } from '../utils/helpers';
+import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../utils/helpers';
 import * as esHelper from '../utils/es-helper';
 import { getOrderBy } from '../utils/user-skills-helper';
 import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
@@ -108,7 +108,7 @@ export async function updateDbUserSkills(
 
     // ensure that only designated users can mark skills as other than "selfDeclared"
     if (skillsData.skills.some((skill) => skill.levelId && skill.levelId !== selfDeclaredSkillLevel.id)) {
-        ensureUserCanValidateMemberSkills(currentUser);
+        ensureUserHasAdminPrivilege(currentUser);
     }
 
     // ensure passesd skill ids are valid
