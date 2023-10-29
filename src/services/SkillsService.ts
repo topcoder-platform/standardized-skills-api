@@ -259,7 +259,7 @@ export const updateSkillViaPut = async (
 
         // fetch updated skill details from PostgreSQL
         const skillDetails = await Skill.findByPk(id, {
-            attributes: ['id', 'name', 'description'],
+            attributes: ['id', 'name', 'description', 'created_at', 'updated_at'],
             include: {
                 model: SkillCategory,
                 as: 'category',
@@ -356,7 +356,7 @@ export const updateSkillViaPatch = async (
 
         // fetch updated skill details from PostgreSQL
         const skillDetails = await Skill.findByPk(id, {
-            attributes: ['id', 'name', 'description'],
+            attributes: ['id', 'name', 'description', 'created_at', 'updated_at'],
             include: {
                 model: SkillCategory,
                 as: 'category',

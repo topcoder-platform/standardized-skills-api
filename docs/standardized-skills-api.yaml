@@ -734,6 +734,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+  /categories/{categoryId}/assign-skills:
+    post:
+      operationId: bulkAssignSkillsToCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint bulk assigns the provided skills to a particular category specified by the parameter category id'
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'The id of the category to which the skills will be assigned'
+      requestBody:
+        description: 'The skillIds request body for those skills which are to be assigned to the given category'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['skillIds']
+              properties:
+                skillIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardizedSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'      
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'      
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'              
   /user-skills/{userId}:
     get:
       operationId: getAllUserSkills

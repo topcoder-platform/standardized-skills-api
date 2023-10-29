@@ -1,4 +1,4 @@
-import { isEmpty, isNull, omit, pick } from 'lodash';
+import { isEmpty, isNull, map, omit, pick, uniqBy } from 'lodash';
 import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoriesRequestQueryDto,
@@ -13,7 +13,9 @@ import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { FindAndCountOptions, Op } from 'sequelize';
-import { updateSkillCategoryInAutocompleteES } from '../utils/es-helper';
+import { bulkCreateSkillsES, updateSkillCategoryInAutocompleteES } from '../utils/es-helper';
+import dayjs from 'dayjs';
+import * as constants from '../config/constants';
 
 const logger = new LoggerClient('SkillCategoryService');
 
@@ -168,6 +170,90 @@ export const createNewCategory = async (
             name: category.name,
             description: category.description,
         };
+    });
+};
+
+/**
+ * Bulk assigns skills to new categories
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {string} categoryId the id of the category to which the skills are to be assigned
+ * @param {Array<string>} skillIds the uuid ids of skills whose category is to be changed
+ * @returns {Promise<Pick<Skill, "id" | "name" | "description" | "category">[]>}
+ * the updated skills and their category information
+ */
+export const bulkAssignSkillsToCategories = async (
+    user: AuthUser,
+    categoryId: string,
+    skillIds: string[],
+): Promise<Pick<Skill, 'id' | 'name' | 'description' | 'category'>[]> => {
+    logger.info(`Assigning skills ${JSON.stringify(skillIds)} to category ${categoryId}`);
+
+    ensureUserHasAdminPrivilege(user);
+
+    return await db.sequelize.transaction(async () => {
+        // category must be valid
+        const category = await SkillCategory.findByPk(categoryId);
+        if (isNull(category)) {
+            throw new NotFoundError(`Category with id ${categoryId} does not exist`);
+        }
+
+        // skill ids must be unique
+        if (skillIds.length !== uniqBy(skillIds, (ids) => ids).length) {
+            throw new BadRequestError('Provided skill ids are not unique!');
+        }
+
+        // check if the skill ids are valid
+        let skills = await Skill.findAll({
+            where: {
+                id: skillIds,
+            },
+        });
+        if (skills.length !== skillIds.length) {
+            throw new NotFoundError('Not all skill ids exist!');
+        }
+
+        // update the category in PostgreSQL and ES datastores
+        await Skill.update(
+            {
+                category_id: categoryId,
+            },
+            {
+                where: {
+                    id: skillIds,
+                },
+            },
+        );
+
+        skills = await Skill.findAll({
+            attributes: ['id', 'name', 'description', 'created_at', 'updated_at'],
+            include: {
+                model: SkillCategory,
+                as: 'category',
+                attributes: ['id', 'name', 'description'],
+            },
+            where: {
+                id: skillIds,
+            },
+        });
+
+        const skillsToIndexInES = map(skills, (skill) => {
+            return {
+                id: skill.id,
+                name: skill.name,
+                category: {
+                    id: skill.category.id,
+                    name: skill.category.name,
+                },
+                createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
+                updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
+            };
+        });
+
+        await bulkCreateSkillsES(skillsToIndexInES);
+
+        logger.info(`Successfully assigned skills to new category ${categoryId}`);
+
+        return map(skills, (skill) => pick(skill, ['id', 'name', 'description', 'category']));
     });
 };
 

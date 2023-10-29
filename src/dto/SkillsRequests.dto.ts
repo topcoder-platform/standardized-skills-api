@@ -102,3 +102,9 @@ export class GetAutocompleteRequestQueryDto {
     @Max(100)
     size = DEFAULT_SUGGESTIONS_SIZE;
 }
+
+export class SkillIdsRequestBodyDto {
+    @IsUUID('all', { each: true })
+    @MinLength(1, { each: true })
+    skillIds: string[];
+}

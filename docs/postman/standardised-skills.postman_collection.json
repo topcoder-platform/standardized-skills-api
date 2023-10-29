@@ -179,7 +179,7 @@
 								},
 								{
 									"key": "disablePagination",
-									"value": "",
+									"value": "false",
 									"disabled": true
 								}
 							]
@@ -354,6 +354,11 @@
 								{
 									"key": "name",
 									"value": "vel",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "false",
 									"disabled": true
 								}
 							]
@@ -582,6 +587,44 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "bulk assign skills to new category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skillIds\": [\n        \"3b41d3a8-253d-4009-b9dc-a1bc8f66965a\",\n        \"b72f5fd9-d7ec-411a-9fb6-28decfd073c1\",\n        \"acbfcea7-822b-4108-9133-377fa30c87a4\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/38fadd80-8721-4ce0-9387-cb6ad3ce48da/assign-skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"38fadd80-8721-4ce0-9387-cb6ad3ce48da",
+								"assign-skills"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -649,7 +692,7 @@
 								},
 								{
 									"key": "disablePagination",
-									"value": "true",
+									"value": "false",
 									"disabled": true
 								}
 							]

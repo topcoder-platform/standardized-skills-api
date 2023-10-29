@@ -11,6 +11,7 @@ import * as SkillCategoryService from '../services/SkillCategoryService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
 import * as core from 'express-serve-static-core';
+import { SkillIdsRequestBodyDto } from '../dto';
 
 export default class SkillCategoryController {
     /**
@@ -62,6 +63,32 @@ export default class SkillCategoryController {
                 setResHeaders(res, allSkills);
             }
             res.status(200).json(allSkills.skills);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Bulk assigns skills to new category
+     */
+    async bulkAssignSkillsToCategory(
+        req: AuthorizedRequest<
+            CategoryIdRequestPathParamDto,
+            any,
+            SkillIdsRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const updatedSkills = await SkillCategoryService.bulkAssignSkillsToCategories(
+                req.authUser,
+                req.params.categoryId,
+                req.body.skillIds,
+            );
+            res.status(201).json(updatedSkills);
         } catch (error) {
             next(error);
         }

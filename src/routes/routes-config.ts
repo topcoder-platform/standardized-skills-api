@@ -12,6 +12,7 @@ import {
     SkillCreationRequestBodyDto,
     SkillUpdatePutRequestBodyDto,
     SkillUpdatePatchRequestBodyDto,
+    SkillIdsRequestBodyDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -232,6 +233,22 @@ const RouteDefinitions: RouteDefinition[] = [
             },
             query: {
                 dto: GetCategorySkillsRequestQueryDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId/assign-skills',
+        verb: 'post',
+        controller: 'SkillCategoryController',
+        method: 'bulkAssignSkillsToCategory',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+            body: {
+                dto: SkillIdsRequestBodyDto,
             },
         },
     },
