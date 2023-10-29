@@ -2,6 +2,7 @@ import { isEmpty, isNull, omit, pick } from 'lodash';
 import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoriesRequestQueryDto,
+    GetCategorySkillsRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
@@ -87,6 +88,51 @@ export const getAllCategories = async (
 
     return {
         categories,
+        ...paginationValues,
+    };
+};
+
+/**
+ * Gets the skills belonging to a category
+ * @param {string} categoryId the id of the cateogory whose skills are to be fetched
+ * @param {GetCategorySkillsRequestQueryDto} query the request query
+ * * @returns {Promise<{ skills: number | Skill[];}
+ * | {page: number;
+ *    perPage: number;
+ *    total: number;
+ *    totalPages: number;
+ *    skills: number | Skill[];
+ * }>} An array of skill id, names and description along with pagination values
+ */
+export const getCategorySkills = async (
+    categoryId: string,
+    query: GetCategorySkillsRequestQueryDto,
+): Promise<
+    | { skills: number | Skill[] }
+    | {
+          page: number;
+          perPage: number;
+          total: number;
+          totalPages: number;
+          skills: number | Skill[];
+      }
+> => {
+    logger.info(`Fetching all skills belonging to category ${categoryId}`);
+
+    if (isNull(await SkillCategory.findByPk(categoryId))) {
+        throw new NotFoundError(`Category with id ${categoryId} does not exist!`);
+    }
+
+    const { skills, ...paginationValues } = await findAndCountPaginated<Skill>(Skill, 'skills', query, {
+        attributes: ['id', 'name', 'description'],
+        where: {
+            category_id: categoryId,
+        },
+    });
+
+    logger.info('Successfully fetched skills belonging to category');
+    return {
+        skills,
         ...paginationValues,
     };
 };

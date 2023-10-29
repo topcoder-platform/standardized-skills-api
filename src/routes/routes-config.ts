@@ -16,6 +16,7 @@ import {
 import {
     AllCategoriesRequestQueryDto,
     CategoryIdRequestPathParamDto,
+    GetCategorySkillsRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
@@ -215,6 +216,22 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId/skills',
+        verb: 'get',
+        controller: 'SkillCategoryController',
+        method: 'getCategorySkills',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+            query: {
+                dto: GetCategorySkillsRequestQueryDto,
             },
         },
     },

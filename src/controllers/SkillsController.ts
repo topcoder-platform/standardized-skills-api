@@ -29,7 +29,7 @@ export default class SkillsController {
      * Gets a skill by id
      */
     getSkillById = async (
-        req: Request<{ [key: string]: string }, any, any, dtos.SkillIdRequestPathParamDto, Record<string, any>>,
+        req: Request<dtos.SkillIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -68,7 +68,7 @@ export default class SkillsController {
      */
     updateSkillViaPut = async (
         req: AuthorizedRequest<
-            { [key: string]: string },
+            dtos.SkillIdRequestPathParamDto,
             any,
             dtos.SkillUpdatePutRequestBodyDto,
             core.Query,
@@ -90,7 +90,7 @@ export default class SkillsController {
      */
     updateSkillViaPatch = async (
         req: AuthorizedRequest<
-            { [key: string]: string },
+            dtos.SkillIdRequestPathParamDto,
             any,
             dtos.SkillUpdatePatchRequestBodyDto,
             core.Query,
@@ -111,13 +111,7 @@ export default class SkillsController {
      * Deletes an existing skill
      */
     deleteSkill = async (
-        req: AuthorizedRequest<
-            { [key: string]: string },
-            any,
-            any,
-            dtos.SkillIdRequestPathParamDto,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<dtos.SkillIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) => {

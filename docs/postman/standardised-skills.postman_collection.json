@@ -526,6 +526,62 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get skills by category id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/481b5ebc-2fe6-45ed-a90c-736936d458d7/skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"481b5ebc-2fe6-45ed-a90c-736936d458d7",
+								"skills"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "20",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "name",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

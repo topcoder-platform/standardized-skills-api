@@ -37,7 +37,7 @@ export class UpdateCategoryPartialRequestDto {
     @IsOptional()
     @IsString({ message: 'description must be a non-empty string or null' })
     @IsNotEmpty({ message: 'description must be a non-empty string or null' })
-    description: string | null;
+    description?: string | null;
 }
 
 export class CategoryIdRequestPathParamDto {
@@ -45,4 +45,12 @@ export class CategoryIdRequestPathParamDto {
     @IsNotEmpty()
     @IsUUID('all')
     categoryId: string;
+}
+
+export class GetCategorySkillsRequestQueryDto extends BasePaginatedSortedRequest {
+    @IsOptional()
+    @IsString()
+    @IsNotEmpty()
+    @IsIn(['name', 'description', 'createdAt', 'updatedAt'])
+    sortBy?: string;
 }

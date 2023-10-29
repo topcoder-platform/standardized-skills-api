@@ -1,16 +1,17 @@
 import { NextFunction, Response } from 'express';
 
-import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
+import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto, UserIdParamDto } from '../dto';
 import * as UserSkillsService from '../services/UserSkillsService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
+import * as core from 'express-serve-static-core';
 
 export default class UserSkillsController {
     /**
      * Get the associated skills for the User
      */
     async getUserSkills(
-        req: AuthorizedRequest<{ [key: string]: string }, any, any, GetUserSkillsQueryDto, Record<string, any>>,
+        req: AuthorizedRequest<UserIdParamDto, any, any, GetUserSkillsQueryDto, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {
@@ -36,8 +37,8 @@ export default class UserSkillsController {
         req: AuthorizedRequest<
             { [key: string]: string },
             any,
-            any,
             UpdateUserSkillsRequestBodyDto,
+            core.Query,
             Record<string, any>
         >,
         res: Response,
@@ -57,8 +58,8 @@ export default class UserSkillsController {
         req: AuthorizedRequest<
             { [key: string]: string },
             any,
-            any,
             UpdateUserSkillsRequestBodyDto,
+            core.Query,
             Record<string, any>
         >,
         res: Response,

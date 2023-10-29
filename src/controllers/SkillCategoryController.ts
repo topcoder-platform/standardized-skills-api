@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import {
     AllCategoriesRequestQueryDto,
+    CategoryIdRequestPathParamDto,
+    GetCategorySkillsRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
@@ -15,7 +17,7 @@ export default class SkillCategoryController {
      * Gets a category by id
      */
     async getCategoryById(
-        req: Request<{ [key: string]: string }, any, any, core.Query, Record<string, any>>,
+        req: Request<CategoryIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {
@@ -41,6 +43,25 @@ export default class SkillCategoryController {
                 setResHeaders(res, allCategories);
             }
             res.status(200).json(allCategories.categories);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Gets all skills belonging to a category
+     */
+    async getCategorySkills(
+        req: Request<CategoryIdRequestPathParamDto, any, any, GetCategorySkillsRequestQueryDto, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const allSkills = await SkillCategoryService.getCategorySkills(req.params.categoryId, req.query);
+            if (!req.query.disablePagination) {
+                setResHeaders(res, allSkills);
+            }
+            res.status(200).json(allSkills.skills);
         } catch (error) {
             next(error);
         }
@@ -73,7 +94,7 @@ export default class SkillCategoryController {
      */
     async updateCategory(
         req: AuthorizedRequest<
-            { [key: string]: string },
+            CategoryIdRequestPathParamDto,
             any,
             UpdateCategoryRequestBodyDto,
             core.Query,
@@ -96,7 +117,7 @@ export default class SkillCategoryController {
      */
     async updateCategoryPartial(
         req: AuthorizedRequest<
-            { [key: string]: string },
+            CategoryIdRequestPathParamDto,
             any,
             UpdateCategoryPartialRequestDto,
             core.Query,
@@ -121,7 +142,7 @@ export default class SkillCategoryController {
      * Deletes an existing category by id
      */
     async deleteCategory(
-        req: AuthorizedRequest<{ [key: string]: string }, any, any, core.Query, Record<string, any>>,
+        req: AuthorizedRequest<CategoryIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {
