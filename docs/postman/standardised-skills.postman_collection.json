@@ -343,7 +343,7 @@
 								},
 								{
 									"key": "sortBy",
-									"value": "createdAt",
+									"value": "created_at",
 									"disabled": true
 								},
 								{
