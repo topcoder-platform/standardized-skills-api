@@ -16,7 +16,7 @@ paths:
     get:
       operationId: searchSkills
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria <br> skillIds should be a comma-separated skills uuids <br> When the skillIds are specified, the name parameter is ignored <br> If no criteria is provided, all available  skills are fetched'
+      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br> Parameter skillIds should be valid comma-separated skill uuids. <br> Parameter name is a string used to fetch skills that contain the name value anywhere in the skill name. When the skillIds are specified, the name parameter is ignored. <br> If no criteria is provided, all available skills are fetched.'
       parameters:
         - in: query
           name: name
@@ -189,7 +189,7 @@ paths:
     put:
       operationId: updateSkillById
       tags: ['Standardized Skills API']
-      description: 'This endpoint updates an existing skill with the information supplied in the request body'
+      description: 'This endpoint updates an existing skill with the information supplied in the request body. All information in the request body is mandatory.'
       parameters:
         - in: path
           required: true
@@ -247,7 +247,7 @@ paths:
     patch:
       operationId: updateSkillPartiallyById
       tags: ['Standardized Skills API']
-      description: 'This endpoint updates an existing skill with the information supplied in the request body. This can be used to update the name, description, category or a combination of them'
+      description: 'This endpoint updates an existing skill with the information supplied in the request body. This can be used to update the name, description, category or any combination of them. At the very least, one of the values must be provided in the request body.'
       parameters:
         - in: path
           required: true
@@ -339,7 +339,7 @@ paths:
     get:
       operationId: searchSkillCategories
       tags: ['Standardized Skills API']
-      description: 'This endpoint searches the skill categories matching the specified search criteria. If no search criteria is provided then all categories are returned'
+      description: 'This endpoint searches the skill categories matching the specified search criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br>Paramater name is used to fetch categories that have the name value anywhere in the category name. <br> If no search criteria is provided then all categories are returned .'
       parameters:
         - in: query
           name: name
@@ -407,7 +407,7 @@ paths:
     post:
       operationId: createSkillCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint creates a new category with the data in the request body if and only if the category name does not already exist'
+      description: 'This endpoint creates a new category with the data in the request body if and only if the category name does not already exist.'
       requestBody:
         description: 'The request body for creating a new skill category'
         content:
@@ -492,7 +492,7 @@ paths:
     put:
       operationId: updateSkillCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category'
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. All information in the request body is mandatory.'
       parameters:
         - in: path
           required: true
@@ -553,7 +553,7 @@ paths:
     patch:
       operationId: updatePartialSkillCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. This can be used for updating either name or description or a combination of the two'
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. This can be used for updating either name or description or a combination of the two.'
       parameters:
         - in: path
           required: true
@@ -653,7 +653,7 @@ paths:
     get:
       operationId: getSkillsByCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns the list of all skills in a given category'
+      description: 'This endpoint returns the list of all skills in a given category in paginated fashion unless the disablePagination header is set to true.'
       parameters:
         - in: path
           name: categoryId
@@ -738,7 +738,7 @@ paths:
     get:
       operationId: getAllUserSkills
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns all the skill details associated with the user identified by the given userId.  <br> If the member does not have any skills associated, then an empty array is returned'
+      description: 'This endpoint returns all the skill details associated with the user identified by the given userId in a paginated fashion unless the disablePagination header is set to true. <br> If the member does not have any skills associated, then an empty array is returned.'
       parameters:
         - in: path
           name: userId
