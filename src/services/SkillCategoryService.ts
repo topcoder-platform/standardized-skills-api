@@ -1,17 +1,21 @@
-import { isEmpty, isNull, omit, pick } from 'lodash';
+import { isEmpty, isNull, map, omit, pick } from 'lodash';
 import db, { Skill, SkillCategory } from '../db';
 import {
     AllCategoriesRequestQueryDto,
+    GetCategorySkillsRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
 } from '../dto/CategoryRequest.dto';
 import { LoggerClient } from '../utils/LoggerClient';
-import { BadRequestError, ConflictError, NotFoundError } from '../utils/errors';
+import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../utils/errors';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
-import { ensureUserCanManageCategories } from '../utils/helpers';
+import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { FindAndCountOptions, Op } from 'sequelize';
+import { bulkCreateSkillsES, updateSkillCategoryInAutocompleteES } from '../utils/es-helper';
+import dayjs from 'dayjs';
+import * as constants from '../config/constants';
 
 const logger = new LoggerClient('SkillCategoryService');
 
@@ -91,6 +95,51 @@ export const getAllCategories = async (
 };
 
 /**
+ * Gets the skills belonging to a category
+ * @param {string} categoryId the id of the cateogory whose skills are to be fetched
+ * @param {GetCategorySkillsRequestQueryDto} query the request query
+ * * @returns {Promise<{ skills: number | Skill[];}
+ * | {page: number;
+ *    perPage: number;
+ *    total: number;
+ *    totalPages: number;
+ *    skills: number | Skill[];
+ * }>} An array of skill id, names and description along with pagination values
+ */
+export const getCategorySkills = async (
+    categoryId: string,
+    query: GetCategorySkillsRequestQueryDto,
+): Promise<
+    | { skills: number | Skill[] }
+    | {
+          page: number;
+          perPage: number;
+          total: number;
+          totalPages: number;
+          skills: number | Skill[];
+      }
+> => {
+    logger.info(`Fetching all skills belonging to category ${categoryId}`);
+
+    if (isNull(await SkillCategory.findByPk(categoryId))) {
+        throw new NotFoundError(`Category with id ${categoryId} does not exist!`);
+    }
+
+    const { skills, ...paginationValues } = await findAndCountPaginated<Skill>(Skill, 'skills', query, {
+        attributes: ['id', 'name', 'description'],
+        where: {
+            category_id: categoryId,
+        },
+    });
+
+    logger.info('Successfully fetched skills belonging to category');
+    return {
+        skills,
+        ...paginationValues,
+    };
+};
+
+/**
  * Creates a new category from the name and description in the payload
  * @param {AuthUser} user the authenticated user details from the JWT
  * @param {NewCategoryRequestBodyDto} body the name and description of the new category
@@ -103,7 +152,7 @@ export const createNewCategory = async (
 ): Promise<{ id: string; name: string; description: string | undefined }> => {
     logger.info(`Creating new category as per data ${JSON.stringify(body)}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         if (!(await categoryNameIsUnique(body.name))) {
@@ -112,7 +161,7 @@ export const createNewCategory = async (
 
         const category = await SkillCategory.create({
             name: body.name,
-            description: body.description ?? undefined,
+            description: body.description,
         });
 
         logger.info(`New category successfully created ${JSON.stringify(category)}`);
@@ -121,6 +170,85 @@ export const createNewCategory = async (
             name: category.name,
             description: category.description,
         };
+    });
+};
+
+/**
+ * Bulk assigns skills to new categories
+ * @param {AuthUser} user the authenticated user details from the JWT
+ * @param {string} categoryId the id of the category to which the skills are to be assigned
+ * @param {Array<string>} skillIds the uuid ids of skills whose category is to be changed
+ * @returns {Promise<Pick<Skill, "id" | "name" | "description" | "category">[]>}
+ * the updated skills and their category information
+ */
+export const bulkAssignSkillsToCategories = async (
+    user: AuthUser,
+    categoryId: string,
+    skillIds: string[],
+): Promise<Pick<Skill, 'id' | 'name' | 'description' | 'category'>[]> => {
+    logger.info(`Assigning skills ${JSON.stringify(skillIds)} to category ${categoryId}`);
+
+    ensureUserHasAdminPrivilege(user);
+
+    return await db.sequelize.transaction(async () => {
+        // category must be valid
+        const category = await SkillCategory.findByPk(categoryId);
+        if (isNull(category)) {
+            throw new NotFoundError(`Category with id ${categoryId} does not exist`);
+        }
+
+        // check if the skill ids are valid
+        let skills = await Skill.findAll({
+            where: {
+                id: skillIds,
+            },
+        });
+        if (skills.length !== skillIds.length) {
+            throw new NotFoundError('Not all skill ids exist!');
+        }
+
+        // update the category in PostgreSQL and Elasticsearch index
+        await Skill.update(
+            {
+                category_id: categoryId,
+            },
+            {
+                where: {
+                    id: skillIds,
+                },
+            },
+        );
+
+        skills = await Skill.findAll({
+            attributes: ['id', 'name', 'description', 'created_at', 'updated_at'],
+            include: {
+                model: SkillCategory,
+                as: 'category',
+                attributes: ['id', 'name', 'description'],
+            },
+            where: {
+                id: skillIds,
+            },
+        });
+
+        const skillsToIndexInES = map(skills, (skill) => {
+            return {
+                id: skill.id,
+                name: skill.name,
+                category: {
+                    id: skill.category.id,
+                    name: skill.category.name,
+                },
+                createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
+                updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
+            };
+        });
+
+        await bulkCreateSkillsES(skillsToIndexInES);
+
+        logger.info(`Successfully assigned skills to new category ${categoryId}`);
+
+        return map(skills, (skill) => pick(skill, ['id', 'name', 'description', 'category']));
     });
 };
 
@@ -139,7 +267,7 @@ export const updateCategory = async (
 ): Promise<Partial<SkillCategory>> => {
     logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(id))) {
@@ -150,6 +278,7 @@ export const updateCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
+        // update category information in PostgreSQL and Elasticsearch index
         await SkillCategory.update(
             {
                 name: body.name,
@@ -162,8 +291,18 @@ export const updateCategory = async (
             },
         );
 
+        // fetch updated category information
+        const category = await SkillCategory.findByPk(id, {
+            attributes: ['id', 'name', 'description'],
+        });
+        if (isNull(category)) {
+            throw new InternalServerError('Unable to connect to database!');
+        }
+
+        await updateSkillCategoryInAutocompleteES(category.id, category.name);
+
         logger.info(`Category ${id} updated successfully`);
-        return pick(await SkillCategory.findByPk(id), ['id', 'name', 'description']);
+        return category;
     });
 };
 
@@ -176,17 +315,17 @@ export const updateCategory = async (
  * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
  * updated category
  */
-export const UpdateCategoryPartial = async (
+export const patchCategory = async (
     user: AuthUser,
     id: string,
     body: UpdateCategoryPartialRequestDto,
 ): Promise<Partial<SkillCategory>> => {
     logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
-        if (!body.name && !body.description) {
+        if (!body.name && body.description === undefined) {
             throw new BadRequestError('No data provided for category update');
         }
 
@@ -198,22 +337,31 @@ export const UpdateCategoryPartial = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        const propertiesToUpdate: { name?: string; description?: string } = {};
-        if (body.name) {
-            propertiesToUpdate['name'] = body.name;
-        }
-        if (body.description) {
-            propertiesToUpdate['description'] = body.description;
+        // update category in PostgreSQL andd Elasticsearch index
+        await SkillCategory.update(
+            {
+                name: body.name,
+                description: body.description,
+            },
+            {
+                where: {
+                    id,
+                },
+            },
+        );
+
+        // fetch updated category information
+        const category = await SkillCategory.findByPk(id, {
+            attributes: ['id', 'name', 'description'],
+        });
+        if (isNull(category)) {
+            throw new InternalServerError('Unable to connect to database!');
         }
 
-        await SkillCategory.update(propertiesToUpdate, {
-            where: {
-                id,
-            },
-        });
+        await updateSkillCategoryInAutocompleteES(category.id, category.name);
 
         logger.info(`Category ${id} updated successfully`);
-        return pick(await SkillCategory.findByPk(id), ['id', 'name', 'description']);
+        return category;
     });
 };
 
@@ -225,7 +373,7 @@ export const UpdateCategoryPartial = async (
 export const deleteCategory = async (user: AuthUser, id: string) => {
     logger.info(`Deleting category with id ${id}`);
 
-    ensureUserCanManageCategories(user);
+    ensureUserHasAdminPrivilege(user);
 
     await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(id))) {
@@ -259,7 +407,7 @@ const categoryNameIsUnique = async (name: string, id?: string): Promise<boolean>
     });
 
     /**
-     * no category exists with the specified name RETURN false
+     * no category exists with the specified name RETURN true
      * category exists and the provided id to check against is same as of the category we want to update RETURN true
      * category exists and no id is supplied for comparison (used for creating new category) RETURN false
      */

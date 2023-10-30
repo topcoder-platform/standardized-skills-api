@@ -2,6 +2,8 @@ import * as skillsService from '../services/SkillsService';
 import { NextFunction, Request, Response } from 'express';
 import * as helper from '../utils/helpers';
 import * as dtos from '../dto/SkillsRequests.dto';
+import { AuthorizedRequest } from '../types';
+import * as core from 'express-serve-static-core';
 
 export default class SkillsController {
     /**
@@ -14,7 +16,9 @@ export default class SkillsController {
     ) => {
         try {
             const skills = await skillsService.getAllSkills(req.query);
-            helper.setResHeaders(res, skills);
+            if (!req.query.disablePagination) {
+                helper.setResHeaders(res, skills);
+            }
             res.status(200).json(skills.skills);
         } catch (error) {
             next(error);
@@ -25,13 +29,95 @@ export default class SkillsController {
      * Gets a skill by id
      */
     getSkillById = async (
-        req: Request<{ [key: string]: string }, any, any, dtos.SkillIdRequestPathParamDto, Record<string, any>>,
+        req: Request<dtos.SkillIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) => {
         try {
             const skill = await skillsService.getSkillById(req.params.skillId);
             res.status(200).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Creates a new skill and assigns it to an existing category
+     */
+    createSkill = async (
+        req: AuthorizedRequest<
+            { [key: string]: string },
+            any,
+            dtos.SkillCreationRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.createSkill(req.authUser, req.body);
+            res.status(201).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Updates an existing skill via put
+     */
+    updateSkill = async (
+        req: AuthorizedRequest<
+            dtos.SkillIdRequestPathParamDto,
+            any,
+            dtos.SkillUpdatePutRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.updateSkill(req.authUser, req.body, req.params.skillId);
+            res.status(201).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Updates an existing skill partially via patch
+     */
+    patchSkill = async (
+        req: AuthorizedRequest<
+            dtos.SkillIdRequestPathParamDto,
+            any,
+            dtos.SkillUpdatePatchRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.patchSkill(req.authUser, req.body, req.params.skillId);
+            res.status(201).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Deletes an existing skill
+     */
+    deleteSkill = async (
+        req: AuthorizedRequest<dtos.SkillIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            await skillsService.deleteSkill(req.authUser, req.params.skillId);
+            res.status(204).send();
         } catch (error) {
             next(error);
         }

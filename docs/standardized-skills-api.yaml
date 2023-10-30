@@ -16,7 +16,7 @@ paths:
     get:
       operationId: searchSkills
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria. <br> ids should be a comma-separated skills uuids. <br> All search criteria will be applied with And operator  <br> If no criteria is provided, all available  skills are fetched'
+      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br> Parameter skillIds should be valid comma-separated skill uuids. <br> Parameter name is a string used to fetch skills that contain the name value anywhere in the skill name. When the skillIds are specified, the name parameter is ignored. <br> If no criteria is provided, all available skills are fetched.'
       parameters:
         - in: query
           name: name
@@ -48,12 +48,16 @@ paths:
           name: sortBy
           schema:
             type: string
-            enum: ['name']
+            enum: ['name', 'description', 'created_at', 'updated_at']
         - in: query
           name: sortOrder
           schema:
             type: string
             enum: ['ASC', 'DESC']
+        - in: query
+          name: disablePagination
+          schema:
+            type: boolean
       responses:
         '200':
           description: 'OK'
@@ -80,13 +84,71 @@ paths:
               schema:
                 type: integer
               description: 'The total number of pages'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'      
         '500':
           description: 'Server Error'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
-  /skills/{id}:
+    post:
+      operationId: createSkill
+      tags: ['Standardized Skills API']
+      description: 'This endpoint creates a new skill and assigns it to an existing category if and only if the skill name is unique'
+      requestBody:
+        description: 'The request body for creating a new skill'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['name', 'categoryId']
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                categoryId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardizedSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'          
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'          
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /skills/{skillId}:
     get:
       operationId: getSkillById
       tags: ['Standardized Skills API']
@@ -94,7 +156,7 @@ paths:
       parameters:
         - in: path
           required: true
-          name: id
+          name: skillId
           schema:
             type: string
             format: uuid
@@ -105,7 +167,13 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StandardizedSkillDetails'
+                $ref: '#/components/schemas/StandardizedSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'        
         '404':
           description: 'Not Found Error'
           content:
@@ -118,11 +186,160 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+    put:
+      operationId: updateSkillById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint updates an existing skill with the information supplied in the request body. All information in the request body is mandatory.'
+      parameters:
+        - in: path
+          required: true
+          name: skillId
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the skill to update'
+      requestBody:
+        description: 'The update skill request body'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['name', 'categoryId']
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                categoryId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardizedSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'        
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'        
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'            
+    patch:
+      operationId: updateSkillPartiallyById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint updates an existing skill with the information supplied in the request body. This can be used to update the name, description, category or any combination of them. At the very least, one of the values must be provided in the request body.'
+      parameters:
+        - in: path
+          required: true
+          name: skillId
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the skill to update'
+      requestBody:
+        description: 'The update skill request body'
+        content:
+          application/json:
+            schema:
+              type: object
+              description: 'Can be a combination of any of the properties in the request body'
+              properties:
+                name:
+                  type: string
+                description:
+                  type: string
+                categoryId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardizedSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'        
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '409':
+          description: 'Conflict Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictErrorResponse'        
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                        
+    delete:
+      operationId: deleteSkillById
+      tags: ['Standardized Skills API']
+      description: 'This endpoint deletes an existing skill'
+      parameters:
+        - in: path
+          required: true
+          name: skillId
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the skill to delete'
+      responses:
+        '204':
+          description: 'No Content'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'  
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'            
   /categories:
     get:
       operationId: searchSkillCategories
       tags: ['Standardized Skills API']
-      description: 'This endpoint searches the skill categories matching the specified search criteria. If no search criteria is provided then all categories are returned'
+      description: 'This endpoint searches the skill categories matching the specified search criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br>Paramater name is used to fetch categories that have the name value anywhere in the category name. <br> If no search criteria is provided then all categories are returned .'
       parameters:
         - in: query
           name: name
@@ -139,12 +356,16 @@ paths:
           name: sortBy
           schema:
             type: string
-            enum: ['name', 'description', 'createdAt', 'updatedAt']
+            enum: ['name', 'description', 'created_at', 'updated_at']
         - in: query
           name: sortOrder
           schema:
             type: string
             enum: ['ASC', 'DESC']
+        - in: query
+          name: disablePagination
+          schema:
+            type: boolean    
       responses:
         '200':
           description: 'OK'
@@ -171,6 +392,12 @@ paths:
               schema:
                 type: integer
               description: 'The total number of pages'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'      
         '500':
           description: 'Server Error'
           content:
@@ -180,7 +407,7 @@ paths:
     post:
       operationId: createSkillCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint creates a new category with the data in the request body if and only if the category name does not already exist'
+      description: 'This endpoint creates a new category with the data in the request body if and only if the category name does not already exist.'
       requestBody:
         description: 'The request body for creating a new skill category'
         content:
@@ -200,6 +427,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryDetails'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'        
         '403':
           description: 'Forbidden Error'
           content:
@@ -238,7 +471,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryDetails'
-                 
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
         '404':
           description: 'Not Found Error'
           content:
@@ -254,7 +492,7 @@ paths:
     put:
       operationId: updateSkillCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category'
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. All information in the request body is mandatory.'
       parameters:
         - in: path
           required: true
@@ -282,6 +520,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryDetails'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'        
         '403':
           description: 'Forbidden Error'
           content:
@@ -309,7 +553,7 @@ paths:
     patch:
       operationId: updatePartialSkillCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. This can be used for updating either name or description or a combination of the two'
+      description: 'This endpoint updates an existing category with the data in the request body if and only if the category name does not collide with another existing category. This can be used for updating either name or description or a combination of the two.'
       parameters:
         - in: path
           required: true
@@ -336,6 +580,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryDetails'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'        
         '403':
           description: 'Forbidden Error'
           content:
@@ -399,14 +649,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'                                    
-  /categories/{id}/skills:
+  /categories/{categoryId}/skills:
     get:
       operationId: getSkillsByCategory
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns the list of all skills in a given category'
+      description: 'This endpoint returns the list of all skills in a given category in paginated fashion unless the disablePagination header is set to true.'
       parameters:
         - in: path
-          name: id
+          name: categoryId
           schema:
             type: string
             format: uuid
@@ -430,12 +680,16 @@ paths:
           name: sortBy
           schema:
             type: string
-            enum: ['name']
+            enum: ['name', 'description', 'created_at', 'updated_at']
         - in: query
           name: sortOrder
           schema:
             type: string
-            enum: ['ASC', 'DESC']  
+            enum: ['ASC', 'DESC']
+        - in: query
+          name: disablePagination
+          schema:
+            type: boolean    
       responses:
         '200':
           description: 'OK'
@@ -444,7 +698,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StandardizedSkill'
+                  $ref: '#/components/schemas/OnlySkill'
           headers:
             X-Page:
               schema:
@@ -462,23 +716,82 @@ paths:
               schema:
                 type: integer
               description: 'The total number of pages'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'      
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'      
         '500':
           description: 'Server Error'
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+  /categories/{categoryId}/assign-skills:
+    post:
+      operationId: bulkAssignSkillsToCategory
+      tags: ['Standardized Skills API']
+      description: 'This endpoint bulk assigns the provided skills to a particular category specified by the parameter category id'
+      parameters:
+        - in: path
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: 'The id of the category to which the skills will be assigned'
+      requestBody:
+        description: 'The skillIds request body for those skills which are to be assigned to the given category'
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['skillIds']
+              properties:
+                skillIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: 'Created'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StandardizedSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'      
         '404':
           description: 'Not Found Error'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/NotFoundErrorResponse'
+                $ref: '#/components/schemas/NotFoundErrorResponse'      
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'              
   /user-skills/{userId}:
     get:
       operationId: getAllUserSkills
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns all the skill details associated with the user identified by the given userId.  <br> If the member does not have any skills associated, then an empty array is returned'
+      description: 'This endpoint returns all the skill details associated with the user identified by the given userId in a paginated fashion unless the disablePagination header is set to true. <br> If the member does not have any skills associated, then an empty array is returned.'
       parameters:
         - in: path
           name: userId
@@ -496,6 +809,10 @@ paths:
           schema:
             type: string
             enum: ['ASC', 'DESC']
+        - in: query
+          name: disablePagination
+          schema:
+            type: boolean
       responses:
         '200':
           description: 'OK'
@@ -505,6 +822,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'          
         '500':
           description: 'Server Error'
           content:
@@ -514,7 +837,7 @@ paths:
     post:
       operationId: 'createUserSkills'
       tags: ['Standardized Skills API']
-      description: 'Creates an association between a user and the skills supplied in the request body. <br> Each skill is identified by its unique id. <br> The skill level represents how the user got the skill: `self-declared` or `verified`. If skill level info is not sent, it will default to `self-declared`. <br> The user to skill association will be created only if it does not already exist.'
+      description: 'Creates an association between a user and the skills supplied in the request body <br> Each skill is identified by its unique id, the skill level represents how the user got the skill: `self-declared` or `verified` <br> The user to skill association will be created only if it does not already exist.'
       parameters:
         - in: path
           name: userId
@@ -601,6 +924,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/UserSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'          
         '404':
           description: 'Not Found Error'
           content:
@@ -639,6 +968,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SuggestSkillsResponse'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'          
         '403':
           description: 'Forbidden Error'
           content:
@@ -711,6 +1046,12 @@ paths:
               schema:
                 type: integer
               description: 'The total number of pages'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'      
         '500':
           description: 'Server Error'
           content:
@@ -731,6 +1072,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/SkillLevel'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'          
         '500':
           description: 'Server Error'
           content:
@@ -766,6 +1113,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/WorkSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'          
         '500':
           description: 'Server Error'
           content:
@@ -908,7 +1261,7 @@ components:
           type: string
         category:
           $ref: '#/components/schemas/Category'
-    StandardizedSkillDetails:
+    OnlySkill:
       properties:
         id:
           type: string
@@ -916,21 +1269,15 @@ components:
         name:
           type: string
         description:
-          type: string
-        category:
-          $ref: '#/components/schemas/Category'
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
+          type: string      
     Category:
       properties:
         id:
           type: string
           format: uuid
         name:
+          type: string
+        description:
           type: string
     CategoryDetails:
       properties:
@@ -941,14 +1288,6 @@ components:
           type: string
         description:
           type: string
-    Timestamps:
-      properties:
-        createdAt:
-          type: string
-          format: date-time
-        updatedAt:
-          type: string
-          format: date-time
     UserSkillCreateRequest:
       required: ['id']
       properties:

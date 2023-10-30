@@ -9,10 +9,15 @@ import {
     UserIdParamDto,
     SkillEventRequestBodyDto,
     SkillIdRequestPathParamDto,
+    SkillCreationRequestBodyDto,
+    SkillUpdatePutRequestBodyDto,
+    SkillUpdatePatchRequestBodyDto,
+    SkillIdsRequestBodyDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
     CategoryIdRequestPathParamDto,
+    GetCategorySkillsRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
@@ -43,7 +48,6 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getAutocompleteSuggestions',
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             query: {
                 dto: GetAutocompleteRequestQueryDto,
@@ -55,10 +59,71 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getSkillById',
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             params: {
                 dto: SkillIdRequestPathParamDto,
+            },
+        },
+    },
+    {
+        path: '/skills/:skillId',
+        verb: 'delete',
+        controller: 'SkillsController',
+        method: 'deleteSkill',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.DELETE],
+        access: [config.UserRoles.Admin],
+        validation: {
+            params: {
+                dto: SkillIdRequestPathParamDto,
+            },
+        },
+    },
+    {
+        path: '/skills/:skillId',
+        verb: 'put',
+        controller: 'SkillsController',
+        method: 'updateSkill',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.UPDATE],
+        access: [config.UserRoles.Admin],
+        validation: {
+            params: {
+                dto: SkillIdRequestPathParamDto,
+            },
+            body: {
+                dto: SkillUpdatePutRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/skills/:skillId',
+        verb: 'patch',
+        controller: 'SkillsController',
+        method: 'patchSkill',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.UPDATE],
+        access: [config.UserRoles.Admin],
+        validation: {
+            params: {
+                dto: SkillIdRequestPathParamDto,
+            },
+            body: {
+                dto: SkillUpdatePatchRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/skills',
+        verb: 'post',
+        controller: 'SkillsController',
+        method: 'createSkill',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
+        access: [config.UserRoles.Admin],
+        validation: {
+            body: {
+                dto: SkillCreationRequestBodyDto,
             },
         },
     },
@@ -154,6 +219,38 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/categories/:categoryId/skills',
+        verb: 'get',
+        controller: 'SkillCategoryController',
+        method: 'getCategorySkills',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+            query: {
+                dto: GetCategorySkillsRequestQueryDto,
+            },
+        },
+    },
+    {
+        path: '/categories/:categoryId/assign-skills',
+        verb: 'post',
+        controller: 'SkillCategoryController',
+        method: 'bulkAssignSkillsToCategory',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
+        validation: {
+            params: {
+                dto: CategoryIdRequestPathParamDto,
+            },
+            body: {
+                dto: SkillIdsRequestBodyDto,
+            },
+        },
+    },
+    {
         path: '/categories',
         verb: 'get',
         controller: 'SkillCategoryController',
@@ -201,7 +298,7 @@ const RouteDefinitions: RouteDefinition[] = [
         path: '/categories/:categoryId',
         verb: 'patch',
         controller: 'SkillCategoryController',
-        method: 'updateCategoryPartial',
+        method: 'patchCategory',
         auth: true,
         access: [config.UserRoles.Admin],
         scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],

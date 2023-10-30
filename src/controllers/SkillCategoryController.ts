@@ -1,6 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import {
     AllCategoriesRequestQueryDto,
+    CategoryIdRequestPathParamDto,
+    GetCategorySkillsRequestQueryDto,
     NewCategoryRequestBodyDto,
     UpdateCategoryPartialRequestDto,
     UpdateCategoryRequestBodyDto,
@@ -9,13 +11,14 @@ import * as SkillCategoryService from '../services/SkillCategoryService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
 import * as core from 'express-serve-static-core';
+import { SkillIdsRequestBodyDto } from '../dto';
 
 export default class SkillCategoryController {
     /**
      * Gets a category by id
      */
     async getCategoryById(
-        req: Request<{ [key: string]: string }, any, any, core.Query, Record<string, any>>,
+        req: Request<CategoryIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {
@@ -41,6 +44,51 @@ export default class SkillCategoryController {
                 setResHeaders(res, allCategories);
             }
             res.status(200).json(allCategories.categories);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Gets all skills belonging to a category
+     */
+    async getCategorySkills(
+        req: Request<CategoryIdRequestPathParamDto, any, any, GetCategorySkillsRequestQueryDto, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const allSkills = await SkillCategoryService.getCategorySkills(req.params.categoryId, req.query);
+            if (!req.query.disablePagination) {
+                setResHeaders(res, allSkills);
+            }
+            res.status(200).json(allSkills.skills);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Bulk assigns skills to new category
+     */
+    async bulkAssignSkillsToCategory(
+        req: AuthorizedRequest<
+            CategoryIdRequestPathParamDto,
+            any,
+            SkillIdsRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const updatedSkills = await SkillCategoryService.bulkAssignSkillsToCategories(
+                req.authUser,
+                req.params.categoryId,
+                req.body.skillIds,
+            );
+            res.status(201).json(updatedSkills);
         } catch (error) {
             next(error);
         }
@@ -73,7 +121,7 @@ export default class SkillCategoryController {
      */
     async updateCategory(
         req: AuthorizedRequest<
-            { [key: string]: string },
+            CategoryIdRequestPathParamDto,
             any,
             UpdateCategoryRequestBodyDto,
             core.Query,
@@ -94,9 +142,9 @@ export default class SkillCategoryController {
      * Updates the name or description or a combination of both
      * of an existing category
      */
-    async updateCategoryPartial(
+    async patchCategory(
         req: AuthorizedRequest<
-            { [key: string]: string },
+            CategoryIdRequestPathParamDto,
             any,
             UpdateCategoryPartialRequestDto,
             core.Query,
@@ -106,11 +154,7 @@ export default class SkillCategoryController {
         next: NextFunction,
     ) {
         try {
-            const category = await SkillCategoryService.UpdateCategoryPartial(
-                req.authUser,
-                req.params.categoryId,
-                req.body,
-            );
+            const category = await SkillCategoryService.patchCategory(req.authUser, req.params.categoryId, req.body);
             res.status(201).send(category);
         } catch (error) {
             next(error);
@@ -121,7 +165,7 @@ export default class SkillCategoryController {
      * Deletes an existing category by id
      */
     async deleteCategory(
-        req: AuthorizedRequest<{ [key: string]: string }, any, any, core.Query, Record<string, any>>,
+        req: AuthorizedRequest<CategoryIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {

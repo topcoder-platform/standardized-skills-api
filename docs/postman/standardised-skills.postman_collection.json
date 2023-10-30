@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "c3e99995-c7c4-467b-a621-99674d0d8fb8",
+		"_postman_id": "376831bd-be9c-4d93-b983-60bb13862086",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "215943"
+		"_exporter_id": "30186453"
 	},
 	"item": [
 		{
@@ -179,7 +179,7 @@
 								},
 								{
 									"key": "disablePagination",
-									"value": "",
+									"value": "false",
 									"disabled": true
 								}
 							]
@@ -343,7 +343,7 @@
 								},
 								{
 									"key": "sortBy",
-									"value": "createdAt",
+									"value": "created_at",
 									"disabled": true
 								},
 								{
@@ -354,6 +354,11 @@
 								{
 									"key": "name",
 									"value": "vel",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "false",
 									"disabled": true
 								}
 							]
@@ -414,7 +419,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test Cat Postman 12\",\n    \"description\": \"Test Description 12\"\n}",
+							"raw": "{\n    \"name\": \"Web Development\",\n    \"description\": \"For Web Dev Tools\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -422,13 +427,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/categories/b0dc3db4-e26c-4197-bf3e-f56cde07fb31",
+							"raw": "{{base_url}}/categories/5aadafad-da63-488e-8499-32b596215789",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"categories",
-								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
+								"5aadafad-da63-488e-8499-32b596215789"
 							]
 						}
 					},
@@ -451,7 +456,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test Cat Postman 13\"\n}",
+							"raw": "{\n    \"description\": null\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -459,13 +464,13 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/categories/e2419ddf-4d62-4af6-86fa-c993873cde9f",
+							"raw": "{{base_url}}/categories/5aadafad-da63-488e-8499-32b596215789",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
 								"categories",
-								"e2419ddf-4d62-4af6-86fa-c993873cde9f"
+								"5aadafad-da63-488e-8499-32b596215789"
 							]
 						}
 					},
@@ -522,6 +527,100 @@
 							"path": [
 								"categories",
 								"b0dc3db4-e26c-4197-bf3e-f56cde07fb31"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get skills by category id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/categories/481b5ebc-2fe6-45ed-a90c-736936d458d7/skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"481b5ebc-2fe6-45ed-a90c-736936d458d7",
+								"skills"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "20",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "name",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "true",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "bulk assign skills to new category",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skillIds\": [\n        \"3b41d3a8-253d-4009-b9dc-a1bc8f66965a\",\n        \"b72f5fd9-d7ec-411a-9fb6-28decfd073c1\",\n        \"acbfcea7-822b-4108-9133-377fa30c87a4\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/categories/38fadd80-8721-4ce0-9387-cb6ad3ce48da/assign-skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"categories",
+								"38fadd80-8721-4ce0-9387-cb6ad3ce48da",
+								"assign-skills"
 							]
 						}
 					},
@@ -585,6 +684,16 @@
 									"key": "skillId",
 									"value": "a54a0041-77d5-4af6-b0e5-bee54b85d0e8",
 									"disabled": true
+								},
+								{
+									"key": "name",
+									"value": "dev",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "false",
+									"disabled": true
 								}
 							]
 						}
@@ -614,6 +723,144 @@
 							"path": [
 								"skills",
 								"00038ad8-9bd1-47b4-8477-256e214a9f82"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "create skill",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Skill 6\",\n    \"description\": null,\n    \"categoryId\": \"38fadd80-8721-4ce0-9387-cb6ad3ce48da\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "delete skill by id",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update skill",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test Skill 6\",\n    \"description\": null,\n    \"categoryId\": \"5aadafad-da63-488e-8499-32b596215789\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update skill partially",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"description\": null\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
 							]
 						}
 					},

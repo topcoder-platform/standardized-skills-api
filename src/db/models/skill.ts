@@ -7,7 +7,7 @@ import type { user_skill, user_skillId } from './user_skill';
 export interface skillAttributes {
     id: string;
     name: string;
-    description?: string;
+    description?: string | null;
     category_id?: string;
     created_at: Date;
     updated_at: Date;

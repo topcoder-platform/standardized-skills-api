@@ -1,14 +1,5 @@
 import { Type, TypeHelpOptions } from 'class-transformer';
-import {
-    IsArray,
-    ArrayNotEmpty,
-    IsNumber,
-    IsIn,
-    IsEnum,
-    ValidateNested,
-    IsString,
-    IsUUID,
-} from 'class-validator';
+import { IsArray, ArrayNotEmpty, IsNumber, IsIn, IsEnum, ValidateNested, IsString, IsUUID } from 'class-validator';
 
 import { SkillEventTopic } from '../config';
 
