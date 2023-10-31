@@ -402,3 +402,24 @@ export const deleteSkillFromAutocompleteES = async (id: string) => {
 
     logger.info(`Successfully delete skill from autocomplete Elasticsearch index with id ${id}`);
 };
+
+/**
+ * Returns the count of skills available in Elasticsearch index skills_autocomplete_suggester
+ * @returns {Promise<number>} the count of skills available in Elasticsearch index skills_autocomplete_suggester
+ */
+export const countSkillsInAutocompleteES = async (): Promise<number> => {
+    logger.info('Counting skills in autocomplete skills suggester Elasticsearch index');
+
+    skillsESClient = getSkillsESClient();
+    const response = await skillsESClient.count({
+        index: envConfig.SKILLS_ES.INDEX,
+        body: {
+            query: {
+                match_all: {},
+            },
+        },
+    });
+
+    logger.info(`Count of skills: ${response.body.count}`);
+    return response.body.count;
+};
