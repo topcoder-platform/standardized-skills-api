@@ -56,7 +56,7 @@ const loadSkillDataInES = async () => {
         page++;
     } while (page <= totalPages);
 
-    // wait 6 seconds before calling the count on Elasticsearch as the index takes time to sync
+    // wait 8 seconds before calling the count on Elasticsearch as the index takes time to sync
     await new Promise((resolve) => setTimeout(resolve, 8000));
 
     logger.info(`Skills available in PostgreSQL ${skills.count}`);
