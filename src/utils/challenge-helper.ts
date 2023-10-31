@@ -9,6 +9,6 @@ import * as tcApi from './tc-api';
  */
 export async function fetchChallengeReviewers(challengeId: string) {
     const resources = (await tcApi.fetch(`/resources?challengeId=${challengeId}`)).body;
-    
+
     return filter(resources, (r) => Object.values(CHALLENGE_REVIEWER_ROLES).includes(r.roleId));
 }

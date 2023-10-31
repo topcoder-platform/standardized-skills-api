@@ -61,12 +61,12 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
         const users = [
             ...payload.winners,
-            ...reviewers.map(p => ({
+            ...reviewers.map((p) => ({
                 userId: p.memberId,
                 type: 'reviewer',
-            }))
+            })),
         ];
-        
+
         // update each user with the skills data
         for (const user of users) {
             const userSkills = payload.skills.map((skill) => ({

@@ -113,7 +113,7 @@ export function getSkillEventType(
  * @returns Promise<SkillEvent[]>
  */
 export async function createSkillEventsForUser(
-    user: Partial<ChallengeWinnerDto & {type: string}>,
+    user: Partial<ChallengeWinnerDto & { type: string }>,
     payloadSkills: UserSkillDto[],
     eventId: string,
     sourceId: string,
