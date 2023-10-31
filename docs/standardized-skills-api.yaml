@@ -57,7 +57,8 @@ paths:
         - in: query
           name: disablePagination
           schema:
-            type: boolean
+            type: string
+            enum: ['true', 'false']
       responses:
         '200':
           description: 'OK'
@@ -365,7 +366,8 @@ paths:
         - in: query
           name: disablePagination
           schema:
-            type: boolean    
+            type: string
+            enum: ['true', 'false']
       responses:
         '200':
           description: 'OK'
@@ -689,7 +691,8 @@ paths:
         - in: query
           name: disablePagination
           schema:
-            type: boolean    
+            type: string
+            enum: ['true', 'false']    
       responses:
         '200':
           description: 'OK'
@@ -812,7 +815,8 @@ paths:
         - in: query
           name: disablePagination
           schema:
-            type: boolean
+            type: string
+            enum: ['true', 'false']
       responses:
         '200':
           description: 'OK'

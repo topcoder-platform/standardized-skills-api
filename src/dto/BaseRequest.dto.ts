@@ -1,6 +1,6 @@
-import { IsBoolean, IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 import { DEFAULT_PAGE, DEFAULT_PER_PAGE, DEFAULT_SORT_ORDER } from '../config';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export abstract class BasePaginatedSortedRequest {
     @IsOptional()
@@ -27,8 +27,7 @@ export abstract class BasePaginatedSortedRequest {
     sortOrder: 'ASC' | 'DESC' = DEFAULT_SORT_ORDER;
 
     @IsOptional()
-    @Transform(({ obj, key }) => obj[`${key}`] === 'true')
-    @IsIn(['true', 'false', true, false])
-    @IsBoolean()
-    disablePagination: boolean;
+    @IsIn(['true', 'false'])
+    @IsString({ message: 'disablePagination can either be true or false' })
+    disablePagination: string;
 }
