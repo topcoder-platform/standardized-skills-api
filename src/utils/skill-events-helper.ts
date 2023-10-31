@@ -72,12 +72,17 @@ export async function fetchAllSkillEventTypes(freshFetch = false) {
 }
 
 /**
- * Get a map of SkillEventTypes based on all possible places a user can receive if they win a challenge
+ * Get a map of SkillEventTypes based on:
+ * - all possible places a user can receive if they win a challenge
+ * - if they're reviewers or not
  */
-async function getSkillEventTypesPlacementMap() {
+async function getSkillEventTypesMap() {
     const allSkillEventTypes = await fetchAllSkillEventTypes();
 
     return {
+        // reviewer type
+        reviewer: find(allSkillEventTypes, { name: 'challenge_review' }),
+        // winners placements types
         '1': find(allSkillEventTypes, { name: 'challenge_win' }),
         '2': find(allSkillEventTypes, { name: 'challenge_2nd_place' }),
         '3': find(allSkillEventTypes, { name: 'challenge_3rd_place' }),
@@ -87,13 +92,14 @@ async function getSkillEventTypesPlacementMap() {
 
 /**
  * Get the SkillEventType based on the placement a user received on a challenge
- * If placement is different than [1,2,3], then we return the "challenge finisher" type
+ * If placement is different than [1,2,3], then check if user is a reviewer,
+ * then we return the "challenge finisher" type as a fallback
  */
-export function getSkillEventTypesByPlacement(
-    placementMap: { [key: string]: SkillEventType | undefined },
-    placement: number,
+export function getSkillEventType(
+    eventTypesMap: { [key: string]: SkillEventType | undefined },
+    eventTypeSelector: number | string,
 ) {
-    return get(placementMap, `[${placement}]`, placementMap.default) as SkillEventType;
+    return get(eventTypesMap, `[${eventTypeSelector}]`, eventTypesMap.default) as SkillEventType;
 }
 
 /**
@@ -107,14 +113,14 @@ export function getSkillEventTypesByPlacement(
  * @returns Promise<SkillEvent[]>
  */
 export async function createSkillEventsForUser(
-    user: ChallengeWinnerDto,
+    user: Partial<ChallengeWinnerDto & {type: string}>,
     payloadSkills: UserSkillDto[],
     eventId: string,
     sourceId: string,
     sourceTypeId: string,
     tx: Transaction,
 ) {
-    const placementMap = await getSkillEventTypesPlacementMap();
+    const eventTypesMap = await getSkillEventTypesMap();
     const skillEvents = [];
 
     for (const skill of payloadSkills) {
@@ -124,7 +130,7 @@ export async function createSkillEventsForUser(
             skill_id: skill.id,
             source_id: sourceId,
             source_type_id: sourceTypeId,
-            skill_event_type_id: getSkillEventTypesByPlacement(placementMap, user.placement).id,
+            skill_event_type_id: getSkillEventType(eventTypesMap, user.placement ?? user.type ?? '').id,
         });
     }
 

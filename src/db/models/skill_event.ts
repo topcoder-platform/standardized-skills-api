@@ -127,7 +127,7 @@ export class skill_event
                     {
                         name: 'uniq_skill_source_id',
                         unique: true,
-                        fields: [{ name: 'skill_id' }, { name: 'source_id' }, { name: 'skill_event_type_id' }],
+                        fields: [{ name: 'skill_id' }, { name: 'source_id' }, { name: 'skill_event_type_id' }, {name: 'user_id'}],
                     },
                     {
                         name: 'skill_event_pkey',
