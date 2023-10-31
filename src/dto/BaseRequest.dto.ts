@@ -27,9 +27,7 @@ export abstract class BasePaginatedSortedRequest {
     sortOrder: 'ASC' | 'DESC' = DEFAULT_SORT_ORDER;
 
     @IsOptional()
-    @Transform(({ obj, key }) => {
-        return obj[`${key}`] === 'true';
-    })
+    @Transform(({ obj, key }) => obj[`${key}`] === 'true')
     @IsIn(['true', 'false', true, false])
     @IsBoolean()
     disablePagination: boolean;
