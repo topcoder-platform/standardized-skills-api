@@ -9,10 +9,11 @@ const logger = new LoggerClient('load-data-es');
 
 const loadSkillDataInES = async () => {
     logger.info('Loading all skill data in Elasticsearch index for autocomplete');
-    let page = 1,
-        totalPages = 1;
+    let page = 0,
+        totalPages = 1,
+        skills: { rows: Skill[]; count: number };
     do {
-        const skills = await Skill.findAndCountAll({
+        skills = await Skill.findAndCountAll({
             attributes: ['id', 'name'],
             include: {
                 model: db.models.SkillCategory,
@@ -20,7 +21,7 @@ const loadSkillDataInES = async () => {
                 attributes: ['id', 'name'],
             },
             limit: 2000,
-            offset: (page - 1) * 2000,
+            offset: page * 2000,
             order: [['name', 'ASC']],
         });
 
@@ -48,10 +49,20 @@ const loadSkillDataInES = async () => {
                 updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
             });
         });
-        esHelper.bulkCreateSkillsES(skillsToBeIndexed);
+        if (skillsToBeIndexed.length > 0) {
+            esHelper.bulkCreateSkillsES(skillsToBeIndexed);
+        }
         totalPages = Math.ceil(skills.count / 2000);
         page++;
     } while (page <= totalPages);
+
+    // wait 6 seconds before calling the count on Elasticsearch as the index takes time to sync
+    await new Promise((resolve) => setTimeout(resolve, 8000));
+
+    logger.info(`Skills available in PostgreSQL ${skills.count}`);
+    logger.info(
+        `Skills available in Elasticsearch index skills_autocomplete_suggester: ${await esHelper.countSkillsInAutocompleteES()}`,
+    );
 };
 
 loadSkillDataInES()
