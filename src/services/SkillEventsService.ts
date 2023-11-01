@@ -81,7 +81,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
             const allUserSkills = await getUserSkills(user.userId, {
                 ...new GetUserSkillsQueryDto(),
-                disablePagination: true,
+                disablePagination: 'true',
             });
 
             allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });

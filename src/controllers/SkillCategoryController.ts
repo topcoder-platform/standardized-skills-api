@@ -40,7 +40,9 @@ export default class SkillCategoryController {
     ) {
         try {
             const allCategories = await SkillCategoryService.getAllCategories(req.query);
-            if (!req.query.disablePagination) {
+            const isPaginationDisabled =
+                req.query.disablePagination !== undefined && `${req.query.disablePagination}` !== 'false';
+            if (!isPaginationDisabled) {
                 setResHeaders(res, allCategories);
             }
             res.status(200).json(allCategories.categories);
@@ -59,7 +61,9 @@ export default class SkillCategoryController {
     ) {
         try {
             const allSkills = await SkillCategoryService.getCategorySkills(req.params.categoryId, req.query);
-            if (!req.query.disablePagination) {
+            const isPaginationDisabled =
+                req.query.disablePagination !== undefined && `${req.query.disablePagination}` !== 'false';
+            if (!isPaginationDisabled) {
                 setResHeaders(res, allSkills);
             }
             res.status(200).json(allSkills.skills);

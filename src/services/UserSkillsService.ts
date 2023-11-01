@@ -146,7 +146,7 @@ export async function updateDbUserSkills(
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
         logger.info('Successfully associated user skills');
-        const allSkills = await getUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: true });
+        const allSkills = await getUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: 'true' });
 
         await esHelper.updateSkillsInMemberES(toString(userId), allSkills.skills);
 
