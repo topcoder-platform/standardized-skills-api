@@ -435,6 +435,7 @@ const categoryHasSkills = async (id: string): Promise<boolean> => {
             where: {
                 category_id: id,
             },
+            paranoid: false,
         })) > 0
     );
 };
