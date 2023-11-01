@@ -6,21 +6,20 @@ import { LoggerClient } from '../utils/LoggerClient';
 
 const logger = new LoggerClient('delete_test-skills');
 
+type allSkill = Array<{
+    id: string;
+    name: string;
+    description: string | null;
+    category_id: string;
+    createdAt: string | null;
+    updatedAt: string | null;
+    deletedAt: string | null;
+}>;
+
 const destroySkillsOutsideOriginal = async () => {
     logger.info('Deleting test skills outside of the original skills');
 
-    const originalSkillIds = map(
-        allSkills as {
-            id: string;
-            name: string;
-            description: string | null;
-            category_id: string;
-            created_at: string | null;
-            updated_at: string | null;
-            deleted_at: string | null;
-        }[],
-        (skill) => skill.id,
-    );
+    const originalSkillIds = map(allSkills as allSkill, (skill) => skill.id);
     logger.info(`The number of original skills in the DB: ${originalSkillIds.length}`);
 
     let numOfSkills = await Skill.count({
@@ -48,20 +47,7 @@ const destroySkillsOutsideOriginal = async () => {
 const destroyCategoriesOutsideOriginal = async () => {
     logger.info('Deleting test categories outside of the original skills');
 
-    const originalCategoryIds = uniq(
-        map(
-            allSkills as {
-                id: string;
-                name: string;
-                description: string | null;
-                category_id: string;
-                created_at: string | null;
-                updated_at: string | null;
-                deleted_at: string | null;
-            }[],
-            (skill) => skill.category_id,
-        ),
-    );
+    const originalCategoryIds = uniq(map(allSkills as allSkill, (skill) => skill.category_id));
     logger.info(`The number of original categories in the DB: ${originalCategoryIds.length}`);
 
     let numOfCategories = await SkillCategory.count();
