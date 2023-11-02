@@ -22,8 +22,8 @@ const m2m = m2mAuth(
 /**
  * Get a valid M2M authorization token
  */
-export const getM2MToken = async () => {
-    return await m2m.getMachineToken(envConfig.AUTH0_CLIENT_ID, envConfig.AUTH0_CLIENT_SECRET);
+export const getM2MToken = () => {
+    return m2m.getMachineToken(envConfig.AUTH0_CLIENT_ID, envConfig.AUTH0_CLIENT_SECRET);
 };
 
 /**
@@ -32,7 +32,7 @@ export const getM2MToken = async () => {
  * @param endpoint The endpint path to call (including any query params)
  * @returns Promise<SuperAgentRequest>
  */
-export async function fetch(endpoint: string): Promise<SuperAgentRequest> {
+export async function get(endpoint: string): Promise<SuperAgentRequest> {
     const m2mToken = await getM2MToken();
 
     return request

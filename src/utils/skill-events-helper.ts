@@ -8,6 +8,7 @@ import * as esHelper from '../utils/es-helper';
 import { ChallengeWinnerDto, UserSkillDto } from '../dto';
 
 let localSkillEventTypes: Promise<SkillEventType[]>;
+export const REVIEWER_TYPE_KEY = 'reviewer';
 
 /**
  * Create a hash string for the passed in data
@@ -81,7 +82,7 @@ async function getSkillEventTypesMap() {
 
     return {
         // reviewer type
-        reviewer: find(allSkillEventTypes, { name: 'challenge_review' }),
+        [REVIEWER_TYPE_KEY]: find(allSkillEventTypes, { name: 'challenge_review' }),
         // winners placements types
         '1': find(allSkillEventTypes, { name: 'challenge_win' }),
         '2': find(allSkillEventTypes, { name: 'challenge_2nd_place' }),

@@ -16,6 +16,7 @@ import {
     ensurePayloadWinnersAreValidUsers,
     createSkillEventsForUser,
     ensurePayloadChallengeExists,
+    REVIEWER_TYPE_KEY,
 } from '../utils/skill-events-helper';
 import { fetchChallengeReviewers } from '../utils/challenge-helper';
 
@@ -63,7 +64,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
             ...payload.winners,
             ...reviewers.map((p) => ({
                 userId: p.memberId,
-                type: 'reviewer',
+                type: REVIEWER_TYPE_KEY,
             })),
         ];
 
