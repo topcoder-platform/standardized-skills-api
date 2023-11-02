@@ -15,6 +15,8 @@ import { user_skill as UserSkill } from './user_skill';
 import type { userSkillAttributes, userSkillCreationAttributes } from './user_skill';
 import { user_skill_level as UserSkillLevel } from './user_skill_level';
 import type { userSkillLevelAttributes, userSkillLevelCreationAttributes } from './user_skill_level';
+import { user_skill_type as UserSkillType } from './user_skill_type';
+import type { userSkillTypeAttributes, userSkillTypeCreationAttributes } from './user_skill_type';
 import { work_skill as WorkSkill } from './work_skill';
 import type { workSkillAttributes, workSkillCreationAttributes } from './work_skill';
 
@@ -35,6 +37,8 @@ export type {
     userSkillCreationAttributes,
     userSkillLevelAttributes,
     userSkillLevelCreationAttributes,
+    userSkillTypeAttributes,
+    userSkillTypeCreationAttributes,
     workSkillAttributes,
     workSkillCreationAttributes,
 };
@@ -48,6 +52,7 @@ export function initModels(sequelize: Sequelize) {
     const sourceType = SourceType.initModel(sequelize);
     const userSkill = UserSkill.initModel(sequelize);
     const userSkillLevel = UserSkillLevel.initModel(sequelize);
+    const userSkillType = UserSkillType.initModel(sequelize);
     const workSkill = WorkSkill.initModel(sequelize);
 
     skillEvent.belongsTo(event, { as: 'event', foreignKey: 'event_id' });
@@ -64,6 +69,8 @@ export function initModels(sequelize: Sequelize) {
     sourceType.hasMany(skillEvent, { as: 'skill_events', foreignKey: 'source_type_id' });
     userSkill.belongsTo(userSkillLevel, { as: 'user_skill_level', foreignKey: 'user_skill_level_id' });
     userSkillLevel.hasMany(userSkill, { as: 'user_skills', foreignKey: 'user_skill_level_id' });
+    userSkill.belongsToMany(userSkillType, { as: 'user_skill_types', through: 'user_skill_user_skill_type', foreignKey: 'user_skill_id', otherKey: 'user_skill_type_id' });
+    userSkillType.belongsToMany(userSkill, { as: 'user_skills', through: 'user_skill_user_skill_type', foreignKey: 'user_skill_type_id', otherKey: 'user_skill_id' });
 
     return {
         Event: event,
@@ -74,6 +81,7 @@ export function initModels(sequelize: Sequelize) {
         SourceType: sourceType,
         UserSkill: userSkill,
         UserSkillLevel: userSkillLevel,
+        UserSkillType: userSkillType,
         WorkSkill: workSkill,
     };
 }

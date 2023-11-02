@@ -12,7 +12,8 @@
     "es-init-force": "node dist/scripts/init-es.js force",
     "load-data-es": "node dist/scripts/load-data-es.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "services:up": "cd ./local && docker-compose up -d"
+    "services:up": "cd ./local && docker-compose up -d",
+    "db:sync": "ts-node src/scripts/sync-db.ts"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",
