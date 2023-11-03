@@ -180,6 +180,12 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'setWorkSkills',
         auth: true,
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
+        access: [
+            config.UserRoles.Admin,
+            config.UserRoles.Copilot,
+            config.UserRoles.Manager,
+            config.UserRoles.SelfServiceCustomer,
+        ],
         validation: {
             body: {
                 dto: SetWorkSkillsRequestBodyDto,
