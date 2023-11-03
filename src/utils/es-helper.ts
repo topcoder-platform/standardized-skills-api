@@ -250,7 +250,7 @@ export const updateSkillsInChallengeES = async (
  * @param {Array<string>} skills the uuid id of skills to update in the job index
  */
 export const updateSkillsInJobES = async (id: string, skills: string[]) => {
-    logger.info(`Update skills in challenge ${id} with skills: ${JSON.stringify(skills)}`);
+    logger.info(`Update skills in job ${id} with skills: ${JSON.stringify(skills)}`);
 
     jobsESClient = getJobsESClient();
     await jobsESClient.update({
