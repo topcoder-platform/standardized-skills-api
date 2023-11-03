@@ -37,6 +37,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getSkills',
         auth: true,
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        access: [config.UserRoles.Admin],
         validation: {
             query: {
                 dto: GetSkillsQueryRequestDto,
@@ -214,6 +215,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getCategoryById',
         auth: true,
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        access: [config.UserRoles.Admin],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
@@ -227,6 +229,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getCategorySkills',
         auth: true,
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        access: [config.UserRoles.Admin],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
@@ -259,6 +262,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getAllCategories',
         auth: true,
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        access: [config.UserRoles.Admin],
         validation: {
             query: {
                 dto: AllCategoriesRequestQueryDto,
