@@ -130,7 +130,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'UserSkillsController',
         method: 'getUserSkills',
         auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        access: [config.UserRoles.Admin, config.UserRoles.User],
         validation: {
             params: {
                 dto: UserIdParamDto,
@@ -147,7 +147,6 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'createUserSkills',
         auth: true,
         access: [config.UserRoles.Admin, config.UserRoles.User],
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
         validation: {
             params: {
                 dto: UserIdParamDto,
@@ -164,7 +163,6 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'updateUserSkills',
         auth: true,
         access: [config.UserRoles.Admin, config.UserRoles.User],
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         validation: {
             params: {
                 dto: UserIdParamDto,
