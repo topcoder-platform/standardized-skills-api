@@ -37,6 +37,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getSkills',
         auth: true,
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        access: [config.UserRoles.Admin],
         validation: {
             query: {
                 dto: GetSkillsQueryRequestDto,
@@ -71,7 +72,6 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillsController',
         method: 'deleteSkill',
         auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.DELETE],
         access: [config.UserRoles.Admin],
         validation: {
             params: {
@@ -85,7 +85,6 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillsController',
         method: 'updateSkill',
         auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.UPDATE],
         access: [config.UserRoles.Admin],
         validation: {
             params: {
@@ -102,7 +101,6 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillsController',
         method: 'patchSkill',
         auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.UPDATE],
         access: [config.UserRoles.Admin],
         validation: {
             params: {
@@ -119,7 +117,6 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillsController',
         method: 'createSkill',
         auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
         access: [config.UserRoles.Admin],
         validation: {
             body: {
@@ -184,6 +181,12 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'setWorkSkills',
         auth: true,
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
+        access: [
+            config.UserRoles.Admin,
+            config.UserRoles.Copilot,
+            config.UserRoles.Manager,
+            config.UserRoles.SelfServiceCustomer,
+        ],
         validation: {
             body: {
                 dto: SetWorkSkillsRequestBodyDto,
@@ -212,6 +215,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getCategoryById',
         auth: true,
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        access: [config.UserRoles.Admin],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
@@ -225,6 +229,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getCategorySkills',
         auth: true,
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        access: [config.UserRoles.Admin],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
@@ -240,7 +245,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillCategoryController',
         method: 'bulkAssignSkillsToCategory',
         auth: true,
-        scopes: [config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
+        access: [config.UserRoles.Admin],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
@@ -257,6 +262,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'getAllCategories',
         auth: true,
         scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
+        access: [config.UserRoles.Admin],
         validation: {
             query: {
                 dto: AllCategoriesRequestQueryDto,
@@ -270,7 +276,6 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'createCategory',
         auth: true,
         access: [config.UserRoles.Admin],
-        scopes: [config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.ALL],
         validation: {
             body: {
                 dto: NewCategoryRequestBodyDto,
@@ -284,7 +289,6 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'updateCategory',
         auth: true,
         access: [config.UserRoles.Admin],
-        scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
@@ -301,7 +305,6 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'patchCategory',
         auth: true,
         access: [config.UserRoles.Admin],
-        scopes: [config.envConfig.SCOPES.UPDATE, config.envConfig.SCOPES.ALL],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,
@@ -318,7 +321,6 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'deleteCategory',
         auth: true,
         access: [config.UserRoles.Admin],
-        scopes: [config.envConfig.SCOPES.DELETE, config.envConfig.SCOPES.ALL],
         validation: {
             params: {
                 dto: CategoryIdRequestPathParamDto,

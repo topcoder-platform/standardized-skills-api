@@ -11,7 +11,6 @@ import { LoggerClient } from '../utils/LoggerClient';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../utils/errors';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
-import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { FindAndCountOptions, Op } from 'sequelize';
 import { bulkCreateSkillsES, updateSkillCategoryInAutocompleteES } from '../utils/es-helper';
 import dayjs from 'dayjs';
@@ -152,8 +151,6 @@ export const createNewCategory = async (
 ): Promise<{ id: string; name: string; description: string | undefined }> => {
     logger.info(`Creating new category as per data ${JSON.stringify(body)}`);
 
-    ensureUserHasAdminPrivilege(user);
-
     return await db.sequelize.transaction(async () => {
         if (!(await categoryNameIsUnique(body.name))) {
             throw new ConflictError(`Category with name ${body.name} already exists!`);
@@ -187,8 +184,6 @@ export const bulkAssignSkillsToCategories = async (
     skillIds: string[],
 ): Promise<Pick<Skill, 'id' | 'name' | 'description' | 'category'>[]> => {
     logger.info(`Assigning skills ${JSON.stringify(skillIds)} to category ${categoryId}`);
-
-    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         // category must be valid
@@ -267,8 +262,6 @@ export const updateCategory = async (
 ): Promise<Partial<SkillCategory>> => {
     logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
 
-    ensureUserHasAdminPrivilege(user);
-
     return await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(id))) {
             throw new NotFoundError(`Category with id ${id} does not exist!`);
@@ -322,8 +315,6 @@ export const patchCategory = async (
 ): Promise<Partial<SkillCategory>> => {
     logger.info(`Updating category ${id} with data ${JSON.stringify(body)}`);
 
-    ensureUserHasAdminPrivilege(user);
-
     return await db.sequelize.transaction(async () => {
         if (!body.name && body.description === undefined) {
             throw new BadRequestError('No data provided for category update');
@@ -372,8 +363,6 @@ export const patchCategory = async (
  */
 export const deleteCategory = async (user: AuthUser, id: string) => {
     logger.info(`Deleting category with id ${id}`);
-
-    ensureUserHasAdminPrivilege(user);
 
     await db.sequelize.transaction(async () => {
         if (!(await categoryIdExists(id))) {
