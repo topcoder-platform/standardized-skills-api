@@ -16,7 +16,7 @@ export default class UserSkillsController {
         next: NextFunction,
     ) {
         try {
-            const skills = await UserSkillsService.getUserSkills(req.params.userId as string, req.query);
+            const skills = await UserSkillsService.getUserSkills(req.authUser, Number(req.params.userId), req.query);
 
             const isPaginationDisabled =
                 req.query.disablePagination !== undefined && `${req.query.disablePagination}` !== 'false';
