@@ -215,7 +215,6 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillCategoryController',
         method: 'getCategoryById',
         auth: true,
-        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
         access: [config.UserRoles.Admin],
         validation: {
             params: {
@@ -229,7 +228,6 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillCategoryController',
         method: 'getCategorySkills',
         auth: true,
-        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
         access: [config.UserRoles.Admin],
         validation: {
             params: {
@@ -262,7 +260,6 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillCategoryController',
         method: 'getAllCategories',
         auth: true,
-        scopes: [config.envConfig.SCOPES.READ, config.envConfig.SCOPES.ALL],
         access: [config.UserRoles.Admin],
         validation: {
             query: {
