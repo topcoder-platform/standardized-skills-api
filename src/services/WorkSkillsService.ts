@@ -93,7 +93,10 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
             await esHelper.updateSkillsInChallengeES(workSkillData.workId, skillsToAssociate);
         }
         if (workTypeDetail.name === constants.WorkType.gig) {
-            await esHelper.updateSkillsInJobES(workSkillData.workId, skillsToAssociate);
+            await esHelper.updateSkillsInJobES(
+                workSkillData.workId,
+                _.map(skillsToAssociate, (skills) => skills.id),
+            );
         }
 
         logger.info('Successfully associated work skills');

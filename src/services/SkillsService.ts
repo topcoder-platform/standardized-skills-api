@@ -12,7 +12,6 @@ import {
 import db, { Skill, SkillCategory } from '../db';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
-import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import dayjs from 'dayjs';
 import * as constants from '../config/constants';
 import { Op } from 'sequelize';
@@ -158,8 +157,6 @@ export const createSkill = async (
 }> => {
     logger.info(`Creating skill from data ${JSON.stringify(newSkill)}`);
 
-    ensureUserHasAdminPrivilege(user);
-
     return await db.sequelize.transaction(async () => {
         // skill name has to be unique
         if (!(await skillNameIsUnique(newSkill.name))) {
@@ -224,8 +221,6 @@ export const updateSkill = async (
     category: { id: string; name: string; description: string | undefined };
 }> => {
     logger.info(`Update skill ${id} as per data ${JSON.stringify(body)}`);
-
-    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         // valid skillId is provided
@@ -316,8 +311,6 @@ export const patchSkill = async (
 }> => {
     logger.info(`Update skill ${id} as per data ${JSON.stringify(body)}`);
 
-    ensureUserHasAdminPrivilege(user);
-
     return await db.sequelize.transaction(async () => {
         // check for valid request body
         if (!body.name && body.description === undefined && !body.categoryId) {
@@ -400,8 +393,6 @@ export const patchSkill = async (
  */
 export const deleteSkill = async (user: AuthUser, id: string) => {
     logger.info(`Deleting skill with id ${id}`);
-
-    ensureUserHasAdminPrivilege(user);
 
     return await db.sequelize.transaction(async () => {
         const skill = await Skill.findByPk(id);
