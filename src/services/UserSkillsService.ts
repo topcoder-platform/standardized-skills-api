@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { uniqBy, map, toString, isEmpty } from 'lodash';
 
-import db, { Skill, SkillCategory, UserSkill, UserSkillLevel } from '../db';
+import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillType } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
 import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-helper';
@@ -9,13 +9,14 @@ import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../utils/helpers';
 import * as esHelper from '../utils/es-helper';
-import { getOrderBy } from '../utils/user-skills-helper';
+import { ensurePrincipalSkillCountLimit, getOrderBy } from '../utils/user-skills-helper';
 import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
+import { UserSkillLevels } from '../config';
 
 const logger = new LoggerClient('UserSkillsService');
 
 /**
- * Gets user's skills with the attached skill category & skill levels
+ * Gets user's skills with the attached skill category, skill levels, and type
  */
 export async function fetchDbUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
     try {
@@ -46,6 +47,11 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                                 as: 'user_skill_level',
                                 attributes: ['id', 'name', 'description'],
                             },
+                            {
+                                model: UserSkillType,
+                                as: 'user_skill_type',
+                                attributes: ['id', 'name'],
+                            },
                         ],
                         attributes: ['id'],
                     },
@@ -54,15 +60,23 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
             },
         );
 
-        // Map the database data into skill items that contain category & the levels objects
+        // Map the database data into skill items that contain category, levels objects, type (principal/additional)
         const allSkills: {
             id: string;
             name: string;
             category: { id: string; name: string };
             levels: { id: string; name: string; description: string }[];
+            type: any;
         }[] = [];
         for (const skill of skills as Skill[]) {
             const levels: { id: string; name: string; description: string }[] = [];
+
+            // `userSkill` is used to retrieve the type of skill (principal/additional)
+            // it we have a "verified" skill level, we get the type from that entry
+            const userSkill = skill.user_skills.find(d => (
+                d.user_skill_level.name === UserSkillLevels.verified)
+            ) || skill.user_skills[0];
+
             for (const uskill of skill.user_skills) {
                 levels.push({
                     id: uskill.user_skill_level.id,
@@ -70,6 +84,7 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                     description: uskill.user_skill_level.description ?? '',
                 });
             }
+
             allSkills.push({
                 id: skill.id,
                 name: skill.name,
@@ -78,6 +93,10 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                     name: skill.category.name,
                 },
                 levels,
+                type: {
+                    id: userSkill.user_skill_type.id,
+                    name: userSkill.user_skill_type.name,
+                },
             });
         }
 
@@ -136,9 +155,15 @@ export async function updateDbUserSkills(
             user_id: userId,
             skill_id: skill.id,
             user_skill_level_id: skill.levelId ?? selfDeclaredSkillLevel.id,
+            user_skill_type_id: skill.typeId,
         }));
 
-        await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
+        await UserSkill.bulkCreate(userSkills, {
+            updateOnDuplicate: ['user_skill_type_id'],
+            conflictAttributes: ['skill_id', 'user_id', 'user_skill_level_id'],
+        });
+
+        await ensurePrincipalSkillCountLimit(userId);
 
         logger.info('Successfully associated user skills');
         const allSkills = await fetchDbUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: 'true' });
@@ -163,13 +188,12 @@ export async function getUserSkills(
             ...query,
         })}`,
     );
+    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const member = await esHelper.getMemberById(toString(userId));
     if (isEmpty(member)) {
         throw new NotFoundError(`Member ${userId} does not exist!`);
     }
-
-    ensureUserCanManageMemberSkills(currentUser, userId);
 
     return fetchDbUserSkills(userId, query);
 }
@@ -189,12 +213,12 @@ export async function createUserSkills(
         })}`,
     );
 
+    ensureUserCanManageMemberSkills(currentUser, userId);
+
     const member = await esHelper.getMemberById(toString(userId));
     if (isEmpty(member)) {
         throw new NotFoundError(`Member ${userId} does not exist!`);
     }
-
-    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const hasUserSkillsAlready = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (hasUserSkillsAlready) {
@@ -219,12 +243,12 @@ export async function updateUserSkills(
         })}`,
     );
 
+    ensureUserCanManageMemberSkills(currentUser, userId);
+
     const member = await esHelper.getMemberById(toString(userId));
     if (isEmpty(member)) {
         throw new NotFoundError(`Member ${userId} does not exist!`);
     }
-
-    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const hasUserSkillsAssociated = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (!hasUserSkillsAssociated) {

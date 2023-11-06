@@ -21,19 +21,19 @@ export class user_skill_type extends Model<userSkillTypeAttributes, userSkillTyp
     description?: string;
     created_at!: Date;
     updated_at!: Date;
-    
-    // user_skill_type belongsToMany user_skill via user_skill_type_id and user_skill_id
+
+    // user_skill_type hasMany user_skill via user_skill_type_id
     user_skills!: user_skill[];
-    getUserSkills!: Sequelize.BelongsToManyGetAssociationsMixin<user_skill>;
-    setUserSkills!: Sequelize.BelongsToManySetAssociationsMixin<user_skill, user_skillId>;
-    addUserSkill!: Sequelize.BelongsToManyAddAssociationMixin<user_skill, user_skillId>;
-    addUserSkills!: Sequelize.BelongsToManyAddAssociationsMixin<user_skill, user_skillId>;
-    createUserSkill!: Sequelize.BelongsToManyCreateAssociationMixin<user_skill>;
-    removeUserSkill!: Sequelize.BelongsToManyRemoveAssociationMixin<user_skill, user_skillId>;
-    removeUserSkills!: Sequelize.BelongsToManyRemoveAssociationsMixin<user_skill, user_skillId>;
-    hasUserSkill!: Sequelize.BelongsToManyHasAssociationMixin<user_skill, user_skillId>;
-    hasUserSkills!: Sequelize.BelongsToManyHasAssociationsMixin<user_skill, user_skillId>;
-    countUserSkills!: Sequelize.BelongsToManyCountAssociationsMixin;
+    getUser_skills!: Sequelize.BelongsToManyGetAssociationsMixin<user_skill>;
+    setUser_skills!: Sequelize.BelongsToManySetAssociationsMixin<user_skill, user_skillId>;
+    addUser_skill!: Sequelize.BelongsToManyAddAssociationMixin<user_skill, user_skillId>;
+    addUser_skills!: Sequelize.BelongsToManyAddAssociationsMixin<user_skill, user_skillId>;
+    createUser_skill!: Sequelize.BelongsToManyCreateAssociationMixin<user_skill>;
+    removeUser_skill!: Sequelize.BelongsToManyRemoveAssociationMixin<user_skill, user_skillId>;
+    removeUser_skills!: Sequelize.BelongsToManyRemoveAssociationsMixin<user_skill, user_skillId>;
+    hasUser_skill!: Sequelize.BelongsToManyHasAssociationMixin<user_skill, user_skillId>;
+    hasUser_skills!: Sequelize.BelongsToManyHasAssociationsMixin<user_skill, user_skillId>;
+    countUser_skills!: Sequelize.BelongsToManyCountAssociationsMixin;
     
     static initModel(sequelize: Sequelize.Sequelize): typeof user_skill_type {
         return user_skill_type.init(

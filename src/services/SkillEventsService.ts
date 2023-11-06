@@ -17,6 +17,7 @@ import {
     createSkillEventsForUser,
     ensurePayloadChallengeExists,
 } from '../utils/skill-events-helper';
+import { fetchAdditionalUserSkillType } from '../utils/user-skills-helper';
 
 const logger = new LoggerClient('SkillEventsService');
 
@@ -51,6 +52,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
     const sourceType = await fetchSourceType(WorkType.challenge);
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
+    const additionalSkillType = await fetchAdditionalUserSkillType();
 
     return db.sequelize.transaction(async (tx) => {
         const allSkills = [];
@@ -60,6 +62,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
                 user_id: Number(user.userId),
                 skill_id: skill.id,
                 user_skill_level_id: verifiedSkillLevel.id,
+                user_skill_type_id: additionalSkillType.id,
             }));
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });

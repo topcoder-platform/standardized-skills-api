@@ -1301,6 +1301,9 @@ components:
         levelId:
           type: string
           format: uuid
+        typeId:
+          type: string
+          format: uuid
     UserSkill:
       properties:
         id:
@@ -1314,6 +1317,8 @@ components:
          type: array
          items:
           $ref: '#/components/schemas/SkillLevel'
+        type:
+          $ref: '#/components/schemas/UserSkillType'
     SkillSourceType:
       properties:
         id:
@@ -1333,7 +1338,15 @@ components:
           type: string
           example: 'self-declared'
         description:
-          type: string      
+          type: string    
+    UserSkillType:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          example: 'principal'
     WorkSkill:
       properties:
         id:

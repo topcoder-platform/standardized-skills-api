@@ -27,6 +27,9 @@ class UserSkillSkillRequestDto {
     @IsOptional()
     @IsUUID('all')
     levelId: string;
+
+    @IsUUID('all')
+    typeId: string;
 }
 
 export class UserIdParamDto {

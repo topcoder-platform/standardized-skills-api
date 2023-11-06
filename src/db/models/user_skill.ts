@@ -9,6 +9,7 @@ export interface userSkillAttributes {
     user_id: number;
     skill_id: string;
     user_skill_level_id: string;
+    user_skill_type_id: string;
     created_at: Date;
     updated_at: Date;
 }
@@ -23,6 +24,7 @@ export class user_skill extends Model<userSkillAttributes, userSkillCreationAttr
     user_id!: number;
     skill_id!: string;
     user_skill_level_id!: string;
+    user_skill_type_id!: string;
     created_at!: Date;
     updated_at!: Date;
 
@@ -31,23 +33,16 @@ export class user_skill extends Model<userSkillAttributes, userSkillCreationAttr
     getSkill!: Sequelize.BelongsToGetAssociationMixin<skill>;
     setSkill!: Sequelize.BelongsToSetAssociationMixin<skill, skillId>;
     createSkill!: Sequelize.BelongsToCreateAssociationMixin<skill>;
-    // user_skill belongsToMany user_skill_type via user_skill_user_skill_type table
-    user_skill_types!: user_skill_type[];
-    getUserSkillTypes!: Sequelize.BelongsToManyGetAssociationsMixin<user_skill_type>;
-    setUserSkillTypes!: Sequelize.BelongsToManySetAssociationsMixin<user_skill_type, user_skill_typeId>;
-    addUserSkillType!: Sequelize.BelongsToManyAddAssociationMixin<user_skill_type, user_skill_typeId>;
-    addUserSkillTypes!: Sequelize.BelongsToManyAddAssociationsMixin<user_skill_type, user_skill_typeId>;
-    createUserSkillType!: Sequelize.BelongsToManyCreateAssociationMixin<user_skill_type>;
-    removeUserSkillType!: Sequelize.BelongsToManyRemoveAssociationMixin<user_skill_type, user_skill_typeId>;
-    removeUserSkillTypes!: Sequelize.BelongsToManyRemoveAssociationsMixin<user_skill_type, user_skill_typeId>;
-    hasUserSkillType!: Sequelize.BelongsToManyHasAssociationMixin<user_skill_type, user_skill_typeId>;
-    hasUserSkillTypes!: Sequelize.BelongsToManyHasAssociationsMixin<user_skill_type, user_skill_typeId>;
-    countUserSkillTypes!: Sequelize.BelongsToManyCountAssociationsMixin;
     // user_skill belongsTo user_skill_level via user_skill_level_id
     user_skill_level!: user_skill_level;
     getUser_skill_level!: Sequelize.BelongsToGetAssociationMixin<user_skill_level>;
     setUser_skill_level!: Sequelize.BelongsToSetAssociationMixin<user_skill_level, user_skill_levelId>;
     createUser_skill_level!: Sequelize.BelongsToCreateAssociationMixin<user_skill_level>;
+    // user_skill belongsTo user_skill_type via user_skill_type_id
+    user_skill_type!: user_skill_type;
+    getUser_skill_type!: Sequelize.BelongsToGetAssociationMixin<user_skill_type>;
+    setUser_skill_type!: Sequelize.BelongsToSetAssociationMixin<user_skill_type, user_skill_typeId>;
+    createUser_skill_type!: Sequelize.BelongsToCreateAssociationMixin<user_skill_type>;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof user_skill {
         return user_skill.init(
@@ -81,6 +76,15 @@ export class user_skill extends Model<userSkillAttributes, userSkillCreationAttr
                     },
                     unique: 'uniq_user_skill_type',
                 },
+                user_skill_type_id: {
+                    type: DataTypes.UUID,
+                    allowNull: false,
+                    references: {
+                        model: 'user_skill_type',
+                        key: 'id',
+                    },
+                    unique: 'uniq_user_skill_type',
+                },
             } as any,
             {
                 sequelize,
@@ -95,6 +99,10 @@ export class user_skill extends Model<userSkillAttributes, userSkillCreationAttr
                     {
                         name: 'fki_fk_user_skill_level',
                         fields: [{ name: 'user_skill_level_id' }],
+                    },
+                    {
+                        name: 'fki_fk_user_skill_type',
+                        fields: [{ name: 'user_skill_type_id' }],
                     },
                     {
                         name: 'uniq_user_skill_type',

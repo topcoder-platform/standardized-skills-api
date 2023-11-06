@@ -1,6 +1,8 @@
 import { Order } from 'sequelize';
-import { UserSkill, UserSkillLevel, SkillCategory } from '../db';
+import { UserSkill, UserSkillLevel, SkillCategory, UserSkillType } from '../db';
 import { GetUserSkillsQueryDto } from '../dto';
+import { BadRequestError } from './errors';
+import { MAX_PRINICIPAL_USER_SKILLS_COUNT, UserSkillTypes } from '../config';
 
 /**
  * Get's the sorting criteria based on the url query params
@@ -34,4 +36,30 @@ export function getOrderBy(query: GetUserSkillsQueryDto) {
     }
 
     return { order, sortBy };
+}
+
+/**
+ * Ensures that a user does not have more than the max limit (10) of Principal skills associated
+*/
+export async function ensurePrincipalSkillCountLimit(userId: number | string) {
+    const principalCount = await UserSkill.count({where: {user_id: userId}, include: [{
+        model: UserSkillType,
+        as: 'user_skill_type',
+        where: { name: UserSkillTypes.principal },
+    }]});
+
+    if (principalCount > MAX_PRINICIPAL_USER_SKILLS_COUNT) {
+        throw new BadRequestError('Max limit for Principal skills reached!');
+    }
+}
+
+/**
+ * Fetches the DB entry for the additional user skill type
+ */
+export async function fetchAdditionalUserSkillType() {
+    const additionalSkillType = await UserSkillLevel.findOne({ where: { name: UserSkillTypes.additional } });
+    if (!additionalSkillType) {
+        throw new Error('User skill type \'additional\' not found!');
+    }
+    return additionalSkillType;
 }
