@@ -247,13 +247,10 @@ export const updateSkillsInChallengeES = async (
 /**
  * Updates the elasticsearch job document indentified by id with the provided skills
  * @param {String} id the uuid v4 id of the gig to update
- * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} jobSkills the skills to update in the gig
+ * @param {Array<string>} skills the uuid id of skills to update in the job index
  */
-export const updateSkillsInJobES = async (
-    id: string,
-    jobSkills: { id: string; name: string; category: { id: string; name: string } }[],
-) => {
-    logger.info(`Update skills in challenge ${id} with skills: ${JSON.stringify(jobSkills)}`);
+export const updateSkillsInJobES = async (id: string, skills: string[]) => {
+    logger.info(`Update skills in job ${id} with skills: ${JSON.stringify(skills)}`);
 
     jobsESClient = getJobsESClient();
     await jobsESClient.update({
@@ -262,7 +259,7 @@ export const updateSkillsInJobES = async (
         id,
         body: {
             doc: {
-                jobSkills,
+                skills,
             },
         },
     });

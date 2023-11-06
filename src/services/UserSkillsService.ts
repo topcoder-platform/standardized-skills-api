@@ -17,12 +17,7 @@ const logger = new LoggerClient('UserSkillsService');
 /**
  * Gets user's skills with the attached skill category & skill levels
  */
-export async function getUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
-    const member = await esHelper.getMemberById(toString(userId));
-    if (isEmpty(member)) {
-        throw new NotFoundError(`Member ${userId} does not exist!`);
-    }
-
+export async function fetchDbUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
     try {
         // manually handle sortBy in here
         const { order, sortBy } = getOrderBy(query);
@@ -146,12 +141,37 @@ export async function updateDbUserSkills(
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
         logger.info('Successfully associated user skills');
-        const allSkills = await getUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: 'true' });
+        const allSkills = await fetchDbUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: 'true' });
 
         await esHelper.updateSkillsInMemberES(toString(userId), allSkills.skills);
 
         return allSkills;
     });
+}
+
+/**
+ * Handles requests to fetch the associated user skills for the passed userId
+ */
+export async function getUserSkills(
+    currentUser: AuthUser,
+    userId: number,
+    query: GetUserSkillsQueryDto
+) {
+    logger.info(
+        `Fetching associated user skills based on the following request data: ${JSON.stringify({
+            userId,
+            ...query,
+        })}`,
+    );
+
+    const member = await esHelper.getMemberById(toString(userId));
+    if (isEmpty(member)) {
+        throw new NotFoundError(`Member ${userId} does not exist!`);
+    }
+
+    ensureUserCanManageMemberSkills(currentUser, userId);
+
+    return fetchDbUserSkills(userId, query);
 }
 
 /**
@@ -165,7 +185,7 @@ export async function createUserSkills(
     logger.info(
         `Creating association for user skills based on the following request data: ${JSON.stringify({
             userId,
-            ...UpdateUserSkillsRequestBodyDto,
+            ...skillsData,
         })}`,
     );
 
@@ -195,7 +215,7 @@ export async function updateUserSkills(
     logger.info(
         `Updating association for user skills based on the following request data: ${JSON.stringify({
             userId,
-            ...UpdateUserSkillsRequestBodyDto,
+            ...skillsData,
         })}`,
     );
 

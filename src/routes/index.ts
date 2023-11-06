@@ -25,21 +25,25 @@ allRoutes.forEach((route) => {
         });
         // scopes & permissions check
         middlewares.push((req: Request | any, res: Response, next: NextFunction) => {
-            if (req.authUser.isMachine && route.scopes) {
-                // M2M
-                if (!req.authUser.scopes || !checkIfExists(route.scopes, req.authUser.scopes)) {
-                    next(new ForbiddenError('You are not allowed to perform this action!'));
+            // M2M authorization
+            if (req.authUser.isMachine) {
+                if (route.scopes) {
+                    if (!req.authUser.scopes || !checkIfExists(route.scopes, req.authUser.scopes)) {
+                        next(new ForbiddenError('You are not allowed to perform this action!'));
+                    } else {
+                        req.authUser.handle = envConfig.M2M_AUDIT_HANDLE;
+                        req.userToken = req.headers.authorization.split(' ')[1];
+                        next();
+                    }
                 } else {
-                    req.authUser.handle = envConfig.M2M_AUDIT_HANDLE;
-                    req.userToken = req.headers.authorization.split(' ')[1];
-                    next();
+                    next(new ForbiddenError('You are not allowed to perform this action!'));
                 }
             } else {
                 req.authUser.userId = String(req.authUser.userId);
                 // User roles authorization
-                if (req.authUser.roles) {
+                if (route.access) {
                     if (
-                        route.access &&
+                        !req.authUser.roles ||
                         !checkIfExists(
                             route.access.map((a) => a.toLowerCase()),
                             req.authUser.roles.map((r: string) => r.toLowerCase()),

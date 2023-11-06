@@ -10,7 +10,7 @@ import { GetUserSkillsQueryDto } from '../dto';
  */
 export function getOrderBy(query: GetUserSkillsQueryDto) {
     let order: Order = [];
-    let sortBy = query.sortBy;
+    let sortBy: string | undefined = query.sortBy ?? 'name';
 
     if (query.sortBy === 'level') {
         order = [

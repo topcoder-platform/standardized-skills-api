@@ -4,7 +4,7 @@ import { SkillEventChallengeUpdateStatus, SkillEventTopic, WorkType } from '../c
 import { ChallengeUpdateSkillEventPayload, GetUserSkillsQueryDto, SkillEventRequestBodyDto } from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
-import { getUserSkills } from './UserSkillsService';
+import { fetchDbUserSkills } from './UserSkillsService';
 import db, { Skill, UserSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
 import { NotFoundError } from '../utils/errors';
@@ -66,7 +66,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
             await createSkillEventsForUser(user, payload.skills, eventId, payload.id, sourceType.id, tx);
 
-            const allUserSkills = await getUserSkills(user.userId, {
+            const allUserSkills = await fetchDbUserSkills(user.userId, {
                 ...new GetUserSkillsQueryDto(),
                 disablePagination: 'true',
             });
