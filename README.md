@@ -12,6 +12,11 @@ API for suggestion of probable skills with each input.
 - Execute `npm run load-data-es` to load all skill data into the created Elasticsearch index
 - Execute `npm run dev`
 
+### Setup local database
+- Run `npm run db:init` to create the database tables & seed initial data into it
+- Run `npm run db:sync` to create any new tables based on the db models created in `src/db/models`
+- Run `npm run db:seed` to insert the seed data into the current db tables
+
 ## Verification
 - Run the postman collection under `./docs/postman`
 
