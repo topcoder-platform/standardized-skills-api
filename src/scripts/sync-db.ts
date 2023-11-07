@@ -1,5 +1,9 @@
 import db from '../db';
 
+/**
+ * Checks the database, and creates any new tables based on the db models we have
+ * NOTE: order is important
+ */
 const syncDbModels = async () => {
     await db.models.Event.sync({ force: false });
     await db.models.SkillCategory.sync({ force: false });
