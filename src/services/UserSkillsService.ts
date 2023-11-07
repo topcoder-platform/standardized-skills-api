@@ -73,9 +73,9 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
 
             // `userSkill` is used to retrieve the type of skill (principal/additional)
             // it we have a "verified" skill level, we get the type from that entry
-            const userSkill = skill.user_skills.find(d => (
-                d.user_skill_level.name === UserSkillLevels.verified)
-            ) || skill.user_skills[0];
+            const userSkill =
+                skill.user_skills.find((d) => d.user_skill_level.name === UserSkillLevels.verified) ||
+                skill.user_skills[0];
 
             for (const uskill of skill.user_skills) {
                 levels.push({
@@ -166,7 +166,10 @@ export async function updateDbUserSkills(
         await ensurePrincipalSkillCountLimit(userId);
 
         logger.info('Successfully associated user skills');
-        const allSkills = await fetchDbUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: 'true' });
+        const allSkills = await fetchDbUserSkills(userId, {
+            ...new GetUserSkillsQueryDto(),
+            disablePagination: 'true',
+        });
 
         await esHelper.updateSkillsInMemberES(toString(userId), allSkills.skills);
 
@@ -177,11 +180,7 @@ export async function updateDbUserSkills(
 /**
  * Handles requests to fetch the associated user skills for the passed userId
  */
-export async function getUserSkills(
-    currentUser: AuthUser,
-    userId: number,
-    query: GetUserSkillsQueryDto
-) {
+export async function getUserSkills(currentUser: AuthUser, userId: number, query: GetUserSkillsQueryDto) {
     logger.info(
         `Fetching associated user skills based on the following request data: ${JSON.stringify({
             userId,

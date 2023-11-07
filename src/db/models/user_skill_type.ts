@@ -15,7 +15,10 @@ export type user_skill_typeId = user_skill_type[user_skill_typePk];
 export type user_skill_typeOptionalAttributes = 'description' | 'created_at' | 'updated_at';
 export type userSkillTypeCreationAttributes = Optional<userSkillTypeAttributes, user_skill_typeOptionalAttributes>;
 
-export class user_skill_type extends Model<userSkillTypeAttributes, userSkillTypeCreationAttributes> implements userSkillTypeAttributes {
+export class user_skill_type
+    extends Model<userSkillTypeAttributes, userSkillTypeCreationAttributes>
+    implements userSkillTypeAttributes
+{
     id!: string;
     name!: string;
     description?: string;
@@ -34,24 +37,24 @@ export class user_skill_type extends Model<userSkillTypeAttributes, userSkillTyp
     hasUser_skill!: Sequelize.BelongsToManyHasAssociationMixin<user_skill, user_skillId>;
     hasUser_skills!: Sequelize.BelongsToManyHasAssociationsMixin<user_skill, user_skillId>;
     countUser_skills!: Sequelize.BelongsToManyCountAssociationsMixin;
-    
+
     static initModel(sequelize: Sequelize.Sequelize): typeof user_skill_type {
         return user_skill_type.init(
             {
                 id: {
                     type: DataTypes.UUID,
                     allowNull: false,
-                    primaryKey: true
+                    primaryKey: true,
                 },
                 name: {
                     type: DataTypes.STRING(100),
                     allowNull: false,
-                    unique: 'user_skill_type_name_key'
+                    unique: 'user_skill_type_name_key',
                 },
                 description: {
                     type: DataTypes.TEXT,
-                    allowNull: true
-                }
+                    allowNull: true,
+                },
             } as any,
             {
                 sequelize,
@@ -62,26 +65,20 @@ export class user_skill_type extends Model<userSkillTypeAttributes, userSkillTyp
                     {
                         name: 'uniq_skill_type_name',
                         unique: true,
-                        fields: [
-                            { name: 'name' },
-                        ]
+                        fields: [{ name: 'name' }],
                     },
                     {
                         name: 'user_skill_type_name_key',
                         unique: true,
-                        fields: [
-                            { name: 'name' },
-                        ]
+                        fields: [{ name: 'name' }],
                     },
                     {
                         name: 'user_skill_type_pkey',
                         unique: true,
-                        fields: [
-                            { name: 'id' },
-                        ]
+                        fields: [{ name: 'id' }],
                     },
-                ]
-            }
+                ],
+            },
         );
     }
 }

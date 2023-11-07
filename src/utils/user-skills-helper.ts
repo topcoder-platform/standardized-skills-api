@@ -40,13 +40,18 @@ export function getOrderBy(query: GetUserSkillsQueryDto) {
 
 /**
  * Ensures that a user does not have more than the max limit (10) of Principal skills associated
-*/
+ */
 export async function ensurePrincipalSkillCountLimit(userId: number | string) {
-    const principalCount = await UserSkill.count({where: {user_id: userId}, include: [{
-        model: UserSkillType,
-        as: 'user_skill_type',
-        where: { name: UserSkillTypes.principal },
-    }]});
+    const principalCount = await UserSkill.count({
+        where: { user_id: userId },
+        include: [
+            {
+                model: UserSkillType,
+                as: 'user_skill_type',
+                where: { name: UserSkillTypes.principal },
+            },
+        ],
+    });
 
     if (principalCount > MAX_PRINICIPAL_USER_SKILLS_COUNT) {
         throw new BadRequestError('Max limit for Principal skills reached!');
