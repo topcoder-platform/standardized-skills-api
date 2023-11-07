@@ -1298,12 +1298,14 @@ components:
         id:
           type: string
           format: uuid
+          required: true
         levelId:
           type: string
           format: uuid
         typeId:
           type: string
           format: uuid
+          required: true
     UserSkill:
       properties:
         id:
@@ -1345,7 +1347,7 @@ components:
           type: string
           format: uuid
         name:
-          type: string
+          enum: ['principal', 'additional']
           example: 'principal'
     WorkSkill:
       properties:

@@ -5,7 +5,7 @@ import type { user_skill, user_skillId } from './user_skill';
 export interface userSkillTypeAttributes {
     id: string;
     name: string;
-    description?: string;
+    description?: string | null;
     created_at: Date;
     updated_at: Date;
 }
@@ -21,7 +21,7 @@ export class user_skill_type
 {
     id!: string;
     name!: string;
-    description?: string;
+    description?: string | null;
     created_at!: Date;
     updated_at!: Date;
 
@@ -62,11 +62,6 @@ export class user_skill_type
                 schema: 'public',
                 timestamps: true,
                 indexes: [
-                    {
-                        name: 'uniq_skill_type_name',
-                        unique: true,
-                        fields: [{ name: 'name' }],
-                    },
                     {
                         name: 'user_skill_type_name_key',
                         unique: true,

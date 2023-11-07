@@ -62,7 +62,7 @@ export async function ensurePrincipalSkillCountLimit(userId: number | string) {
  * Fetches the DB entry for the additional user skill type
  */
 export async function fetchAdditionalUserSkillType() {
-    const additionalSkillType = await UserSkillLevel.findOne({ where: { name: UserSkillTypes.additional } });
+    const additionalSkillType = await UserSkillType.findOne({ where: { name: UserSkillTypes.additional } });
     if (!additionalSkillType) {
         throw new Error('User skill type \'additional\' not found!');
     }

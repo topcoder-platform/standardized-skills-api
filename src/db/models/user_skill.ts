@@ -83,7 +83,6 @@ export class user_skill extends Model<userSkillAttributes, userSkillCreationAttr
                         model: 'user_skill_type',
                         key: 'id',
                     },
-                    unique: 'uniq_user_skill_type',
                 },
             } as any,
             {
