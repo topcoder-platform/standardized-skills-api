@@ -112,12 +112,7 @@ export async function updateDbUserSkills(
     }
 
     // ensure passesd skill ids are valid
-    if (
-        !(await bulkCheckValidIds(
-            Skill,
-            uniq(skillsData.skills.map((s) => s.id)),
-        ))
-    ) {
+    if (!(await bulkCheckValidIds(Skill, uniq(skillsData.skills.map((s) => s.id))))) {
         throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
     }
 
@@ -141,7 +136,10 @@ export async function updateDbUserSkills(
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
         logger.info('Successfully associated user skills');
-        const allSkills = await fetchDbUserSkills(userId, { ...new GetUserSkillsQueryDto(), disablePagination: 'true' });
+        const allSkills = await fetchDbUserSkills(userId, {
+            ...new GetUserSkillsQueryDto(),
+            disablePagination: 'true',
+        });
 
         await esHelper.updateSkillsInMemberES(toString(userId), allSkills.skills);
 
@@ -152,11 +150,7 @@ export async function updateDbUserSkills(
 /**
  * Handles requests to fetch the associated user skills for the passed userId
  */
-export async function getUserSkills(
-    currentUser: AuthUser,
-    userId: number,
-    query: GetUserSkillsQueryDto
-) {
+export async function getUserSkills(currentUser: AuthUser, userId: number, query: GetUserSkillsQueryDto) {
     logger.info(
         `Fetching associated user skills based on the following request data: ${JSON.stringify({
             userId,
