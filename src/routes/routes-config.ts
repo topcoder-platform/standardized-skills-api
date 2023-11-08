@@ -200,11 +200,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillEventsController',
         method: 'processSkillEvent',
         auth: true,
-        scopes: [
-            config.envConfig.SCOPES.ALL,
-            config.envConfig.SCOPES.CREATE,
-            config.envConfig.SCOPES.UPDATE,
-        ],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         validation: {
             body: {
                 forbidNonWhitelisted: false,
