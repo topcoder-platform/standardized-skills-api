@@ -8,6 +8,22 @@ import * as core from 'express-serve-static-core';
 
 export default class UserSkillsController {
     /**
+     * Get the display modes for the user skills
+     */
+    async getUserSkillsDisplayModes(
+        req: AuthorizedRequest<any, any, any, any, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const displayModes = await UserSkillsService.getUserSkillsDisplayModes();
+            res.status(200).json(displayModes);
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
      * Get the associated skills for the User
      */
     async getUserSkills(

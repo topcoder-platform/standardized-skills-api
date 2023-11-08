@@ -125,6 +125,14 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/user-skills/display-modes',
+        verb: 'get',
+        controller: 'UserSkillsController',
+        method: 'getUserSkillsDisplayModes',
+        auth: true,
+        access: [config.UserRoles.Admin, config.UserRoles.User],
+    },
+    {
         path: '/user-skills/:userId',
         verb: 'get',
         controller: 'UserSkillsController',

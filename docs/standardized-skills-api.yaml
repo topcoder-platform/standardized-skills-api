@@ -790,6 +790,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'              
+  /user-skills/display-modes:
+    get:
+      operationId: getAllUserSkillsDisplayModes
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns all the user skills display modes. These display modes allow the user to control the way the skills are presented in their profiles'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSkillDisplayMode'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
   /user-skills/{userId}:
     get:
       operationId: getAllUserSkills

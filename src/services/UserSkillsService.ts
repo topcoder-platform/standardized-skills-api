@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { uniqBy, map, toString, isEmpty } from 'lodash';
+import { uniqBy, map, toString, isEmpty, pick } from 'lodash';
 
 import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillDisplayMode } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
@@ -252,4 +252,9 @@ export async function updateUserSkills(
     }
 
     return updateDbUserSkills(currentUser, userId, skillsData);
+}
+
+export async function getUserSkillsDisplayModes() {
+    const displayModes = await UserSkillDisplayMode.findAll();
+    return map(displayModes, displayMode => pick(displayMode, ['id', 'name']));
 }

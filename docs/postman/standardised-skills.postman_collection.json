@@ -260,6 +260,63 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "get user skills display modes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user-skills/display-modes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user-skills",
+								"display-modes"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "level",
+									"description": "name, level, category",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"description": "ASC, DESC",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "false",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
