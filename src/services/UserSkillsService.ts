@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { uniqBy, map, toString, isEmpty } from 'lodash';
+import { uniqBy, map, toString, isEmpty, uniq } from 'lodash';
 
 import db, { Skill, SkillCategory, UserSkill, UserSkillLevel } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
@@ -106,19 +106,19 @@ export async function updateDbUserSkills(
         ensureUserHasAdminPrivilege(currentUser);
     }
 
+    // ensure no duplicates
+    if (skillsData.skills.length !== uniqBy(skillsData.skills, (skill) => `${skill.id}-${skill.levelId}`).length) {
+        throw new BadRequestError(`List of skills to be associated with member:${userId} has duplicate values`);
+    }
+
     // ensure passesd skill ids are valid
     if (
         !(await bulkCheckValidIds(
             Skill,
-            skillsData.skills.map((s) => s.id),
+            uniq(skillsData.skills.map((s) => s.id)),
         ))
     ) {
         throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
-    }
-
-    // ensure no duplicates
-    if (skillsData.skills.length !== uniqBy(skillsData.skills, (skill) => skill.id).length) {
-        throw new BadRequestError(`List of skills to be associated with member:${userId} has duplicate values`);
     }
 
     return db.sequelize.transaction(async () => {
