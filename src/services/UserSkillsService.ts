@@ -9,7 +9,7 @@ import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../utils/helpers';
 import * as esHelper from '../utils/es-helper';
-import { ensurePrincipalSkillCountLimit, getOrderBy } from '../utils/user-skills-helper';
+import { getOrderBy, updateDisplayModeForUserSkills } from '../utils/user-skills-helper';
 import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
 import { UserSkillLevels } from '../config';
 
@@ -141,7 +141,7 @@ export async function updateDbUserSkills(
     }
 
     return db.sequelize.transaction(async () => {
-        // remove all previously owned selfDeclared skills
+        // remove all previously owned selfDeclared skills that have been removed by the user
         await UserSkill.destroy({
             where: {
                 user_id: userId,
@@ -155,15 +155,12 @@ export async function updateDbUserSkills(
             user_id: userId,
             skill_id: skill.id,
             user_skill_level_id: skill.levelId ?? selfDeclaredSkillLevel.id,
-            user_skill_display_mode_id: skill.typeId,
+            user_skill_display_mode_id: skill.displayModeId,
         }));
 
-        await UserSkill.bulkCreate(userSkills, {
-            updateOnDuplicate: ['user_skill_display_mode_id'],
-            conflictAttributes: ['skill_id', 'user_id', 'user_skill_level_id'],
-        });
+        await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
-        await ensurePrincipalSkillCountLimit(userId);
+        await updateDisplayModeForUserSkills(userId, skillsData);
 
         logger.info('Successfully associated user skills');
         const allSkills = await fetchDbUserSkills(userId, {

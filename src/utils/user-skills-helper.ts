@@ -1,6 +1,7 @@
-import { Order } from 'sequelize';
+import { Op, Order } from 'sequelize';
+import { groupBy, map } from 'lodash';
 import { UserSkill, UserSkillLevel, SkillCategory, UserSkillDisplayMode } from '../db';
-import { GetUserSkillsQueryDto } from '../dto';
+import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { BadRequestError } from './errors';
 import { MAX_PRINICIPAL_USER_SKILLS_COUNT, UserSkillDisplayModes } from '../config';
 
@@ -67,4 +68,24 @@ export async function fetchAdditionalUserSkillDisplayMode() {
         throw new Error('User skill type \'additional\' not found!');
     }
     return additionalSkillType;
+}
+
+/**
+ * Updates the user_skill_display_mode_id for all the passed in skills
+ * @param userId 
+ * @param skillsData 
+ */
+export async function updateDisplayModeForUserSkills(userId: number, skillsData: UpdateUserSkillsRequestBodyDto) {
+    const grouped = groupBy(skillsData.skills, 'displayModeId');
+    const updatePromises = Object.entries(grouped).map(([displayModeId, skills]) => (
+        UserSkill.update({
+            user_skill_display_mode_id: displayModeId
+        }, {where: {
+            user_id: userId,
+            skill_id: { [Op.in]: map(skills, 'id') }
+        }})
+    ));
+    await Promise.all(updatePromises);
+
+    await ensurePrincipalSkillCountLimit(userId);
 }
