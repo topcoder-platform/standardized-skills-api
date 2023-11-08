@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
 import { uniqBy, map, toString, isEmpty } from 'lodash';
 
-import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillType } from '../db';
+import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillDisplayMode } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
 import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-helper';
@@ -48,8 +48,8 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                                 attributes: ['id', 'name', 'description'],
                             },
                             {
-                                model: UserSkillType,
-                                as: 'user_skill_type',
+                                model: UserSkillDisplayMode,
+                                as: 'user_skill_display_mode',
                                 attributes: ['id', 'name'],
                             },
                         ],
@@ -66,7 +66,7 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
             name: string;
             category: { id: string; name: string };
             levels: { id: string; name: string; description: string }[];
-            type: any;
+            displayMode: any;
         }[] = [];
         for (const skill of skills as Skill[]) {
             const levels: { id: string; name: string; description: string }[] = [];
@@ -93,9 +93,9 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                     name: skill.category.name,
                 },
                 levels,
-                type: {
-                    id: userSkill.user_skill_type.id,
-                    name: userSkill.user_skill_type.name,
+                displayMode: {
+                    id: userSkill.user_skill_display_mode.id,
+                    name: userSkill.user_skill_display_mode.name,
                 },
             });
         }
@@ -155,11 +155,11 @@ export async function updateDbUserSkills(
             user_id: userId,
             skill_id: skill.id,
             user_skill_level_id: skill.levelId ?? selfDeclaredSkillLevel.id,
-            user_skill_type_id: skill.typeId,
+            user_skill_display_mode_id: skill.typeId,
         }));
 
         await UserSkill.bulkCreate(userSkills, {
-            updateOnDuplicate: ['user_skill_type_id'],
+            updateOnDuplicate: ['user_skill_display_mode_id'],
             conflictAttributes: ['skill_id', 'user_id', 'user_skill_level_id'],
         });
 
