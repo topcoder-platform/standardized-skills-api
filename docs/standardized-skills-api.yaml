@@ -1302,7 +1302,7 @@ components:
         levelId:
           type: string
           format: uuid
-        typeId:
+        displayModeId:
           type: string
           format: uuid
           required: true
@@ -1319,8 +1319,8 @@ components:
          type: array
          items:
           $ref: '#/components/schemas/SkillLevel'
-        type:
-          $ref: '#/components/schemas/UserSkillType'
+        displayMode:
+          $ref: '#/components/schemas/UserSkillDisplayMode'
     SkillSourceType:
       properties:
         id:
@@ -1341,7 +1341,7 @@ components:
           example: 'self-declared'
         description:
           type: string    
-    UserSkillType:
+    UserSkillDisplayMode:
       properties:
         id:
           type: string
