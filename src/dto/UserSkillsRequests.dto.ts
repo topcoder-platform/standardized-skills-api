@@ -29,7 +29,7 @@ class UserSkillSkillRequestDto {
     levelId: string;
 
     @IsUUID('all')
-    typeId: string;
+    displayModeId: string;
 }
 
 export class UserIdParamDto {

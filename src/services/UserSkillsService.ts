@@ -1,7 +1,7 @@
 import { Op } from 'sequelize';
-import { uniqBy, map, toString, isEmpty } from 'lodash';
+import { uniqBy, map, toString, isEmpty, pick, uniq } from 'lodash';
 
-import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillType } from '../db';
+import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillDisplayMode } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
 import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-helper';
@@ -9,7 +9,7 @@ import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../utils/helpers';
 import * as esHelper from '../utils/es-helper';
-import { ensurePrincipalSkillCountLimit, getOrderBy } from '../utils/user-skills-helper';
+import { getOrderBy, updateDisplayModeForUserSkills } from '../utils/user-skills-helper';
 import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
 import { UserSkillLevels } from '../config';
 
@@ -48,8 +48,8 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                                 attributes: ['id', 'name', 'description'],
                             },
                             {
-                                model: UserSkillType,
-                                as: 'user_skill_type',
+                                model: UserSkillDisplayMode,
+                                as: 'user_skill_display_mode',
                                 attributes: ['id', 'name'],
                             },
                         ],
@@ -66,7 +66,7 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
             name: string;
             category: { id: string; name: string };
             levels: { id: string; name: string; description: string }[];
-            type: any;
+            displayMode: any;
         }[] = [];
         for (const skill of skills as Skill[]) {
             const levels: { id: string; name: string; description: string }[] = [];
@@ -93,9 +93,9 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                     name: skill.category.name,
                 },
                 levels,
-                type: {
-                    id: userSkill.user_skill_type.id,
-                    name: userSkill.user_skill_type.name,
+                displayMode: {
+                    id: userSkill.user_skill_display_mode.id,
+                    name: userSkill.user_skill_display_mode.name,
                 },
             });
         }
@@ -125,23 +125,18 @@ export async function updateDbUserSkills(
         ensureUserHasAdminPrivilege(currentUser);
     }
 
-    // ensure passesd skill ids are valid
-    if (
-        !(await bulkCheckValidIds(
-            Skill,
-            skillsData.skills.map((s) => s.id),
-        ))
-    ) {
-        throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
-    }
-
     // ensure no duplicates
-    if (skillsData.skills.length !== uniqBy(skillsData.skills, (skill) => skill.id).length) {
+    if (skillsData.skills.length !== uniqBy(skillsData.skills, (skill) => `${skill.id}-${skill.levelId}`).length) {
         throw new BadRequestError(`List of skills to be associated with member:${userId} has duplicate values`);
     }
 
+    // ensure passesd skill ids are valid
+    if (!(await bulkCheckValidIds(Skill, uniq(skillsData.skills.map((s) => s.id))))) {
+        throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
+    }
+
     return db.sequelize.transaction(async () => {
-        // remove all previously owned selfDeclared skills
+        // remove all previously owned selfDeclared skills that have been removed by the user
         await UserSkill.destroy({
             where: {
                 user_id: userId,
@@ -155,15 +150,12 @@ export async function updateDbUserSkills(
             user_id: userId,
             skill_id: skill.id,
             user_skill_level_id: skill.levelId ?? selfDeclaredSkillLevel.id,
-            user_skill_type_id: skill.typeId,
+            user_skill_display_mode_id: skill.displayModeId,
         }));
 
-        await UserSkill.bulkCreate(userSkills, {
-            updateOnDuplicate: ['user_skill_type_id'],
-            conflictAttributes: ['skill_id', 'user_id', 'user_skill_level_id'],
-        });
+        await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
-        await ensurePrincipalSkillCountLimit(userId);
+        await updateDisplayModeForUserSkills(userId, skillsData);
 
         logger.info('Successfully associated user skills');
         const allSkills = await fetchDbUserSkills(userId, {
@@ -255,4 +247,9 @@ export async function updateUserSkills(
     }
 
     return updateDbUserSkills(currentUser, userId, skillsData);
+}
+
+export async function getUserSkillsDisplayModes() {
+    const displayModes = await UserSkillDisplayMode.findAll();
+    return map(displayModes, displayMode => pick(displayMode, ['id', 'name']));
 }

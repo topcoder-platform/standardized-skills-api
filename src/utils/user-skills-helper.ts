@@ -1,8 +1,9 @@
-import { Order } from 'sequelize';
-import { UserSkill, UserSkillLevel, SkillCategory, UserSkillType } from '../db';
-import { GetUserSkillsQueryDto } from '../dto';
+import { Op, Order } from 'sequelize';
+import { groupBy, map } from 'lodash';
+import { UserSkill, UserSkillLevel, SkillCategory, UserSkillDisplayMode } from '../db';
+import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { BadRequestError } from './errors';
-import { MAX_PRINICIPAL_USER_SKILLS_COUNT, UserSkillTypes } from '../config';
+import { MAX_PRINICIPAL_USER_SKILLS_COUNT, UserSkillDisplayModes } from '../config';
 
 /**
  * Get's the sorting criteria based on the url query params
@@ -46,9 +47,9 @@ export async function ensurePrincipalSkillCountLimit(userId: number | string) {
         where: { user_id: userId },
         include: [
             {
-                model: UserSkillType,
-                as: 'user_skill_type',
-                where: { name: UserSkillTypes.principal },
+                model: UserSkillDisplayMode,
+                as: 'user_skill_display_mode',
+                where: { name: UserSkillDisplayModes.principal },
             },
         ],
     });
@@ -61,10 +62,30 @@ export async function ensurePrincipalSkillCountLimit(userId: number | string) {
 /**
  * Fetches the DB entry for the additional user skill type
  */
-export async function fetchAdditionalUserSkillType() {
-    const additionalSkillType = await UserSkillLevel.findOne({ where: { name: UserSkillTypes.additional } });
+export async function fetchAdditionalUserSkillDisplayMode() {
+    const additionalSkillType = await UserSkillDisplayMode.findOne({ where: { name: UserSkillDisplayModes.additional } });
     if (!additionalSkillType) {
         throw new Error('User skill type \'additional\' not found!');
     }
     return additionalSkillType;
+}
+
+/**
+ * Updates the user_skill_display_mode_id for all the passed in skills
+ * @param userId 
+ * @param skillsData 
+ */
+export async function updateDisplayModeForUserSkills(userId: number, skillsData: UpdateUserSkillsRequestBodyDto) {
+    const grouped = groupBy(skillsData.skills, 'displayModeId');
+    const updatePromises = Object.entries(grouped).map(([displayModeId, skills]) => (
+        UserSkill.update({
+            user_skill_display_mode_id: displayModeId
+        }, {where: {
+            user_id: userId,
+            skill_id: { [Op.in]: map(skills, 'id') }
+        }})
+    ));
+    await Promise.all(updatePromises);
+
+    await ensurePrincipalSkillCountLimit(userId);
 }

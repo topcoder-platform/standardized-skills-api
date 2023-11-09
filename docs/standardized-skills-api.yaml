@@ -790,6 +790,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'              
+  /user-skills/display-modes:
+    get:
+      operationId: getAllUserSkillsDisplayModes
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns all the user skills display modes. These display modes allow the user to control the way the skills are presented in their profiles'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSkillDisplayMode'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
   /user-skills/{userId}:
     get:
       operationId: getAllUserSkills
@@ -1298,12 +1318,14 @@ components:
         id:
           type: string
           format: uuid
+          required: true
         levelId:
           type: string
           format: uuid
-        typeId:
+        displayModeId:
           type: string
           format: uuid
+          required: true
     UserSkill:
       properties:
         id:
@@ -1317,8 +1339,8 @@ components:
          type: array
          items:
           $ref: '#/components/schemas/SkillLevel'
-        type:
-          $ref: '#/components/schemas/UserSkillType'
+        displayMode:
+          $ref: '#/components/schemas/UserSkillDisplayMode'
     SkillSourceType:
       properties:
         id:
@@ -1339,13 +1361,13 @@ components:
           example: 'self-declared'
         description:
           type: string    
-    UserSkillType:
+    UserSkillDisplayMode:
       properties:
         id:
           type: string
           format: uuid
         name:
-          type: string
+          enum: ['principal', 'additional']
           example: 'principal'
     WorkSkill:
       properties:

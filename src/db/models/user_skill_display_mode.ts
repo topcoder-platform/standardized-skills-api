@@ -2,30 +2,30 @@ import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { user_skill, user_skillId } from './user_skill';
 
-export interface userSkillTypeAttributes {
+export interface userSkillDisplayModeAttributes {
     id: string;
     name: string;
-    description?: string;
+    description?: string | null;
     created_at: Date;
     updated_at: Date;
 }
 
-export type user_skill_typePk = 'id';
-export type user_skill_typeId = user_skill_type[user_skill_typePk];
-export type user_skill_typeOptionalAttributes = 'description' | 'created_at' | 'updated_at';
-export type userSkillTypeCreationAttributes = Optional<userSkillTypeAttributes, user_skill_typeOptionalAttributes>;
+export type user_skill_display_modePk = 'id';
+export type user_skill_display_modeId = user_skill_display_mode[user_skill_display_modePk];
+export type user_skill_display_modeOptionalAttributes = 'description' | 'created_at' | 'updated_at';
+export type userSkillDisplayModeCreationAttributes = Optional<userSkillDisplayModeAttributes, user_skill_display_modeOptionalAttributes>;
 
-export class user_skill_type
-    extends Model<userSkillTypeAttributes, userSkillTypeCreationAttributes>
-    implements userSkillTypeAttributes
+export class user_skill_display_mode
+    extends Model<userSkillDisplayModeAttributes, userSkillDisplayModeCreationAttributes>
+    implements userSkillDisplayModeAttributes
 {
     id!: string;
     name!: string;
-    description?: string;
+    description?: string | null;
     created_at!: Date;
     updated_at!: Date;
 
-    // user_skill_type hasMany user_skill via user_skill_type_id
+    // user_skill_display_mode hasMany user_skill via user_skill_display_mode_id
     user_skills!: user_skill[];
     getUser_skills!: Sequelize.BelongsToManyGetAssociationsMixin<user_skill>;
     setUser_skills!: Sequelize.BelongsToManySetAssociationsMixin<user_skill, user_skillId>;
@@ -38,8 +38,8 @@ export class user_skill_type
     hasUser_skills!: Sequelize.BelongsToManyHasAssociationsMixin<user_skill, user_skillId>;
     countUser_skills!: Sequelize.BelongsToManyCountAssociationsMixin;
 
-    static initModel(sequelize: Sequelize.Sequelize): typeof user_skill_type {
-        return user_skill_type.init(
+    static initModel(sequelize: Sequelize.Sequelize): typeof user_skill_display_mode {
+        return user_skill_display_mode.init(
             {
                 id: {
                     type: DataTypes.UUID,
@@ -49,7 +49,7 @@ export class user_skill_type
                 name: {
                     type: DataTypes.STRING(100),
                     allowNull: false,
-                    unique: 'user_skill_type_name_key',
+                    unique: 'user_skill_display_mode_name_key',
                 },
                 description: {
                     type: DataTypes.TEXT,
@@ -58,22 +58,17 @@ export class user_skill_type
             } as any,
             {
                 sequelize,
-                tableName: 'user_skill_type',
+                tableName: 'user_skill_display_mode',
                 schema: 'public',
                 timestamps: true,
                 indexes: [
                     {
-                        name: 'uniq_skill_type_name',
+                        name: 'user_skill_display_mode_name_key',
                         unique: true,
                         fields: [{ name: 'name' }],
                     },
                     {
-                        name: 'user_skill_type_name_key',
-                        unique: true,
-                        fields: [{ name: 'name' }],
-                    },
-                    {
-                        name: 'user_skill_type_pkey',
+                        name: 'user_skill_display_mode_pkey',
                         unique: true,
                         fields: [{ name: 'id' }],
                     },

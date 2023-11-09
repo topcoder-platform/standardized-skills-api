@@ -25,7 +25,7 @@ export enum UserSkillLevels {
     verified = 'verified',
 }
 
-export enum UserSkillTypes {
+export enum UserSkillDisplayModes {
     principal = 'principal',
     additional = 'additional',
 }

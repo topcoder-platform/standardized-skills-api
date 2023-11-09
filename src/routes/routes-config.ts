@@ -125,12 +125,21 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/user-skills/display-modes',
+        verb: 'get',
+        controller: 'UserSkillsController',
+        method: 'getUserSkillsDisplayModes',
+        auth: true,
+        access: [config.UserRoles.Admin, config.UserRoles.User],
+    },
+    {
         path: '/user-skills/:userId',
         verb: 'get',
         controller: 'UserSkillsController',
         method: 'getUserSkills',
         auth: true,
         access: [config.UserRoles.Admin, config.UserRoles.User],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             params: {
                 dto: UserIdParamDto,
@@ -147,6 +156,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'createUserSkills',
         auth: true,
         access: [config.UserRoles.Admin, config.UserRoles.User],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
         validation: {
             params: {
                 dto: UserIdParamDto,
@@ -163,6 +173,7 @@ const RouteDefinitions: RouteDefinition[] = [
         method: 'updateUserSkills',
         auth: true,
         access: [config.UserRoles.Admin, config.UserRoles.User],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.UPDATE],
         validation: {
             params: {
                 dto: UserIdParamDto,
@@ -197,11 +208,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'SkillEventsController',
         method: 'processSkillEvent',
         auth: true,
-        scopes: [
-            config.envConfig.SCOPES.ALL,
-            config.envConfig.SCOPES.CREATE,
-            config.envConfig.SCOPES.UPDATE,
-        ],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         validation: {
             body: {
                 forbidNonWhitelisted: false,
