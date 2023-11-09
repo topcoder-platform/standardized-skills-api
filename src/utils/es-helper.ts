@@ -80,7 +80,7 @@ export async function bulkCreateSkillsES(
             },
         ]);
 
-        await skillsESClient.bulk({ body, refresh: true });
+        await skillsESClient.bulk({ body, refresh: config.envConfig.SKILLS_ES.REFRESH as boolean });
         logger.info(`Bulk indexing successful in ${config.envConfig.SKILLS_ES.INDEX} Elasticsearch index`);
     } catch (error) {
         logger.error(
@@ -240,7 +240,6 @@ export const updateSkillsInChallengeES = async (
                 skills,
             },
         },
-        refresh: 'true',
     });
     logger.info(`Challenge ${id} successfully updated with skills`);
 };
@@ -263,7 +262,6 @@ export const updateSkillsInJobES = async (id: string, skills: string[]) => {
                 skills,
             },
         },
-        refresh: true,
     });
     logger.info(`Job ${id} successfully updated with skills`);
 };
@@ -294,7 +292,6 @@ export const updateSkillsInMemberES = async (
                 skills,
             },
         },
-        refresh: 'true',
     });
     logger.info(`Member ${id} successfully updated with skills`);
 };
@@ -351,7 +348,6 @@ export const updateSkillInAutocompleteES = async (skill: {
         body: {
             doc,
         },
-        refresh: true,
     });
     logger.info(`Skill ${skill.id} successfully updated in skills autocomplete ES`);
 };
@@ -383,7 +379,6 @@ export const updateSkillCategoryInAutocompleteES = async (id: string, name: stri
                 },
             },
         },
-        refresh: true,
     });
     logger.info('Skills successfully updated with new category in skills autocomplete ES');
 };
@@ -399,7 +394,7 @@ export const deleteSkillFromAutocompleteES = async (id: string) => {
     await skillsESClient.delete({
         id,
         index: envConfig.SKILLS_ES.INDEX,
-        refresh: true,
+        refresh: envConfig.SKILLS_ES.REFRESH as boolean,
     });
 
     logger.info(`Successfully delete skill from autocomplete Elasticsearch index with id ${id}`);
