@@ -1,9 +1,9 @@
 import { Op } from 'sequelize';
-import { uniqBy, map, toString, isEmpty, pick, uniq } from 'lodash';
+import { uniqBy, map, toString, isEmpty, pick, uniq, isNull } from 'lodash';
 
 import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillDisplayMode } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
-import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
+import { GetUserSkillsDisplayModesQueryDto, GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-helper';
 import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
@@ -249,7 +249,49 @@ export async function updateUserSkills(
     return updateDbUserSkills(currentUser, userId, skillsData);
 }
 
-export async function getUserSkillsDisplayModes() {
-    const displayModes = await UserSkillDisplayMode.findAll();
-    return map(displayModes, displayMode => pick(displayMode, ['id', 'name']));
+/**
+ * Fetches the display modes for the user-skills based on the passed query data
+ */
+export async function getUserSkillsDisplayModes(query: GetUserSkillsDisplayModesQueryDto) {
+    logger.info(
+        `Fetching all display modes for user skills based on the following request data: ${JSON.stringify({
+            query,
+        })}`,
+    );
+
+    const { displayModes, ...paginationData } = await findAndCountPaginated(
+        UserSkillDisplayMode,
+        'displayModes',
+        query,
+    );
+
+    return {
+        ...paginationData,
+
+        displayModes: map(
+            displayModes as UserSkillDisplayMode[],
+            displayMode => pick(displayMode, ['id', 'name']),
+        ),
+    };
+}
+
+/**
+ * Fetches the display modes for the user-skills based on the passed query data
+ */
+export async function getUserSkillsDisplayModeByName(name: string) {
+    logger.info(
+        `Fetching UserSkillsDisplayMode for name '${name}'`,
+    );
+
+    const displayMode = await UserSkillDisplayMode.findOne({where: {name}});
+    if (!displayMode || isNull(displayMode)) {
+        throw new NotFoundError(`DisplayMode with name '${name}' does not exist!`);
+    }
+
+    logger.info(`UserSkillDisplayMode with name '${name}' retrieved successfully`);
+
+    return {
+        id: displayMode.id,
+        name: displayMode.name
+    };
 }

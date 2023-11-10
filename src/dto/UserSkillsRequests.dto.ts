@@ -43,3 +43,14 @@ export class UpdateUserSkillsRequestBodyDto {
     @Type(() => UserSkillSkillRequestDto)
     skills: UserSkillSkillRequestDto[];
 }
+
+export class GetUserSkillsDisplayModesQueryDto extends BasePaginatedSortedRequest {
+    @IsOptional()
+    @IsIn(['name'])
+    sortBy?: string;
+}
+
+export class GetUserSkillsDisplayModeParamDto {
+    @IsString()
+    name: string;
+}
