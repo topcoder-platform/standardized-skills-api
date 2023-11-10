@@ -13,7 +13,10 @@ export interface userSkillDisplayModeAttributes {
 export type user_skill_display_modePk = 'id';
 export type user_skill_display_modeId = user_skill_display_mode[user_skill_display_modePk];
 export type user_skill_display_modeOptionalAttributes = 'description' | 'created_at' | 'updated_at';
-export type userSkillDisplayModeCreationAttributes = Optional<userSkillDisplayModeAttributes, user_skill_display_modeOptionalAttributes>;
+export type userSkillDisplayModeCreationAttributes = Optional<
+    userSkillDisplayModeAttributes,
+    user_skill_display_modeOptionalAttributes
+>;
 
 export class user_skill_display_mode
     extends Model<userSkillDisplayModeAttributes, userSkillDisplayModeCreationAttributes>

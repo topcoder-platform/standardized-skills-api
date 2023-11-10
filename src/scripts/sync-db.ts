@@ -12,7 +12,7 @@ const syncDbModels = async () => {
     await db.models.SourceType.sync({ force: false });
     await db.models.SkillEvent.sync({ force: false });
     await db.models.WorkSkill.sync({ force: false });
-    await db.models.UserSkillType.sync({ force: false });
+    await db.models.UserSkillDisplayMode.sync({ force: false });
     await db.models.UserSkillLevel.sync({ force: false });
     await db.models.UserSkill.sync({ force: false });
 };
