@@ -1,7 +1,7 @@
 import { map, toString } from 'lodash';
 
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, WorkType } from '../config';
-import { ChallengeUpdateSkillEventPayload, GetUserSkillsQueryDto, SkillEventRequestBodyDto } from '../dto';
+import { SkillEventPayloadChallengeUpdate, GetUserSkillsQueryDto, SkillEventRequestBodyDto } from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { fetchDbUserSkills } from './UserSkillsService';
@@ -16,8 +16,10 @@ import {
     ensurePayloadWinnersAreValidUsers,
     createSkillEventsForUser,
     ensurePayloadChallengeExists,
+    REVIEWER_TYPE_KEY,
 } from '../utils/skill-events-helper';
 import { fetchAdditionalUserSkillDisplayMode } from '../utils/user-skills-helper';
+import { fetchChallengeReviewers } from '../utils/challenge-helper';
 
 const logger = new LoggerClient('SkillEventsService');
 
@@ -30,7 +32,7 @@ const logger = new LoggerClient('SkillEventsService');
  * @param payload
  * @returns
  */
-export async function processChallengeCompletedSkillEvent(eventId: string, payload: ChallengeUpdateSkillEventPayload) {
+export async function processChallengeCompletedSkillEvent(eventId: string, payload: SkillEventPayloadChallengeUpdate) {
     logger.info(`Handling challenge update skill event using payload ${JSON.stringify(payload)}`);
 
     if (payload.status !== SkillEventChallengeUpdateStatus.completed) {
@@ -54,10 +56,22 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
     const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
 
+    // fetch challenge reviewers so we assign the challenge skills to them as well
+    const reviewers = await fetchChallengeReviewers(payload.id);
+
     return db.sequelize.transaction(async (tx) => {
         const allSkills = [];
+
+        const users = [
+            ...payload.winners,
+            ...reviewers.map((p) => ({
+                userId: p.memberId,
+                type: REVIEWER_TYPE_KEY,
+            })),
+        ];
+
         // update each user with the skills data
-        for (const user of payload.winners) {
+        for (const user of users) {
             const userSkills = payload.skills.map((skill) => ({
                 user_id: Number(user.userId),
                 skill_id: skill.id,

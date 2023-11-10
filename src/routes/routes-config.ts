@@ -137,8 +137,8 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             query: {
                 dto: GetUserSkillsDisplayModesQueryDto,
-            }
-        }
+            },
+        },
     },
     {
         path: '/user-skills/display-modes/:name',
@@ -151,8 +151,8 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             params: {
                 dto: GetUserSkillsDisplayModeParamDto,
-            }
-        }
+            },
+        },
     },
     {
         path: '/user-skills/:userId',

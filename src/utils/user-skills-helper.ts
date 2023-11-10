@@ -63,7 +63,9 @@ export async function ensurePrincipalSkillCountLimit(userId: number | string) {
  * Fetches the DB entry for the additional user skill type
  */
 export async function fetchAdditionalUserSkillDisplayMode() {
-    const additionalSkillType = await UserSkillDisplayMode.findOne({ where: { name: UserSkillDisplayModes.additional } });
+    const additionalSkillType = await UserSkillDisplayMode.findOne({
+        where: { name: UserSkillDisplayModes.additional },
+    });
     if (!additionalSkillType) {
         throw new Error('User skill type \'additional\' not found!');
     }
@@ -72,19 +74,24 @@ export async function fetchAdditionalUserSkillDisplayMode() {
 
 /**
  * Updates the user_skill_display_mode_id for all the passed in skills
- * @param userId 
- * @param skillsData 
+ * @param userId
+ * @param skillsData
  */
 export async function updateDisplayModeForUserSkills(userId: number, skillsData: UpdateUserSkillsRequestBodyDto) {
     const grouped = groupBy(skillsData.skills, 'displayModeId');
-    const updatePromises = Object.entries(grouped).map(([displayModeId, skills]) => (
-        UserSkill.update({
-            user_skill_display_mode_id: displayModeId
-        }, {where: {
-            user_id: userId,
-            skill_id: { [Op.in]: map(skills, 'id') }
-        }})
-    ));
+    const updatePromises = Object.entries(grouped).map(([displayModeId, skills]) =>
+        UserSkill.update(
+            {
+                user_skill_display_mode_id: displayModeId,
+            },
+            {
+                where: {
+                    user_id: userId,
+                    skill_id: { [Op.in]: map(skills, 'id') },
+                },
+            },
+        ),
+    );
     await Promise.all(updatePromises);
 
     await ensurePrincipalSkillCountLimit(userId);

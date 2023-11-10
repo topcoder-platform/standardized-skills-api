@@ -69,7 +69,10 @@ export function initModels(sequelize: Sequelize) {
     sourceType.hasMany(skillEvent, { as: 'skill_events', foreignKey: 'source_type_id' });
     userSkill.belongsTo(userSkillLevel, { as: 'user_skill_level', foreignKey: 'user_skill_level_id' });
     userSkillLevel.hasMany(userSkill, { as: 'user_skills', foreignKey: 'user_skill_level_id' });
-    userSkill.belongsTo(userSkillDisplayMode, { as: 'user_skill_display_mode', foreignKey: 'user_skill_display_mode_id' });
+    userSkill.belongsTo(userSkillDisplayMode, {
+        as: 'user_skill_display_mode',
+        foreignKey: 'user_skill_display_mode_id',
+    });
     userSkillDisplayMode.hasMany(userSkill, { as: 'user_skills', foreignKey: 'user_skill_display_mode_id' });
 
     return {

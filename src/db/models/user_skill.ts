@@ -41,7 +41,10 @@ export class user_skill extends Model<userSkillAttributes, userSkillCreationAttr
     // user_skill belongsTo user_skill_display_mode via user_skill_display_mode_id
     user_skill_display_mode!: user_skill_display_mode;
     getUser_skill_display_mode!: Sequelize.BelongsToGetAssociationMixin<user_skill_display_mode>;
-    setUser_skill_display_mode!: Sequelize.BelongsToSetAssociationMixin<user_skill_display_mode, user_skill_display_modeId>;
+    setUser_skill_display_mode!: Sequelize.BelongsToSetAssociationMixin<
+        user_skill_display_mode,
+        user_skill_display_modeId
+    >;
     createUser_skill_display_mode!: Sequelize.BelongsToCreateAssociationMixin<user_skill_display_mode>;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof user_skill {

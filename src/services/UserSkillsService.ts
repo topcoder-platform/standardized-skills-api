@@ -268,10 +268,7 @@ export async function getUserSkillsDisplayModes(query: GetUserSkillsDisplayModes
     return {
         ...paginationData,
 
-        displayModes: map(
-            displayModes as UserSkillDisplayMode[],
-            displayMode => pick(displayMode, ['id', 'name']),
-        ),
+        displayModes: map(displayModes as UserSkillDisplayMode[], (displayMode) => pick(displayMode, ['id', 'name'])),
     };
 }
 
@@ -279,11 +276,9 @@ export async function getUserSkillsDisplayModes(query: GetUserSkillsDisplayModes
  * Fetches the display modes for the user-skills based on the passed query data
  */
 export async function getUserSkillsDisplayModeByName(name: string) {
-    logger.info(
-        `Fetching UserSkillsDisplayMode for name '${name}'`,
-    );
+    logger.info(`Fetching UserSkillsDisplayMode for name '${name}'`);
 
-    const displayMode = await UserSkillDisplayMode.findOne({where: {name}});
+    const displayMode = await UserSkillDisplayMode.findOne({ where: { name } });
     if (!displayMode || isNull(displayMode)) {
         throw new NotFoundError(`DisplayMode with name '${name}' does not exist!`);
     }
@@ -292,6 +287,6 @@ export async function getUserSkillsDisplayModeByName(name: string) {
 
     return {
         id: displayMode.id,
-        name: displayMode.name
+        name: displayMode.name,
     };
 }
