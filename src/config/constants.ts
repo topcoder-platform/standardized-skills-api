@@ -37,3 +37,9 @@ export enum SkillEventTopic {
 export enum SkillEventChallengeUpdateStatus {
     completed = 'Completed',
 }
+
+export const CHALLENGE_REVIEWER_ROLES = {
+    reviewer: '318b9c07-079a-42d9-a81f-b96be1dc1099',
+    iterativeReviewer: 'f6df7212-b9d6-4193-bfb1-b383586fce63',
+    checkpointReviewer: '3970272b-85b4-48d8-8439-672b4f6031bd',
+};
