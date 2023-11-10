@@ -25,6 +25,13 @@ export enum UserSkillLevels {
     verified = 'verified',
 }
 
+export enum UserSkillDisplayModes {
+    principal = 'principal',
+    additional = 'additional',
+}
+
+export const MAX_PRINICIPAL_USER_SKILLS_COUNT = 10;
+
 export enum WorkType {
     challenge = 'challenge',
     gig = 'gig',

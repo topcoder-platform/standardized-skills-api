@@ -1,21 +1,22 @@
 import { Op } from 'sequelize';
-import { uniqBy, map, toString, isEmpty, uniq } from 'lodash';
+import { uniqBy, map, toString, isEmpty, pick, uniq, isNull } from 'lodash';
 
-import db, { Skill, SkillCategory, UserSkill, UserSkillLevel } from '../db';
+import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillDisplayMode } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
-import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
+import { GetUserSkillsDisplayModesQueryDto, GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../dto';
 import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-helper';
 import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../utils/helpers';
 import * as esHelper from '../utils/es-helper';
-import { getOrderBy } from '../utils/user-skills-helper';
+import { getOrderBy, updateDisplayModeForUserSkills } from '../utils/user-skills-helper';
 import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
+import { UserSkillLevels } from '../config';
 
 const logger = new LoggerClient('UserSkillsService');
 
 /**
- * Gets user's skills with the attached skill category & skill levels
+ * Gets user's skills with the attached skill category, skill levels, and type
  */
 export async function fetchDbUserSkills(userId: string | number, query: GetUserSkillsQueryDto) {
     try {
@@ -46,6 +47,11 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                                 as: 'user_skill_level',
                                 attributes: ['id', 'name', 'description'],
                             },
+                            {
+                                model: UserSkillDisplayMode,
+                                as: 'user_skill_display_mode',
+                                attributes: ['id', 'name'],
+                            },
                         ],
                         attributes: ['id'],
                     },
@@ -54,15 +60,23 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
             },
         );
 
-        // Map the database data into skill items that contain category & the levels objects
+        // Map the database data into skill items that contain category, levels objects, type (principal/additional)
         const allSkills: {
             id: string;
             name: string;
             category: { id: string; name: string };
             levels: { id: string; name: string; description: string }[];
+            displayMode: any;
         }[] = [];
         for (const skill of skills as Skill[]) {
             const levels: { id: string; name: string; description: string }[] = [];
+
+            // `userSkill` is used to retrieve the type of skill (principal/additional)
+            // it we have a "verified" skill level, we get the type from that entry
+            const userSkill =
+                skill.user_skills.find((d) => d.user_skill_level.name === UserSkillLevels.verified) ||
+                skill.user_skills[0];
+
             for (const uskill of skill.user_skills) {
                 levels.push({
                     id: uskill.user_skill_level.id,
@@ -70,6 +84,7 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                     description: uskill.user_skill_level.description ?? '',
                 });
             }
+
             allSkills.push({
                 id: skill.id,
                 name: skill.name,
@@ -78,6 +93,10 @@ export async function fetchDbUserSkills(userId: string | number, query: GetUserS
                     name: skill.category.name,
                 },
                 levels,
+                displayMode: {
+                    id: userSkill.user_skill_display_mode.id,
+                    name: userSkill.user_skill_display_mode.name,
+                },
             });
         }
 
@@ -117,7 +136,7 @@ export async function updateDbUserSkills(
     }
 
     return db.sequelize.transaction(async () => {
-        // remove all previously owned selfDeclared skills
+        // remove all previously owned selfDeclared skills that have been removed by the user
         await UserSkill.destroy({
             where: {
                 user_id: userId,
@@ -131,9 +150,12 @@ export async function updateDbUserSkills(
             user_id: userId,
             skill_id: skill.id,
             user_skill_level_id: skill.levelId ?? selfDeclaredSkillLevel.id,
+            user_skill_display_mode_id: skill.displayModeId,
         }));
 
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
+
+        await updateDisplayModeForUserSkills(userId, skillsData);
 
         logger.info('Successfully associated user skills');
         const allSkills = await fetchDbUserSkills(userId, {
@@ -157,13 +179,12 @@ export async function getUserSkills(currentUser: AuthUser, userId: number, query
             ...query,
         })}`,
     );
+    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const member = await esHelper.getMemberById(toString(userId));
     if (isEmpty(member)) {
         throw new NotFoundError(`Member ${userId} does not exist!`);
     }
-
-    ensureUserCanManageMemberSkills(currentUser, userId);
 
     return fetchDbUserSkills(userId, query);
 }
@@ -183,12 +204,12 @@ export async function createUserSkills(
         })}`,
     );
 
+    ensureUserCanManageMemberSkills(currentUser, userId);
+
     const member = await esHelper.getMemberById(toString(userId));
     if (isEmpty(member)) {
         throw new NotFoundError(`Member ${userId} does not exist!`);
     }
-
-    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const hasUserSkillsAlready = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (hasUserSkillsAlready) {
@@ -213,12 +234,12 @@ export async function updateUserSkills(
         })}`,
     );
 
+    ensureUserCanManageMemberSkills(currentUser, userId);
+
     const member = await esHelper.getMemberById(toString(userId));
     if (isEmpty(member)) {
         throw new NotFoundError(`Member ${userId} does not exist!`);
     }
-
-    ensureUserCanManageMemberSkills(currentUser, userId);
 
     const hasUserSkillsAssociated = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (!hasUserSkillsAssociated) {
@@ -226,4 +247,46 @@ export async function updateUserSkills(
     }
 
     return updateDbUserSkills(currentUser, userId, skillsData);
+}
+
+/**
+ * Fetches the display modes for the user-skills based on the passed query data
+ */
+export async function getUserSkillsDisplayModes(query: GetUserSkillsDisplayModesQueryDto) {
+    logger.info(
+        `Fetching all display modes for user skills based on the following request data: ${JSON.stringify({
+            query,
+        })}`,
+    );
+
+    const { displayModes, ...paginationData } = await findAndCountPaginated(
+        UserSkillDisplayMode,
+        'displayModes',
+        query,
+    );
+
+    return {
+        ...paginationData,
+
+        displayModes: map(displayModes as UserSkillDisplayMode[], (displayMode) => pick(displayMode, ['id', 'name'])),
+    };
+}
+
+/**
+ * Fetches the display modes for the user-skills based on the passed query data
+ */
+export async function getUserSkillsDisplayModeByName(name: string) {
+    logger.info(`Fetching UserSkillsDisplayMode for name '${name}'`);
+
+    const displayMode = await UserSkillDisplayMode.findOne({ where: { name } });
+    if (!displayMode || isNull(displayMode)) {
+        throw new NotFoundError(`DisplayMode with name '${name}' does not exist!`);
+    }
+
+    logger.info(`UserSkillDisplayMode with name '${name}' retrieved successfully`);
+
+    return {
+        id: displayMode.id,
+        name: displayMode.name,
+    };
 }

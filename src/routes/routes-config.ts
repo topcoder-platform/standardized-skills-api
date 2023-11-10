@@ -13,6 +13,8 @@ import {
     SkillUpdatePutRequestBodyDto,
     SkillUpdatePatchRequestBodyDto,
     SkillIdsRequestBodyDto,
+    GetUserSkillsDisplayModesQueryDto,
+    GetUserSkillsDisplayModeParamDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -121,6 +123,34 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             body: {
                 dto: SkillCreationRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/user-skills/display-modes',
+        verb: 'get',
+        controller: 'UserSkillsController',
+        method: 'getUserSkillsDisplayModes',
+        auth: true,
+        access: [config.UserRoles.Admin, config.UserRoles.User],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        validation: {
+            query: {
+                dto: GetUserSkillsDisplayModesQueryDto,
+            },
+        },
+    },
+    {
+        path: '/user-skills/display-modes/:name',
+        verb: 'get',
+        controller: 'UserSkillsController',
+        method: 'getUserSkillsDisplayModeByName',
+        auth: true,
+        access: [config.UserRoles.Admin, config.UserRoles.User],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        validation: {
+            params: {
+                dto: GetUserSkillsDisplayModeParamDto,
             },
         },
     },

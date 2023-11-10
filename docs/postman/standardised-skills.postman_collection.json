@@ -204,7 +204,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"skills\": [\r\n    {\r\n      \"id\": \"01591f01-8a29-4aa8-9f53-0b2409a5b761\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    },\r\n    {\r\n      \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    }\r\n  ]\r\n}",
+							"raw": "{\r\n    \"skills\": [\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"0031dc8f-03bf-4740-8739-cd79e7971e23\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"9c42c728-47ff-4b20-916c-560739bad1ee\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"002015b4-9bcb-4b85-9d46-e648d0375a54\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"8c302488-aa23-4caf-8baa-f9cc02abb086\",\r\n            \"id\": \"32899253-5989-4c33-9948-cad29c9e0ab0\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"02ef295b-7b65-487f-9172-2a31360b3363\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"8c302488-aa23-4caf-8baa-f9cc02abb086\",\r\n            \"id\": \"7e8641e5-e5c1-4ab6-a8f4-1fd6a8686dbe\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -241,7 +241,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"skills\": [\r\n    {\r\n      \"id\": \"00038ad8-9bd1-47b4-8477-256e214a9f82\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    },\r\n    {\r\n      \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    }\r\n  ]\r\n}",
+							"raw": "{\r\n    \"skills\": [\r\n        {\r\n            \"id\": \"00038ad8-9bd1-47b4-8477-256e214a9f82\",\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n        },\r\n        {\r\n            \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -256,6 +256,63 @@
 							"path": [
 								"user-skills",
 								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user skills display modes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user-skills/display-modes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user-skills",
+								"display-modes"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "level",
+									"description": "name, level, category",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"description": "ASC, DESC",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "false",
+									"disabled": true
+								}
 							]
 						}
 					},

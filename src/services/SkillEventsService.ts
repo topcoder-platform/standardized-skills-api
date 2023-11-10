@@ -18,6 +18,7 @@ import {
     ensurePayloadChallengeExists,
     REVIEWER_TYPE_KEY,
 } from '../utils/skill-events-helper';
+import { fetchAdditionalUserSkillDisplayMode } from '../utils/user-skills-helper';
 import { fetchChallengeReviewers } from '../utils/challenge-helper';
 
 const logger = new LoggerClient('SkillEventsService');
@@ -53,6 +54,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
     const sourceType = await fetchSourceType(WorkType.challenge);
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
+    const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
 
     // fetch challenge reviewers so we assign the challenge skills to them as well
     const reviewers = await fetchChallengeReviewers(payload.id);
@@ -74,6 +76,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
                 user_id: Number(user.userId),
                 skill_id: skill.id,
                 user_skill_level_id: verifiedSkillLevel.id,
+                user_skill_display_mode_id: additionalSkillType.id,
             }));
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });

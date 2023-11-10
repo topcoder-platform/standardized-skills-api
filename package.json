@@ -12,7 +12,10 @@
     "es-init-force": "node dist/scripts/init-es.js force",
     "load-data-es": "node dist/scripts/load-data-es.js",
     "dev": "ts-node-dev --respawn src/index.ts",
-    "services:up": "cd ./local && docker-compose up -d"
+    "services:up": "cd ./local && docker-compose up -d",
+    "db:sync": "ts-node src/scripts/sync-db.ts",
+    "db:seed": "npx sequelize-cli db:seed:all",
+    "db:init": "npm run db:sync && npm run db:seed"
   },
   "devDependencies": {
     "@tsconfig/node16": "^16.1.1",
@@ -35,18 +38,19 @@
     "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-import": "^2.28.1",
     "prettier": "^2.5.1",
+    "sequelize-cli": "^6.6.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^4.7.4"
   },
   "dependencies": {
-    "elasticsearch7": "npm:@elastic/elasticsearch@7.9.1",
-    "elasticsearch6": "npm:@elastic/elasticsearch@^6.8.8",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.13.2",
     "cls-hooked": "^4.2.2",
     "cors": "^2.8.5",
     "dayjs": "^1.11.10",
     "dotenv": "^16.0.0",
+    "elasticsearch6": "npm:@elastic/elasticsearch@^6.8.8",
+    "elasticsearch7": "npm:@elastic/elasticsearch@7.9.1",
     "express": "^4.17.3",
     "http-status-codes": "^2.2.0",
     "jsonfile": "^6.1.0",
