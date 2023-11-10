@@ -2,7 +2,7 @@
 
 module.exports = {
     up: (queryInterface, Sequelize) => {
-        return queryInterface.bulkInsert('user_skill_type', [
+        return queryInterface.bulkInsert('user_skill_display_mode', [
             {
                 id: '8c302488-aa23-4caf-8baa-f9cc02abb086',
                 name: 'principal',
@@ -21,6 +21,6 @@ module.exports = {
     },
 
     down: (queryInterface, Sequelize) => {
-        return queryInterface.bulkDelete('user_skill_type', null, {});
+        return queryInterface.bulkDelete('user_skill_display_mode', null, {});
     },
 };
