@@ -14,7 +14,9 @@ const syncDbModels = async () => {
     await db.models.WorkSkill.sync({ force: false });
     await db.models.UserSkillDisplayMode.sync({ force: false });
     await db.models.UserSkillLevel.sync({ force: false });
-    await db.models.UserSkill.sync({ force: false });
+    try {
+        await db.models.UserSkill.sync({ force: false });
+    }catch {}
 };
 
 syncDbModels().then(() => {
