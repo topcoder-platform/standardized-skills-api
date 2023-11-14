@@ -10,6 +10,7 @@ export class SkillEventPayloadTCAUpdate {
     @Type(() => UserSkillDto)
     skills: UserSkillDto[];
 
+    @ValidateNested()
     @Type(() => TCAWinnerDto)
     winner: TCAWinnerDto;
 
