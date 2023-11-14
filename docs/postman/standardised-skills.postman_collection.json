@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "376831bd-be9c-4d93-b983-60bb13862086",
+		"_postman_id": "b7345923-d712-4185-9afb-66a1be3ef4be",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30186453"
@@ -120,6 +120,43 @@
 							],
 							"path": [
 								"work-skills"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "associate skills to job",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\n    \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\n    \"0087514d-5ebc-4720-a635-17f0b5399692\"\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/job-skills/fed687e1-4257-48bb-806c-38712f9bf14f",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"job-skills",
+								"fed687e1-4257-48bb-806c-38712f9bf14f"
 							]
 						}
 					},
