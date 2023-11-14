@@ -1,5 +1,5 @@
 import crypto, { BinaryToTextEncoding } from 'crypto';
-import { envConfig } from '../config';
+import { SkillEventTypes, envConfig } from '../config';
 import { Event, SkillEvent, SkillEventType } from '../db';
 import { Transaction, UniqueConstraintError } from 'sequelize';
 import { ConflictError, NotFoundError } from './errors';
@@ -82,12 +82,17 @@ async function getSkillEventTypesMap() {
 
     return {
         // reviewer type
-        [REVIEWER_TYPE_KEY]: find(allSkillEventTypes, { name: 'challenge_review' }),
+        [REVIEWER_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeReview }),
         // winners placements types
-        '1': find(allSkillEventTypes, { name: 'challenge_win' }),
-        '2': find(allSkillEventTypes, { name: 'challenge_2nd_place' }),
-        '3': find(allSkillEventTypes, { name: 'challenge_3rd_place' }),
-        default: find(allSkillEventTypes, { name: 'challenge_finisher' }),
+        '1': find(allSkillEventTypes, { name: SkillEventTypes.challengeWin }),
+        '2': find(allSkillEventTypes, { name: SkillEventTypes.challenge2ndPlace }),
+        '3': find(allSkillEventTypes, { name: SkillEventTypes.challenge3rdPlace }),
+        // tca
+        [SkillEventTypes.tcaCertCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCertCompleted }),
+        [SkillEventTypes.tcaCourseCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCourseCompleted }),
+        // TODO: add more types here as needed
+        // fallback type
+        default: find(allSkillEventTypes, { name: SkillEventTypes.challengeFinisher }),
     };
 }
 
@@ -104,13 +109,15 @@ export function getSkillEventType(
 }
 
 /**
- * Creates the SkillEvents specific to each earned skill for a challenge winner (user)
+ * Creates the SkillEvents specific to each earned skill for a user
+ * 
  * @param user the winner that's earning the skills
  * @param payloadSkills The skills from the event payload
  * @param eventId The event id that triggered the skill event
- * @param sourceId The challenge id that the user won
- * @param sourceTypeId The challenge specific SourceType's id
+ * @param sourceId The event source id that the user won/completed
+ * @param sourceTypeId The event specific SourceType's id
  * @param tx The context transaction that this update is taking place into
+ * @param skillEventType The skill event type name to use for the skill event
  * @returns Promise<SkillEvent[]>
  */
 export async function createSkillEventsForUser(
@@ -120,6 +127,7 @@ export async function createSkillEventsForUser(
     sourceId: string,
     sourceTypeId: string,
     tx: Transaction,
+    skillEventType?: SkillEventTypes,
 ) {
     const eventTypesMap = await getSkillEventTypesMap();
     const skillEvents = [];
@@ -131,7 +139,7 @@ export async function createSkillEventsForUser(
             skill_id: skill.id,
             source_id: sourceId,
             source_type_id: sourceTypeId,
-            skill_event_type_id: getSkillEventType(eventTypesMap, user.placement ?? user.type ?? '').id,
+            skill_event_type_id: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '').id,
         });
     }
 
