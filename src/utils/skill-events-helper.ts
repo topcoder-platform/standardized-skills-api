@@ -110,7 +110,7 @@ export function getSkillEventType(
 
 /**
  * Creates the SkillEvents specific to each earned skill for a user
- * 
+ *
  * @param user the winner that's earning the skills
  * @param payloadSkills The skills from the event payload
  * @param eventId The event id that triggered the skill event
@@ -139,7 +139,8 @@ export async function createSkillEventsForUser(
             skill_id: skill.id,
             source_id: sourceId,
             source_type_id: sourceTypeId,
-            skill_event_type_id: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '').id,
+            skill_event_type_id: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '')
+                .id,
         });
     }
 

@@ -34,7 +34,7 @@ export function checkIfExists<T>(arr1: Array<T>, arr2: Array<T>): boolean {
 }
 
 export const generateEmsiSkillSuggestionInputs = (skillName: string): Array<string> => {
-    const result = [];
+    const result: string[] = [];
     const tokens = skillName.trim().split(/\s+/);
     let tempStr = skillName;
 

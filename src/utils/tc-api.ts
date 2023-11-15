@@ -29,7 +29,7 @@ export const getM2MToken = () => {
 /**
  * Fetches data from any of the v5 topcoder API endpoints,
  * Will automatically authenticate the requests using a new M2M token
- * @param endpoint The endpint path to call (including any query params)
+ * @param endpoint The endpoint path to call (including any query params)
  * @returns Promise<SuperAgentRequest>
  */
 export async function get(endpoint: string): Promise<SuperAgentRequest> {
@@ -38,6 +38,23 @@ export async function get(endpoint: string): Promise<SuperAgentRequest> {
     return request
         .get(`${envConfig.TC_API}${endpoint}`)
         .set('Authorization', `Bearer ${m2mToken}`)
+        .set('Content-Type', 'application/json')
+        .set('Accept', 'application/json');
+}
+
+/**
+ *
+ * @param endpoint The endpoint path to call including any path parameters
+ * @param data The request body for the PATCH endpoint
+ * @returns A promise containing the response or the error
+ */
+export async function patch(endpoint: string, data: any, userToken: string | undefined): Promise<request.Response> {
+    const token = userToken ? userToken : await getM2MToken();
+
+    return request
+        .patch(`${envConfig.TC_API}${endpoint}`)
+        .send(data)
+        .set('Authorization', `Bearer ${token}`)
         .set('Content-Type', 'application/json')
         .set('Accept', 'application/json');
 }

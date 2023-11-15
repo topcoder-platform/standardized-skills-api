@@ -19,7 +19,12 @@ export class JobIdRequestParamDto {
     jobId: string;
 }
 
-export class JobSkillsRequestBodyDto {
+export class ChallengeIdRequestParamDto {
+    @IsUUID('all')
+    challengeId: string;
+}
+
+export class WorkSkillsRequestBodyDto {
     @IsArray()
     @ArrayNotEmpty()
     @ArrayUnique()
