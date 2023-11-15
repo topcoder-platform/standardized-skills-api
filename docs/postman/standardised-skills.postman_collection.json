@@ -142,7 +142,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\n    \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\n    \"0087514d-5ebc-4720-a635-17f0b5399692\"\n]",
+							"raw": "{\n    \"skillIds\": [\n        \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\n        \"0087514d-5ebc-4720-a635-17f0b5399692\"\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"

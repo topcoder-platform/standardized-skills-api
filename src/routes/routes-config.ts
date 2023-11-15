@@ -227,7 +227,7 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
-        path: '/job-skills',
+        path: '/job-skills/:jobId',
         verb: 'post',
         controller: 'WorkSkillsController',
         method: 'setJobSkills',
