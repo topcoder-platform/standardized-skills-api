@@ -15,6 +15,8 @@ import {
     SkillIdsRequestBodyDto,
     GetUserSkillsDisplayModesQueryDto,
     GetUserSkillsDisplayModeParamDto,
+    JobSkillsRequestBodyDto,
+    JobIdRequestParamDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -221,6 +223,22 @@ const RouteDefinitions: RouteDefinition[] = [
         validation: {
             body: {
                 dto: SetWorkSkillsRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/job-skills/:jobId',
+        verb: 'post',
+        controller: 'WorkSkillsController',
+        method: 'setJobSkills',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
+        validation: {
+            params: {
+                dto: JobIdRequestParamDto,
+            },
+            body: {
+                dto: JobSkillsRequestBodyDto,
             },
         },
     },

@@ -1195,6 +1195,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+  /job-skills/{jobId}:
+    post:
+      operationId: 'createJobSkills'
+      tags: ['Standardized Skills API']
+      description: 'Associates a list of skills to the job/gig indentified by jobId'
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the job/gig to associate skills with'
+      requestBody:
+        description: 'Associates the skills identified by the specified skill ids with the given job/gig'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skillIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'              
   /skill-events:
     post:
       operationId: 'recordSkillEvent'
@@ -1318,14 +1365,12 @@ components:
         id:
           type: string
           format: uuid
-          required: true
         levelId:
           type: string
           format: uuid
         displayModeId:
           type: string
           format: uuid
-          required: true
     UserSkill:
       properties:
         id:
