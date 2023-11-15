@@ -1,7 +1,7 @@
 import { map, toString } from 'lodash';
 
-import { SkillEventChallengeUpdateStatus, SkillEventTopic, WorkType } from '../config';
-import { SkillEventPayloadChallengeUpdate, GetUserSkillsQueryDto, SkillEventRequestBodyDto } from '../dto';
+import { SkillEventChallengeUpdateStatus, SkillEventTopic, SkillEventTypes, WorkType } from '../config';
+import { SkillEventPayloadChallengeUpdate, GetUserSkillsQueryDto, SkillEventRequestBodyDto, SkillEventPayloadTCAUpdate, UserSkillDto } from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { fetchDbUserSkills } from './UserSkillsService';
@@ -44,9 +44,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     await ensurePayloadChallengeExists(payload.id);
 
     // ensure passed skill ids are valid
-    if (!(await bulkCheckValidIds(Skill, map(payload.skills, 'id')))) {
-        throw new NotFoundError('Some of the passed \'skills.id\' don\'t exist!');
-    }
+    await checkSkillIds(payload.skills);
 
     // ensure all users in the payload exist
     await ensurePayloadWinnersAreValidUsers(payload.winners);
@@ -72,12 +70,7 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
         // update each user with the skills data
         for (const user of users) {
-            const userSkills = payload.skills.map((skill) => ({
-                user_id: Number(user.userId),
-                skill_id: skill.id,
-                user_skill_level_id: verifiedSkillLevel.id,
-                user_skill_display_mode_id: additionalSkillType.id,
-            }));
+            const userSkills = prepareUserSkillsUpdate(payload.skills, Number(user.userId), verifiedSkillLevel.id, additionalSkillType.id);
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
@@ -101,6 +94,63 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     });
 }
 
+/**
+ * Processes TCA completed events
+ * Assigns any TCA skills to the winners of the course or certification
+ * 
+ * @param eventId 
+ * @param payload 
+ */
+export async function processTCACompletedSkillEvent(eventId: string, payload: SkillEventPayloadTCAUpdate) {
+    logger.info(`Handling TCA completed skill event using payload ${JSON.stringify(payload)}`);
+
+    // ensure passed skill ids are valid
+    await checkSkillIds(payload.skills);
+
+    // ensure all users in the payload exist
+    await ensurePayloadWinnersAreValidUsers([payload.graduate]);
+
+    // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
+    const sourceType = await fetchSourceType(payload.type);
+    const verifiedSkillLevel = await fetchVerifiedSkillLevel();
+    const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
+    const eventType = payload.type === WorkType.certification ? SkillEventTypes.tcaCertCompleted : SkillEventTypes.tcaCourseCompleted;
+
+    return db.sequelize.transaction(async (tx) => {
+        const allSkills = [];
+        const user = payload.graduate;
+
+        // update each user with the skills data
+        const userSkills = prepareUserSkillsUpdate(payload.skills, Number(user.userId), verifiedSkillLevel.id, additionalSkillType.id);
+
+        await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
+
+        await createSkillEventsForUser(user, payload.skills, eventId, payload.id, sourceType.id, tx, eventType);
+
+        const allUserSkills = await fetchDbUserSkills(user.userId, {
+            ...new GetUserSkillsQueryDto(),
+            disablePagination: 'true',
+        });
+
+        allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });
+
+        // do the Elasticsearch index update only after we make sure all user skill db updates have been successful,
+        // otherwise we can't revert Elasticsearch index updates if db update fails
+        for (const { userId, skills } of allSkills) {
+            await esHelper.updateSkillsInMemberES(userId, skills);
+        }
+
+        logger.info('Successfully associated user skills via TCA completed skill event');
+    });
+}
+
+/**
+ * Processes skill events incoming from the Skill Event API
+ * 
+ * @param currentUser 
+ * @param param1 
+ * @returns 
+ */
 export async function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
     // Ensure skill-events are only executed by admins or machine users
     ensureUserHasAdminPrivilege(currentUser);
@@ -110,8 +160,39 @@ export async function processSkillEvent(currentUser: AuthUser, { topic, payload 
     // handle each event topic differently
     switch (topic) {
         case SkillEventTopic.challengeUpdate:
-            return processChallengeCompletedSkillEvent(event.id, payload);
+            return processChallengeCompletedSkillEvent(event.id, payload as SkillEventPayloadChallengeUpdate);
+        case SkillEventTopic.tcaUpdate:
+            return processTCACompletedSkillEvent(event.id, payload as SkillEventPayloadTCAUpdate);
         default:
             logger.info(`Skill event with topic ${topic} not handled!`);
     }
+}
+
+/**
+ * Checks if the passed skill ids are valid
+ * 
+ * @param skills 
+ */
+async function checkSkillIds(skills: UserSkillDto[]) {
+    if (!(await bulkCheckValidIds(Skill, map(skills, 'id')))) {
+        throw new NotFoundError('Some of the passed \'skills.id\' don\'t exist!');
+    }
+}
+
+/**
+ * Prepares the UserSkill entries to be inserted in the db
+ * 
+ * @param skills 
+ * @param userId 
+ * @param userSkillLevelId 
+ * @param userSkillDisplayModeId 
+ * @returns 
+ */
+function prepareUserSkillsUpdate(skills: UserSkillDto[], userId: number, userSkillLevelId: string, userSkillDisplayModeId: string) {
+    return skills.map((skill) => ({
+        user_id: userId,
+        skill_id: skill.id,
+        user_skill_level_id: userSkillLevelId,
+        user_skill_display_mode_id: userSkillDisplayModeId,
+    }));
 }
