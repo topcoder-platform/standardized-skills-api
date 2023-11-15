@@ -40,6 +40,7 @@ export type SkillEventPayloadType = ChallengeUpdateSkillEventPayload;
 
 const topicToPayloadMap = {
     [SkillEventTopic.challengeUpdate]: ChallengeUpdateSkillEventPayload,
+    [SkillEventTopic.tcaUpdate]: ChallengeUpdateSkillEventPayload,
 };
 
 export class SkillEventRequestBodyDto {
