@@ -164,9 +164,9 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
 /**
  * Processes skill events incoming from the Skill Event API
  *
- * @param currentUser
- * @param param1
- * @returns
+ * @param {AuthUser} currentUser - the currently authenticated user making this request
+ * @param {SkillEventTopic} topic - the kafka topic for processing skill events
+ * @param {SkillEventPayloadType} payload - the data received in the kafka topic that needs to be processed
  */
 export async function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
     // Ensure skill-events are only executed by admins or machine users

@@ -7,13 +7,13 @@ import * as esHelper from '../utils/es-helper';
 import _, { isNull } from 'lodash';
 import { Op } from 'sequelize';
 import * as constants from '../config';
-import { patch } from '../utils/tc-api';
+import * as tcAPI from '../utils/tc-api';
 
 const logger = new LoggerClient('WorkSkillsService');
 
 /**
  * Create the association for work-skill-skill_source
- * @param workSkillData SetWorkSkillsRequestBodyDto
+ * @param {SetWorkSkillsRequestBodyDto} workSkillData - The request data containing the work type and skill ids
  */
 export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDto) {
     logger.info(
@@ -104,8 +104,8 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
 
 /**
  * Associates the given skills with the given job/gig id
- * @param {string} jobId the id of the job/gig to associate skills with
- * @param {Array<string>} skillIds the array of skill ids to be associated with the specified job/gig
+ * @param {string} jobId - the id of the job/gig to associate skills with
+ * @param {Array<string>} skillIds - the array of skill ids to be associated with the specified job/gig
  */
 export async function createJobSkills(jobId: string, skillIds: string[]) {
     logger.info(
@@ -145,9 +145,9 @@ export async function createJobSkills(jobId: string, skillIds: string[]) {
 }
 /**
  * Associates the given skills with the given challenge id
- * @param {string} userToken the JWT token belonging to the user
- * @param {string} challengeId the id of the challenge to associate skills with
- * @param {Array<string>} skillIds the array of skill ids to be associated with the specified job/gig
+ * @param {string} userToken - the JWT token belonging to the user
+ * @param {string} challengeId - the id of the challenge to associate skills with
+ * @param {Array<string>} skillIds - the array of skill ids to be associated with the specified job/gig
  */
 export async function createChallengeSkills(userToken: any, challengeId: string, skillIds: string[]) {
     logger.info(
@@ -195,7 +195,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
 
         // call the challenge API to update the Elasticsearch challenge index
         try {
-            await patch(`/challenges/${challengeId}`, { skills: skillsToAssociate }, userToken);
+            await tcAPI.patch(`/challenges/${challengeId}`, { skills: skillsToAssociate }, userToken);
             logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
         } catch (error: any) {
             logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
@@ -207,9 +207,9 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
 
 /**
  * Verifies the request data is valid
- * @param {string} workType the type of work which can be either 'gig' or 'challenge'
- * @param {string} workId the uuid id of job or challenge
- * @param {Array<string>} skillIds the array of uuid skill ids
+ * @param {string} workType - the type of work which can be either 'gig' or 'challenge'
+ * @param {string} workId - the uuid id of job or challenge
+ * @param {Array<string>} skillIds - the array of uuid skill ids
  */
 async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId: string, skillIds: string[]) {
     switch (workType) {
@@ -238,7 +238,7 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
 
 /**
  * Gets the work type detail from the PostgreSQL database
- * @param {string} workType the type of work which can be either 'gig' or 'challenge'
+ * @param {string} workType - the type of work which can be either 'gig' or 'challenge'
  * @returns {Promise<SourceType>} the work type detail
  */
 async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> {

@@ -111,13 +111,13 @@ export function getSkillEventType(
 /**
  * Creates the SkillEvents specific to each earned skill for a user
  *
- * @param user the winner that's earning the skills
- * @param payloadSkills The skills from the event payload
- * @param eventId The event id that triggered the skill event
- * @param sourceId The event source id that the user won/completed
- * @param sourceTypeId The event specific SourceType's id
- * @param tx The context transaction that this update is taking place into
- * @param skillEventType The skill event type name to use for the skill event
+ * @param user - the winner that's earning the skills
+ * @param payloadSkills - The skills from the event payload
+ * @param eventId - The event id that triggered the skill event
+ * @param sourceId - The event source id that the user won/completed
+ * @param sourceTypeId - The event specific SourceType's id
+ * @param tx - The context transaction that this update is taking place into
+ * @param skillEventType - The skill event type name to use for the skill event
  * @returns Promise<SkillEvent[]>
  */
 export async function createSkillEventsForUser(
