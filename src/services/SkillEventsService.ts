@@ -120,10 +120,16 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
         const allSkills = [];
         const user = payload.graduate;
 
+        console.debug('processTCACompletedSkillEvent', payload.skills, Number(user.userId), verifiedSkillLevel.id, additionalSkillType.id);
+
         // update each user with the skills data
         const userSkills = prepareUserSkillsUpdate(payload.skills, Number(user.userId), verifiedSkillLevel.id, additionalSkillType.id);
 
+        console.debug('processTCACompletedSkillEvent', userSkills);
+
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
+
+        console.debug('processTCACompletedSkillEvent db update.');
 
         await createSkillEventsForUser(user, payload.skills, eventId, payload.id, sourceType.id, tx, eventType);
 
