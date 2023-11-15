@@ -20,7 +20,7 @@ const logger = new LoggerClient('SkillCategoryService');
 
 /**
  * Gets a category by its id
- * @param { string } id the uuid id of category
+ * @param { string } id - the uuid id of category
  * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the category
  */
 export const getCategoryById = async (id: string): Promise<Partial<SkillCategory>> => {
@@ -39,7 +39,7 @@ export const getCategoryById = async (id: string): Promise<Partial<SkillCategory
 
 /**
  * Gets all categories with pagination
- * @param {AllCategoryRequestQueryDto} query the request query params for pagination and sorting
+ * @param {AllCategoryRequestQueryDto} query - the request query params for pagination and sorting
  * @returns {Promise<{ categories: number | SkillCategory[];}
  * | {page: number;
  *    perPage: number;
@@ -95,8 +95,8 @@ export const getAllCategories = async (
 
 /**
  * Gets the skills belonging to a category
- * @param {string} categoryId the id of the cateogory whose skills are to be fetched
- * @param {GetCategorySkillsRequestQueryDto} query the request query
+ * @param {string} categoryId - the id of the cateogory whose skills are to be fetched
+ * @param {GetCategorySkillsRequestQueryDto} query - the request query
  * * @returns {Promise<{ skills: number | Skill[];}
  * | {page: number;
  *    perPage: number;
@@ -140,8 +140,8 @@ export const getCategorySkills = async (
 
 /**
  * Creates a new category from the name and description in the payload
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {NewCategoryRequestBodyDto} body the name and description of the new category
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {NewCategoryRequestBodyDto} body - the name and description of the new category
  * @returns {Promise<{ id: string; name: string; description: string | undefined; }>} the newly
  * created category
  */
@@ -172,9 +172,9 @@ export const createNewCategory = async (
 
 /**
  * Bulk assigns skills to new categories
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {string} categoryId the id of the category to which the skills are to be assigned
- * @param {Array<string>} skillIds the uuid ids of skills whose category is to be changed
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {string} categoryId - the id of the category to which the skills are to be assigned
+ * @param {Array<string>} skillIds - the uuid ids of skills whose category is to be changed
  * @returns {Promise<Pick<Skill, "id" | "name" | "description" | "category">[]>}
  * the updated skills and their category information
  */
@@ -249,9 +249,9 @@ export const bulkAssignSkillsToCategories = async (
 
 /**
  * Updates a category by its id
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {string} id the the id of the category to update
- * @param {UpdateCategoryRequestBodyDto} body the name and description values of the category to update
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {string} id - the the id of the category to update
+ * @param {UpdateCategoryRequestBodyDto} body - the name and description values of the category to update
  * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
  * updated category
  */
@@ -301,9 +301,9 @@ export const updateCategory = async (
 
 /**
  * Updates a category by its id partially
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {string} id the the id of the category to update
- * @param {UpdateCategoryPartialRequestDto} body the name and description values of the category to update
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {string} id - the the id of the category to update
+ * @param {UpdateCategoryPartialRequestDto} body - the name and description values of the category to update
  * where the name or description or a combination of both can be provided
  * @returns {Promise<Partial<SkillCategory>>} the id, name and description of the newly
  * updated category
@@ -358,8 +358,8 @@ export const patchCategory = async (
 
 /**
  * Deletes a category by its id
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {string} id the uuid id of category
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {string} id - the uuid id of category
  */
 export const deleteCategory = async (user: AuthUser, id: string) => {
     logger.info(`Deleting category with id ${id}`);
@@ -385,7 +385,7 @@ export const deleteCategory = async (user: AuthUser, id: string) => {
 
 /**
  * Checks whether the category name is unique
- * @param {string} name the name of the category
+ * @param {string} name - the name of the category
  * @returns {Promise<boolean>} a boolean result wrapped in a promise
  */
 const categoryNameIsUnique = async (name: string, id?: string): Promise<boolean> => {
@@ -411,7 +411,7 @@ const categoryNameIsUnique = async (name: string, id?: string): Promise<boolean>
 
 /**
  * Checks whether the id of the category exists
- * @param id the uuid id of the category
+ * @param id - the uuid id of the category
  * @returns {Promise<boolean>} a boolean result wrapped in a promise
  */
 const categoryIdExists = async (id: string): Promise<boolean> => {

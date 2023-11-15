@@ -1242,6 +1242,65 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'              
+  /challenge-skills/{challengeId}:
+    post:
+      operationId: 'createChallengeSkills'
+      tags: ['Standardized Skills API']
+      description: 'Associates a list of skills to the challenge indentified by challengeId'
+      parameters:
+        - in: path
+          name: challengeId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the challenge to associate skills with'
+      requestBody:
+        description: 'Associates the skills identified by the specified skill ids with the given challenge'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skillIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: 'Unauthorized Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'        
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                            
   /skill-events:
     post:
       operationId: 'recordSkillEvent'
@@ -1427,6 +1486,10 @@ components:
       properties:
         message:
           type: string
+    UnauthorizedErrorResponse:
+      properties:
+        message:
+          type: string      
     ServerErrorResponse:
       properties:
         message:

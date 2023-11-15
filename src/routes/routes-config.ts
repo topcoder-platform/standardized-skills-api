@@ -15,8 +15,9 @@ import {
     SkillIdsRequestBodyDto,
     GetUserSkillsDisplayModesQueryDto,
     GetUserSkillsDisplayModeParamDto,
-    JobSkillsRequestBodyDto,
+    WorkSkillsRequestBodyDto,
     JobIdRequestParamDto,
+    ChallengeIdRequestParamDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -238,7 +239,28 @@ const RouteDefinitions: RouteDefinition[] = [
                 dto: JobIdRequestParamDto,
             },
             body: {
-                dto: JobSkillsRequestBodyDto,
+                dto: WorkSkillsRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/challenge-skills/:challengeId',
+        verb: 'post',
+        controller: 'WorkSkillsController',
+        method: 'setChallengeSkills',
+        auth: true,
+        access: [
+            config.UserRoles.Admin,
+            config.UserRoles.Copilot,
+            config.UserRoles.Manager,
+            config.UserRoles.SelfServiceCustomer,
+        ],
+        validation: {
+            params: {
+                dto: ChallengeIdRequestParamDto,
+            },
+            body: {
+                dto: WorkSkillsRequestBodyDto,
             },
         },
     },

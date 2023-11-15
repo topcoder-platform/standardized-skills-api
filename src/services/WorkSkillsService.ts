@@ -5,14 +5,15 @@ import { BadRequestError, InternalServerError, NotFoundError } from '../utils/er
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import _, { isNull } from 'lodash';
-import { Op } from 'sequelize';
+import { Op, Transaction } from 'sequelize';
 import * as constants from '../config';
+import * as tcAPI from '../utils/tc-api';
 
 const logger = new LoggerClient('WorkSkillsService');
 
 /**
  * Create the association for work-skill-skill_source
- * @param workSkillData SetWorkSkillsRequestBodyDto
+ * @param {SetWorkSkillsRequestBodyDto} workSkillData - The request data containing the work type and skill ids
  */
 export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDto) {
     logger.info(
@@ -103,8 +104,8 @@ export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDt
 
 /**
  * Associates the given skills with the given job/gig id
- * @param {string} jobId the id of the job/gig to associate skills with
- * @param {Array<string>} skillIds the array of skill ids to be associated with the specified job/gig
+ * @param {string} jobId - the id of the job/gig to associate skills with
+ * @param {Array<string>} skillIds - the array of skill ids to be associated with the specified job/gig
  */
 export async function createJobSkills(jobId: string, skillIds: string[]) {
     logger.info(
@@ -113,28 +114,15 @@ export async function createJobSkills(jobId: string, skillIds: string[]) {
         )}`,
     );
 
-    await db.sequelize.transaction(async () => {
+    await db.sequelize.transaction(async (tx) => {
         // validate request
         await validateRequestForWorkType('gig', jobId, skillIds);
 
         // find the work type for gig/job
         const workTypeDetail = await findWorkType('gig');
 
-        // prepare the job skill association data for bulk insert
-        const workSkills = skillIds.map((skillId) => ({
-            work_id: jobId,
-            work_type_id: workTypeDetail.id,
-            skill_id: skillId,
-        }));
-
-        // remove existing association and create new skills association
-        await WorkSkill.destroy({
-            where: {
-                work_id: jobId,
-                work_type_id: workTypeDetail.id,
-            },
-        });
-        await WorkSkill.bulkCreate(workSkills);
+        // create the association between job/gig and skill
+        await associateSkillsToWorkId(jobId, workTypeDetail, skillIds, tx);
 
         // update Elasticsearch job index to reflect the new association
         await esHelper.updateSkillsInJobES(jobId, skillIds);
@@ -142,12 +130,60 @@ export async function createJobSkills(jobId: string, skillIds: string[]) {
         logger.info(`Successfully associated skills to job with id ${jobId}`);
     });
 }
+/**
+ * Associates the given skills with the given challenge id
+ * @param {string} userToken - the JWT token belonging to the user
+ * @param {string} challengeId - the id of the challenge to associate skills with
+ * @param {Array<string>} skillIds - the array of skill ids to be associated with the specified job/gig
+ */
+export async function createChallengeSkills(userToken: any, challengeId: string, skillIds: string[]) {
+    logger.info(
+        `Associating skills to challenge with id ${challengeId} based on the following skills data: ${JSON.stringify(
+            skillIds,
+        )}`,
+    );
+
+    await db.sequelize.transaction(async (tx) => {
+        // validate request
+        await validateRequestForWorkType('challenge', challengeId, skillIds);
+
+        // find the work type for challenge
+        const workTypeDetail = await findWorkType('challenge');
+
+        // create the association between challenge and skill
+        await associateSkillsToWorkId(challengeId, workTypeDetail, skillIds, tx);
+
+        const associatedSkills = await Skill.findAll({
+            attributes: ['name', 'id'],
+            include: {
+                model: SkillCategory,
+                as: 'category',
+                attributes: ['name', 'id'],
+            },
+            where: {
+                id: {
+                    [Op.in]: skillIds,
+                },
+            },
+        });
+
+        // call the challenge API to update the Elasticsearch challenge index
+        try {
+            await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken);
+            logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
+        } catch (error: any) {
+            logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
+            logger.error(`${error.status} error: ${error.message}`);
+            throw error;
+        }
+    });
+}
 
 /**
  * Verifies the request data is valid
- * @param {string} workType the type of work which can be either 'gig' or 'challenge'
- * @param {string} workId the uuid id of job or challenge
- * @param {Array<string>} skillIds the array of uuid skill ids
+ * @param {string} workType - the type of work which can be either 'gig' or 'challenge'
+ * @param {string} workId - the uuid id of job or challenge
+ * @param {Array<string>} skillIds - the array of uuid skill ids
  */
 async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId: string, skillIds: string[]) {
     switch (workType) {
@@ -176,7 +212,7 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
 
 /**
  * Gets the work type detail from the PostgreSQL database
- * @param {string} workType the type of work which can be either 'gig' or 'challenge'
+ * @param {string} workType - the type of work which can be either 'gig' or 'challenge'
  * @returns {Promise<SourceType>} the work type detail
  */
 async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> {
@@ -191,4 +227,35 @@ async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> 
     }
 
     return workTypeDetail;
+}
+
+/**
+ * Associates the given work id with the given skill ids
+ * @param {string} workId - the challenge or gig id
+ * @param {SourceType} workTypeDetail - the work detail record from PostgreSQL database
+ * @param {Array<string>} skillIds - the array of skill uuid ids
+ * @param {Transaction} tx - the transaction object
+ */
+async function associateSkillsToWorkId(
+    workId: string,
+    workTypeDetail: SourceType,
+    skillIds: string[],
+    tx: Transaction,
+) {
+    // prepare the job skill association data for bulk insert
+    const workSkills = skillIds.map((skillId) => ({
+        work_id: workId,
+        work_type_id: workTypeDetail.id,
+        skill_id: skillId,
+    }));
+
+    // remove existing association and create new skills association
+    await WorkSkill.destroy({
+        where: {
+            work_id: workId,
+            work_type_id: workTypeDetail.id,
+        },
+        transaction: tx,
+    });
+    await WorkSkill.bulkCreate(workSkills, { transaction: tx });
 }

@@ -1,7 +1,13 @@
 import { map, toString } from 'lodash';
 
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, SkillEventTypes, WorkType } from '../config';
-import { SkillEventPayloadChallengeUpdate, GetUserSkillsQueryDto, SkillEventRequestBodyDto, SkillEventPayloadTCAUpdate, UserSkillDto } from '../dto';
+import {
+    SkillEventPayloadChallengeUpdate,
+    GetUserSkillsQueryDto,
+    SkillEventRequestBodyDto,
+    SkillEventPayloadTCAUpdate,
+    UserSkillDto,
+} from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import { fetchDbUserSkills } from './UserSkillsService';
@@ -70,7 +76,12 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 
         // update each user with the skills data
         for (const user of users) {
-            const userSkills = prepareUserSkillsUpdate(payload.skills, Number(user.userId), verifiedSkillLevel.id, additionalSkillType.id);
+            const userSkills = prepareUserSkillsUpdate(
+                payload.skills,
+                Number(user.userId),
+                verifiedSkillLevel.id,
+                additionalSkillType.id,
+            );
 
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
@@ -97,9 +108,9 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
 /**
  * Processes TCA completed events
  * Assigns any TCA skills to the winners of the course or certification
- * 
- * @param eventId 
- * @param payload 
+ *
+ * @param eventId
+ * @param payload
  */
 export async function processTCACompletedSkillEvent(eventId: string, payload: SkillEventPayloadTCAUpdate) {
     logger.info(`Handling TCA completed skill event using payload ${JSON.stringify(payload)}`);
@@ -114,14 +125,20 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
     const sourceType = await fetchSourceType(payload.type);
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
     const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
-    const eventType = payload.type === WorkType.certification ? SkillEventTypes.tcaCertCompleted : SkillEventTypes.tcaCourseCompleted;
+    const eventType =
+        payload.type === WorkType.certification ? SkillEventTypes.tcaCertCompleted : SkillEventTypes.tcaCourseCompleted;
 
     return db.sequelize.transaction(async (tx) => {
         const allSkills = [];
         const user = payload.graduate;
 
         // update each user with the skills data
-        const userSkills = prepareUserSkillsUpdate(payload.skills, Number(user.userId), verifiedSkillLevel.id, additionalSkillType.id);
+        const userSkills = prepareUserSkillsUpdate(
+            payload.skills,
+            Number(user.userId),
+            verifiedSkillLevel.id,
+            additionalSkillType.id,
+        );
 
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
@@ -146,10 +163,10 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
 
 /**
  * Processes skill events incoming from the Skill Event API
- * 
- * @param currentUser 
- * @param param1 
- * @returns 
+ *
+ * @param {AuthUser} currentUser - the currently authenticated user making this request
+ * @param {SkillEventTopic} topic - the kafka topic for processing skill events
+ * @param {SkillEventPayloadType} payload - the data received in the kafka topic that needs to be processed
  */
 export async function processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
     // Ensure skill-events are only executed by admins or machine users
@@ -170,8 +187,8 @@ export async function processSkillEvent(currentUser: AuthUser, { topic, payload 
 
 /**
  * Checks if the passed skill ids are valid
- * 
- * @param skills 
+ *
+ * @param skills
  */
 async function checkSkillIds(skills: UserSkillDto[]) {
     if (!(await bulkCheckValidIds(Skill, map(skills, 'id')))) {
@@ -181,14 +198,19 @@ async function checkSkillIds(skills: UserSkillDto[]) {
 
 /**
  * Prepares the UserSkill entries to be inserted in the db
- * 
- * @param skills 
- * @param userId 
- * @param userSkillLevelId 
- * @param userSkillDisplayModeId 
- * @returns 
+ *
+ * @param skills
+ * @param userId
+ * @param userSkillLevelId
+ * @param userSkillDisplayModeId
+ * @returns
  */
-function prepareUserSkillsUpdate(skills: UserSkillDto[], userId: number, userSkillLevelId: string, userSkillDisplayModeId: string) {
+function prepareUserSkillsUpdate(
+    skills: UserSkillDto[],
+    userId: number,
+    userSkillLevelId: string,
+    userSkillDisplayModeId: string,
+) {
     return skills.map((skill) => ({
         user_id: userId,
         skill_id: skill.id,
