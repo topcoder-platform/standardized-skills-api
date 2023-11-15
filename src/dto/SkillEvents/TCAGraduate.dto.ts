@@ -1,6 +1,6 @@
 import { IsNumber } from 'class-validator';
 
-export class TCAWinnerDto {
+export class TCAGraduateDto {
     @IsNumber()
     userId: number;
 }

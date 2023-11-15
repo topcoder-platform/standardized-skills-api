@@ -1,6 +1,6 @@
 import { Type } from 'class-transformer';
 import { IsArray, ValidateNested, IsUUID, IsEnum } from 'class-validator';
-import { TCAWinnerDto } from './TCAWinner.dto';
+import { TCAGraduateDto } from './TCAGraduate.dto';
 import { WorkType } from '../../config';
 import { UserSkillDto } from '.';
 
@@ -11,8 +11,8 @@ export class SkillEventPayloadTCAUpdate {
     skills: UserSkillDto[];
 
     @ValidateNested()
-    @Type(() => TCAWinnerDto)
-    winner: TCAWinnerDto;
+    @Type(() => TCAGraduateDto)
+    graduate: TCAGraduateDto;
 
     @IsUUID('all')
     id: string;
