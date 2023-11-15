@@ -43,11 +43,11 @@ export async function get(endpoint: string): Promise<SuperAgentRequest> {
 }
 
 /**
- * Performs a PATCH reuest to any of the v5 topcoder API endpoints
- * @param {string} endpoint - the endpoint path to call including any path parameters
- * @param {any} data - the request body for the PATCH endpoint
- * @param {{[key: string]: string}} customHeaders - the custom headers for the request
- * @returns a promise containing the response or the error
+ * Performs a PATCH request to any of the v5 topcoder API endpoints
+ * @param {string} endpoint - The endpoint path to call including any path parameters
+ * @param {any} data - The request body for the PATCH endpoint
+ * @param {{[key: string]: string}} customHeaders - The custom headers for the request
+ * @returns A promise containing the response or the error
  */
 export async function patch(
     endpoint: string,
