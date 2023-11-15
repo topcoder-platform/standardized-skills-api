@@ -169,7 +169,11 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
 
         // call the challenge API to update the Elasticsearch challenge index
         try {
-            await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken);
+            // set the app-version header to 1.1.0 for challenge API to deal with the standardized skills
+            await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken, {
+                'app-version': constants.CHALLENGE_API_VERSION,
+            });
+
             logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
         } catch (error: any) {
             logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);

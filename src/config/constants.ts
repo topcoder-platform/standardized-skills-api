@@ -20,6 +20,8 @@ export const DEFAULT_SORT_ORDER = 'ASC';
 
 export const SEQUELIZE_CLS_NAMESPACE = 'standardized-skills-api';
 
+export const CHALLENGE_API_VERSION = '1.1.0';
+
 export enum UserSkillLevels {
     selfDeclared = 'self-declared',
     verified = 'verified',
