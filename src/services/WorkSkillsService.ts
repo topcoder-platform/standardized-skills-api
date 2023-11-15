@@ -114,25 +114,11 @@ export async function createJobSkills(jobId: string, skillIds: string[]) {
     );
 
     await db.sequelize.transaction(async () => {
-        // check valid gig id
-        if (_.isEmpty(await esHelper.getJobById(jobId))) {
-            throw new NotFoundError(`job/gig with id='${jobId}' does not exist!`);
-        }
-
-        // check valid skills ids
-        if (!(await bulkCheckValidIds(Skill, skillIds))) {
-            throw new NotFoundError('Skill(s) to be associated do not exist!');
-        }
+        // validate request
+        await validateRequestForWorkType('gig', jobId, skillIds);
 
         // find the work type for gig/job
-        const workTypeDetail = await SourceType.findOne({
-            where: {
-                name: constants.WorkType.gig,
-            },
-        });
-        if (isNull(workTypeDetail)) {
-            throw new InternalServerError('Unable to fetch work type id for job/gig!');
-        }
+        const workTypeDetail = await findWorkType('gig');
 
         // prepare the job skill association data for bulk insert
         const workSkills = skillIds.map((skillId) => ({
@@ -150,21 +136,59 @@ export async function createJobSkills(jobId: string, skillIds: string[]) {
         });
         await WorkSkill.bulkCreate(workSkills);
 
-        const associatedSkillIds = await Skill.findAll({
-            attributes: ['id'],
-            where: {
-                id: {
-                    [Op.in]: skillIds,
-                },
-            },
-        });
-
         // update Elasticsearch job index to reflect the new association
-        await esHelper.updateSkillsInJobES(
-            jobId,
-            _.map(associatedSkillIds, (skill) => skill.id),
-        );
+        await esHelper.updateSkillsInJobES(jobId, skillIds);
 
         logger.info(`Successfully associated skills to job with id ${jobId}`);
     });
+}
+
+/**
+ * Verifies the request data is valid
+ * @param {string} workType the type of work which can be either 'gig' or 'challenge'
+ * @param {string} workId the uuid id of job or challenge
+ * @param {Array<string>} skillIds the array of uuid skill ids
+ */
+async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId: string, skillIds: string[]) {
+    switch (workType) {
+        case 'gig':
+            // check valid gig id
+            if (_.isEmpty(await esHelper.getJobById(workId))) {
+                throw new NotFoundError(`job/gig with id='${workId}' does not exist!`);
+            }
+
+            break;
+
+        case 'challenge':
+            // check valid challenge id
+            if (_.isEmpty(await esHelper.getChallengeById(workId))) {
+                throw new NotFoundError(`challenge with id='${workId}' does not exist!`);
+            }
+
+            break;
+    }
+
+    // check valid skills ids
+    if (!(await bulkCheckValidIds(Skill, skillIds))) {
+        throw new NotFoundError('Skill(s) to be associated do not exist!');
+    }
+}
+
+/**
+ * Gets the work type detail from the PostgreSQL database
+ * @param {string} workType the type of work which can be either 'gig' or 'challenge'
+ * @returns {Promise<SourceType>} the work type detail
+ */
+async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> {
+    // find the work type for challenge/gig
+    const workTypeDetail = await SourceType.findOne({
+        where: {
+            name: workType,
+        },
+    });
+    if (isNull(workTypeDetail)) {
+        throw new InternalServerError(`Unable to fetch work type id for ${workType}!`);
+    }
+
+    return workTypeDetail;
 }
