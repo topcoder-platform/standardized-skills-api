@@ -43,18 +43,24 @@ export async function get(endpoint: string): Promise<SuperAgentRequest> {
 }
 
 /**
- *
+ * Performs a PATCH request to any of the v5 topcoder API endpoints
  * @param {string} endpoint - The endpoint path to call including any path parameters
  * @param {any} data - The request body for the PATCH endpoint
+ * @param {{[key: string]: string}} customHeaders - The custom headers for the request
  * @returns A promise containing the response or the error
  */
-export async function patch(endpoint: string, data: any, userToken: string | undefined): Promise<request.Response> {
+export async function patch(
+    endpoint: string,
+    data: any,
+    userToken: string | undefined,
+    customHeaders: { [key: string]: string } = {},
+): Promise<request.Response> {
     const token = userToken ? userToken : await getM2MToken();
 
-    return request
-        .patch(`${envConfig.TC_API}${endpoint}`)
-        .send(data)
-        .set('Authorization', `Bearer ${token}`)
-        .set('Content-Type', 'application/json')
-        .set('Accept', 'application/json');
+    // add the mandatory headers
+    customHeaders['Authorization'] = `Bearer ${token}`;
+    customHeaders['Content-Type'] = 'application/json';
+    customHeaders['Accept'] = 'application/json';
+
+    return request.patch(`${envConfig.TC_API}${endpoint}`).send(data).set(customHeaders);
 }
