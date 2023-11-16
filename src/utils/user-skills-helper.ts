@@ -52,9 +52,10 @@ export async function ensurePrincipalSkillCountLimit(userId: number | string) {
                 where: { name: UserSkillDisplayModes.principal },
             },
         ],
+        group: 'skill_id',
     });
 
-    if (principalCount > MAX_PRINICIPAL_USER_SKILLS_COUNT) {
+    if (principalCount.length > MAX_PRINICIPAL_USER_SKILLS_COUNT) {
         throw new BadRequestError('Max limit for Principal skills reached!');
     }
 }
