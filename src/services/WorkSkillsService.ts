@@ -182,7 +182,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
 
             errorHelper.handleAndTransformAPIError(
                 error.status,
-                error.message,
+                error.response?.text?.message || error.message,
                 'Unable to associate skills to challenge! Please retry.',
             );
         }
