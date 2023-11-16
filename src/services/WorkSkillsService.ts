@@ -1,7 +1,13 @@
 import { SetWorkSkillsRequestBodyDto } from '../dto';
 import db, { Skill, SkillCategory, SourceType, WorkSkill } from '../db';
 import { bulkCheckValidIds, checkValidId } from '../utils/postgres-helper';
-import { BadRequestError, InternalServerError, NotFoundError } from '../utils/errors';
+import {
+    BadRequestError,
+    ForbiddenError,
+    InternalServerError,
+    NotFoundError,
+    UnauthorizedError,
+} from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import _, { isNull } from 'lodash';
@@ -177,8 +183,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
             logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
         } catch (error: any) {
             logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
-            logger.error(`${error.status} error: ${error.message}`);
-            throw error;
+            handleAndTransformChallengeAPIError(error);
         }
     });
 }
@@ -262,4 +267,32 @@ async function associateSkillsToWorkId(
         transaction: tx,
     });
     await WorkSkill.bulkCreate(workSkills, { transaction: tx });
+}
+
+/**
+ * Rethrows the appropriate error depending on the status code
+ * @param error - The error object containing the challenge API error details
+ */
+function handleAndTransformChallengeAPIError(error: any) {
+    switch (error.status) {
+        case 400:
+            throw new BadRequestError(error.message);
+            break;
+
+        case 401:
+            throw new UnauthorizedError(error.message);
+            break;
+
+        case 403:
+            throw new ForbiddenError(error.message);
+            break;
+
+        case 404:
+            throw new NotFoundError(error.message);
+            break;
+
+        case 500:
+            throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+            break;
+    }
 }
