@@ -183,6 +183,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
             logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
         } catch (error: any) {
             logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
+            logger.error(`${JSON.stringify(error)}`);
             handleAndTransformChallengeAPIError(error);
         }
     });
