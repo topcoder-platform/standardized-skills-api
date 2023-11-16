@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "6542c863-ee69-4c23-98b0-f208b14dcee6",
+		"_postman_id": "0dcbed55-29b9-4473-be21-312fdb03cd9c",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30186453"
@@ -89,42 +89,6 @@
 		{
 			"name": "WorkSkills",
 			"item": [
-				{
-					"name": "Set Work Skills",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"workId\": \"fed687e1-4257-48bb-806c-38712f9bf14f\",\r\n    \"workTypeId\": \"413340e8-f56f-4061-8796-c916dfa82770\",\r\n    \"skillIds\": [\r\n        \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\r\n        \"0087514d-5ebc-4720-a635-17f0b5399692\"\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/work-skills",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"work-skills"
-							]
-						}
-					},
-					"response": []
-				},
 				{
 					"name": "associate skills to job",
 					"request": {

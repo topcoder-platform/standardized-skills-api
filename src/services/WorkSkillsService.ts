@@ -1,7 +1,6 @@
-import { SetWorkSkillsRequestBodyDto } from '../dto';
 import db, { Skill, SkillCategory, SourceType, WorkSkill } from '../db';
-import { bulkCheckValidIds, checkValidId } from '../utils/postgres-helper';
-import { BadRequestError, InternalServerError, NotFoundError } from '../utils/errors';
+import { bulkCheckValidIds } from '../utils/postgres-helper';
+import { InternalServerError, NotFoundError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import _, { isNull } from 'lodash';
@@ -11,97 +10,6 @@ import * as tcAPI from '../utils/tc-api';
 import * as errorHelper from '../utils/error-helper';
 
 const logger = new LoggerClient('WorkSkillsService');
-
-/**
- * Create the association for work-skill-skill_source
- * @param {SetWorkSkillsRequestBodyDto} workSkillData - The request data containing the work type and skill ids
- */
-export async function createWorkSkills(workSkillData: SetWorkSkillsRequestBodyDto) {
-    logger.info(
-        `Associating skills to work type based on the following request data: ${JSON.stringify(workSkillData)}`,
-    );
-    await db.sequelize.transaction(async () => {
-        // valid worktype id
-        if (!(await checkValidId(SourceType, workSkillData.workTypeId))) {
-            throw new NotFoundError(`WorkType with id='${workSkillData.workTypeId}' does not exist!`);
-        }
-
-        //valid skills ids
-        if (!(await bulkCheckValidIds(Skill, workSkillData.skillIds))) {
-            throw new NotFoundError('Skill(s) to be associated do not exist!');
-        }
-
-        const workTypeDetail = await SourceType.findOne({
-            where: {
-                id: workSkillData.workTypeId,
-            },
-        });
-
-        // currently only gig and challenge is supported
-        if (
-            _.isNull(workTypeDetail) ||
-            (workTypeDetail.name !== constants.WorkType.challenge && workTypeDetail.name !== constants.WorkType.gig)
-        ) {
-            throw new BadRequestError(`${workTypeDetail?.name ?? 'Work type'} is currently not supported!`);
-        }
-
-        if (
-            workTypeDetail.name === constants.WorkType.challenge &&
-            _.isEmpty(await esHelper.getChallengeById(workSkillData.workId))
-        ) {
-            throw new NotFoundError(`Challenge with id: ${workSkillData.workId} does not exist!`);
-        }
-
-        if (
-            workTypeDetail.name === constants.WorkType.gig &&
-            _.isEmpty(await esHelper.getJobById(workSkillData.workId))
-        ) {
-            throw new NotFoundError(`Job with id: ${workSkillData.workId} does not exist!`);
-        }
-
-        const workSkills = workSkillData.skillIds.map((skillId) => ({
-            work_id: workSkillData.workId,
-            work_type_id: workSkillData.workTypeId,
-            skill_id: skillId,
-        }));
-
-        // remove existing association and create new skills association
-        await WorkSkill.destroy({
-            where: {
-                work_id: workSkillData.workId,
-                work_type_id: workSkillData.workTypeId,
-            },
-        });
-        await WorkSkill.bulkCreate(workSkills);
-
-        const skillsToAssociate = await Skill.findAll({
-            attributes: ['name', 'id'],
-            include: {
-                model: SkillCategory,
-                as: 'category',
-                attributes: ['name', 'id'],
-            },
-            where: {
-                id: {
-                    [Op.in]: workSkillData.skillIds,
-                },
-            },
-        });
-
-        // update Elasticsearch index to reflect the new association
-        if (workTypeDetail.name === constants.WorkType.challenge) {
-            await esHelper.updateSkillsInChallengeES(workSkillData.workId, skillsToAssociate);
-        }
-        if (workTypeDetail.name === constants.WorkType.gig) {
-            await esHelper.updateSkillsInJobES(
-                workSkillData.workId,
-                _.map(skillsToAssociate, (skills) => skills.id),
-            );
-        }
-
-        logger.info('Successfully associated work skills');
-    });
-}
 
 /**
  * Associates the given skills with the given job/gig id
