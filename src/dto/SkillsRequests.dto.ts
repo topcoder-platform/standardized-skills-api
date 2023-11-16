@@ -10,6 +10,7 @@ import {
     IsIn,
     ValidateIf,
     ArrayUnique,
+    IsArray,
 } from 'class-validator';
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 import { Type } from 'class-transformer';
@@ -24,6 +25,7 @@ export class SkillIdRequestPathParamDto {
 
 export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsOptional()
+    @ArrayUnique({ message: 'Provided skill ids are not unique!' })
     @IsUUID('all', { each: true })
     @MinLength(1, { each: true })
     skillId?: string[];

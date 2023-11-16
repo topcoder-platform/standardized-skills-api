@@ -8,6 +8,7 @@ import _, { isNull } from 'lodash';
 import { Op, Transaction } from 'sequelize';
 import * as constants from '../config';
 import * as tcAPI from '../utils/tc-api';
+import * as errorHelper from '../utils/error-helper';
 
 const logger = new LoggerClient('WorkSkillsService');
 
@@ -177,8 +178,13 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
             logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
         } catch (error: any) {
             logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
-            logger.error(`${error.status} error: ${error.message}`);
-            throw error;
+            logger.error(`${JSON.stringify(error)}`);
+
+            errorHelper.handleAndTransformAPIError(
+                error.status,
+                error.message,
+                'Unable to associate skills to challenge! Please retry.',
+            );
         }
     });
 }
