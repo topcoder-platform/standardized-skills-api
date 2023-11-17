@@ -61,7 +61,7 @@ export async function ensurePrincipalSkillCountLimit(userId: number | string) {
 }
 
 /**
- * Fetches the DB entry for the additional user skill type
+ * Fetches the Database entry for the additional user skill type
  */
 export async function fetchAdditionalUserSkillDisplayMode() {
     const additionalSkillType = await UserSkillDisplayMode.findOne({
