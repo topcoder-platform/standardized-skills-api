@@ -5,7 +5,6 @@ import {
     GetSkillsQueryRequestDto,
     GetUserSkillsQueryDto,
     UpdateUserSkillsRequestBodyDto,
-    SetWorkSkillsRequestBodyDto,
     UserIdParamDto,
     SkillEventRequestBodyDto,
     SkillIdRequestPathParamDto,
@@ -205,25 +204,6 @@ const RouteDefinitions: RouteDefinition[] = [
             },
             body: {
                 dto: UpdateUserSkillsRequestBodyDto,
-            },
-        },
-    },
-    {
-        path: '/work-skills',
-        verb: 'post',
-        controller: 'WorkSkillsController',
-        method: 'setWorkSkills',
-        auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
-        access: [
-            config.UserRoles.Admin,
-            config.UserRoles.Copilot,
-            config.UserRoles.Manager,
-            config.UserRoles.SelfServiceCustomer,
-        ],
-        validation: {
-            body: {
-                dto: SetWorkSkillsRequestBodyDto,
             },
         },
     },

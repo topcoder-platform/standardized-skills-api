@@ -1149,52 +1149,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
-  /work-skills:
-    post:
-      operationId: 'createWorkSkills'
-      tags: ['Standardized Skills API']
-      description: 'Associates a list of skills to the work identified by workId and workTypeId'
-      requestBody:
-        description: 'Associates the skills identified by the specified skill ids with the given work identified by workId and workTypeId'
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required: ['workId', 'workTypeId']
-              properties:
-                workId:
-                  type: string
-                  format: uuid
-                workTypeId:
-                  type: string
-                  format: uuid
-                skillIds:
-                  type: array
-                  items:
-                    type: string
-                    format: uuid
-      responses:
-        '201':
-          description: 'Created'
-        '400':
-          description: 'Bad Request Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BadRequestResponse'
-        '404':
-          description: 'Not Found Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotFoundErrorResponse'
-        '500':
-          description: 'Server Error'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ServerErrorResponse'
   /job-skills/{jobId}:
     post:
       operationId: 'createJobSkills'
