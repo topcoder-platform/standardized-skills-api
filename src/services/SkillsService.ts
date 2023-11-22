@@ -68,7 +68,7 @@ export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
     if (query.name && !query.skillId) {
         findAndCountOptions['where'] = {
             name: {
-                [Op.iLike]: `%${query.name}%`,
+                [Op.in]: query.name,
             },
         };
     }
