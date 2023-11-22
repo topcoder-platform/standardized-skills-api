@@ -16,12 +16,14 @@ paths:
     get:
       operationId: searchSkills
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br> Parameter skillIds should be valid comma-separated skill uuids. <br> Parameter name is a string used to fetch skills that contain the name value anywhere in the skill name. When the skillIds are specified, the name parameter is ignored. <br> If no criteria is provided, all available skills are fetched.'
+      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br> Parameter skillIds should be valid comma-separated skill uuids. <br> Parameter name is an array of skill-names used to fetch skills that are an exact match. When the skillIds are specified, the name parameter is ignored. <br> If no criteria is provided, all available skills are fetched.'
       parameters:
         - in: query
           name: name
           schema:
-            type: string
+            type: array
+            items:
+              type: string
         - in: query
           name: skillId
           schema:
