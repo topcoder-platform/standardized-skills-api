@@ -12,8 +12,9 @@ import {
     ArrayUnique,
 } from 'class-validator';
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { DEFAULT_SUGGESTIONS_SIZE } from '../config';
+import { isArray } from 'lodash';
 
 export class SkillIdRequestPathParamDto {
     @IsString()
@@ -23,9 +24,11 @@ export class SkillIdRequestPathParamDto {
 }
 
 export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
+    @Transform(({ value }) => (!isArray(value) ? [value] : value))
     @IsOptional()
     @IsUUID('all', { each: true })
     @MinLength(1, { each: true })
+    @ArrayUnique({ message: 'Provided skills ids are not unique!' })
     skillId?: string[];
 
     @IsOptional()
@@ -34,10 +37,12 @@ export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsIn(['name', 'description', 'created_at', 'updated_at'])
     sortBy?: string;
 
+    @Transform(({ value }) => (!isArray(value) ? [value] : value))
     @IsOptional()
-    @IsString()
-    @IsNotEmpty()
-    name?: string;
+    @IsString({ each: true })
+    @MinLength(1, { each: true })
+    @ArrayUnique({ message: 'Provided skills names are not unique!' })
+    name?: string[];
 }
 
 export class SkillCreationRequestBodyDto {
@@ -105,8 +110,10 @@ export class GetAutocompleteRequestQueryDto {
 }
 
 export class SkillIdsRequestBodyDto {
+    @Transform(({ value }) => (!isArray(value) ? [value] : value))
+    @IsOptional()
     @IsUUID('all', { each: true })
     @MinLength(1, { each: true })
-    @ArrayUnique({ message: 'Provided skill ids are not unique!' })
+    @ArrayUnique({ message: 'Provided skills ids are not unique!' })
     skillIds: string[];
 }
