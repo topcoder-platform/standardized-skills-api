@@ -28,7 +28,7 @@ export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsOptional()
     @IsUUID('all', { each: true })
     @MinLength(1, { each: true })
-    @ArrayUnique({ message: 'Provided skills ids are not unique!' })
+    @ArrayUnique({ message: 'Provided skill ids are not unique!' })
     skillId?: string[];
 
     @IsOptional()
@@ -41,7 +41,7 @@ export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsOptional()
     @IsString({ each: true })
     @MinLength(1, { each: true })
-    @ArrayUnique({ message: 'Provided skills names are not unique!' })
+    @ArrayUnique({ message: 'Provided skill names are not unique!' })
     name?: string[];
 }
 
@@ -111,9 +111,8 @@ export class GetAutocompleteRequestQueryDto {
 
 export class SkillIdsRequestBodyDto {
     @Transform(({ value }) => (!isArray(value) ? [value] : value))
-    @IsOptional()
     @IsUUID('all', { each: true })
     @MinLength(1, { each: true })
-    @ArrayUnique({ message: 'Provided skills ids are not unique!' })
+    @ArrayUnique({ message: 'Provided skill ids are not unique!' })
     skillIds: string[];
 }
