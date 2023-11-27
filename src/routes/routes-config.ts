@@ -229,6 +229,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'WorkSkillsController',
         method: 'setChallengeSkills',
         auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         access: [
             config.UserRoles.Admin,
             config.UserRoles.Copilot,
