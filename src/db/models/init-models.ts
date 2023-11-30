@@ -19,6 +19,8 @@ import { user_skill_display_mode as UserSkillDisplayMode } from './user_skill_di
 import type { userSkillDisplayModeAttributes, userSkillDisplayModeCreationAttributes } from './user_skill_display_mode';
 import { work_skill as WorkSkill } from './work_skill';
 import type { workSkillAttributes, workSkillCreationAttributes } from './work_skill';
+import { user_gig_skills_tracker as UserGigSkillsTracker } from './user_gig_skills_tracker';
+import type { userGigSkillsTrackerAttributes, userGigSkillsTrackerCreationAttributes } from './user_gig_skills_tracker';
 
 export type {
     eventAttributes,
@@ -41,6 +43,8 @@ export type {
     userSkillDisplayModeCreationAttributes,
     workSkillAttributes,
     workSkillCreationAttributes,
+    userGigSkillsTrackerAttributes,
+    userGigSkillsTrackerCreationAttributes
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -54,6 +58,7 @@ export function initModels(sequelize: Sequelize) {
     const userSkillLevel = UserSkillLevel.initModel(sequelize);
     const userSkillDisplayMode = UserSkillDisplayMode.initModel(sequelize);
     const workSkill = WorkSkill.initModel(sequelize);
+    const userGigSkillsTracker = UserGigSkillsTracker.initModel(sequelize);
 
     skillEvent.belongsTo(event, { as: 'event', foreignKey: 'event_id' });
     event.hasMany(skillEvent, { as: 'skill_events', foreignKey: 'event_id' });
@@ -86,5 +91,6 @@ export function initModels(sequelize: Sequelize) {
         UserSkillLevel: userSkillLevel,
         UserSkillDisplayMode: userSkillDisplayMode,
         WorkSkill: workSkill,
+        UserGigSkillsTracker: userGigSkillsTracker
     };
 }

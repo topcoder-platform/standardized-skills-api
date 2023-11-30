@@ -17,6 +17,7 @@ import {
     WorkSkillsRequestBodyDto,
     JobIdRequestParamDto,
     ChallengeIdRequestParamDto,
+    UserGigSkillsRequestBodyDto
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -374,6 +375,20 @@ const RouteDefinitions: RouteDefinition[] = [
             },
         },
     },
+    {
+        path: '/user-gig-skills',
+        verb: 'post',
+        controller: 'UserGigSkillsController',
+        method: 'createUserGigSkillsRecord',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
+        validation: {
+            body: {
+                forbidNonWhitelisted: false,
+                dto: UserGigSkillsRequestBodyDto,
+            },
+        },
+    }
 ];
 
 export default RouteDefinitions;

@@ -8,6 +8,7 @@ import { user_skill as UserSkill } from './user_skill';
 import { user_skill_level as UserSkillLevel } from './user_skill_level';
 import { user_skill_display_mode as UserSkillDisplayMode } from './user_skill_display_mode';
 import { work_skill as WorkSkill } from './work_skill';
+import {user_gig_skills_tracker as UserGigSkillsTracker} from './user_gig_skills_tracker';
 
 export type DbModelsType =
     | typeof Event
@@ -19,7 +20,8 @@ export type DbModelsType =
     | typeof UserSkill
     | typeof UserSkillLevel
     | typeof UserSkillDisplayMode
-    | typeof WorkSkill;
+    | typeof WorkSkill
+    | typeof UserGigSkillsTracker;
 
 export {
     Event,
@@ -32,4 +34,5 @@ export {
     UserSkillLevel,
     UserSkillDisplayMode,
     WorkSkill,
+    UserGigSkillsTracker
 };

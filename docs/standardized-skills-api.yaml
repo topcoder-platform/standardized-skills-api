@@ -1290,6 +1290,59 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
+  /user-gig-skills:
+    post:
+      operationId: 'createUserGigSkillsRecord'
+      tags: ['Standardized Skills API']
+      description: 'Records the gig users skills in the user gig skills tracker table. The recorded entries, will be used to assign gig skills to members on recurrent basis'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: ['payload']
+              properties:
+                payload:
+                  type: object
+                  format: json
+                  properties:
+                   status:
+                     type: string
+                     example: placed
+                   id:
+                     type: string
+                     example: 813ce9a4-e213-4b34-875b-f3ad87b4baa5
+                   tcUserId:
+                     type: number
+                     example: 88779462
+                   jobId:
+                     type: string
+                     example: fed687e1-4257-48bb-806c-38712f9bf14f
+                   viewedByCustomer:
+                     type: boolean
+                   createdAt:
+                     type: string
+                     example: "2023-11-14T05:33:10.443Z"
+                   updatedAt:
+                     type: string
+                     example: "2023-11-30T09:43:19.117Z"
+                   
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
   /health:
     get:
       tags: ['Health']

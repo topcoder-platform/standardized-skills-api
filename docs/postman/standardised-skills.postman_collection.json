@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "0dcbed55-29b9-4473-be21-312fdb03cd9c",
+		"_postman_id": "b6d2337e-6f0f-4784-af2e-357daa9a1374",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30186453"
+		"_exporter_id": "6585700"
 	},
 	"item": [
 		{
@@ -992,6 +992,47 @@
 							"path": [
 								"skills",
 								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Gig Skills",
+			"item": [
+				{
+					"name": "Create User Gig skills record",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payload\": {\n        \"status\": \"placed\",\n        \"id\": \"813ce9a4-e213-4b34-875b-f3ad87b4baa5\",\n        \"tcUserId\": 88779462,\n        \"jobId\": \"fed687e1-4257-48bb-806c-38712f9bf14f\",\n        \"viewedByCustomer\": true,\n        \"createdAt\": \"2023-11-14T05:33:10.443Z\",\n        \"updatedAt\": \"2023-11-30T09:43:19.117Z\"\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/user-gig-skills",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user-gig-skills"
 							]
 						}
 					},
