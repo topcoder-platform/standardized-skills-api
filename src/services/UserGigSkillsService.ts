@@ -1,9 +1,9 @@
-import {AuthUser} from '../types';
+import { AuthUser } from '../types';
 
-import db, { UserGigSkillsTracker} from '../db';
-import {UserGigSkillsRequestBodyDto} from '../dto';
-import {LoggerClient} from '../utils/LoggerClient';
-import {ConflictError} from '../utils/errors';
+import db, { UserGigSkillsTracker } from '../db';
+import { UserGigSkillsRequestBodyDto } from '../dto';
+import { LoggerClient } from '../utils/LoggerClient';
+import { ConflictError } from '../utils/errors';
 const logger = new LoggerClient('SkillCategoryService');
 
 

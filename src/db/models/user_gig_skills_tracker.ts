@@ -21,8 +21,7 @@ export type userGigSkillsTrackerCreationAttributes = Optional<
 
 export class user_gig_skills_tracker
     extends Model<userGigSkillsTrackerAttributes, userGigSkillsTrackerCreationAttributes>
-    implements userGigSkillsTrackerAttributes
-{
+    implements userGigSkillsTrackerAttributes {
     id!: string;
     job_id!: string;
     user_id!: number;

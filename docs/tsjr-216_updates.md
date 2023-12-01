@@ -1,4 +1,4 @@
 # Setup steps:
 - Merge the code to the branch (dev/prod)
-- Wit until the deployment is complete
+- Wait until the deployment is complete
 - Run `npm run db:sync` to create the newly added table (`user_gig_skills_tracker`)
