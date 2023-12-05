@@ -35,6 +35,9 @@ const skillPutMappingRequest: elasticsearch7.RequestParams.IndicesPutMapping = {
                     name: {
                         type: 'text',
                     },
+                    popularity: {
+                        type: 'number',
+                    },
                     category: {
                         properties: {
                             id: {

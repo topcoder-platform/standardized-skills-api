@@ -375,6 +375,16 @@ const RouteDefinitions: RouteDefinition[] = [
             },
         },
     },
+    {
+        path: '/popularity/update',
+        verb: 'post',
+        controller: 'SkillsController',
+        method: 'updateSkillPopularity',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        scopes: [config.envConfig.SCOPES.READ],
+    },
+
 ];
 
 export default RouteDefinitions;

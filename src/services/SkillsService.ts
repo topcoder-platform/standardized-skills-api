@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import { FindAndCountOptions } from 'sequelize';
@@ -14,7 +15,7 @@ import { BadRequestError, ConflictError, InternalServerError, NotFoundError } fr
 import { AuthUser } from '../types';
 import dayjs from 'dayjs';
 import * as constants from '../config/constants';
-import { Op } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 
 const logger = new LoggerClient('SkillsService');
@@ -409,6 +410,31 @@ export const deleteSkill = async (user: AuthUser, id: string) => {
         esHelper.deleteSkillFromAutocompleteES(id);
 
         logger.info(`Successfully deleted skill with id ${id}`);
+    });
+};
+
+/**
+ * Updates the popularity of all skills, based on verified and self-reported
+ * member skills.  The popularity is used in the auto-complete, to bubble
+ * more popular skills to the top of the list
+ */
+export const updateSkillPopularity = async () => {
+    logger.info('Updating skill popularities');
+    const popularSkills:{skill_id:string, popularity:number}[] = await db.sequelize.query(' \
+            SELECT skill.id AS skill_id, count(user_skill.skill_id) as popularity \
+            FROM skill \
+            LEFT OUTER JOIN user_skill ON skill.id = user_skill.skill_id \
+            WHERE skill.deleted_at IS NULL \
+            GROUP BY skill.id \
+            ORDER BY popularity desc', 
+        { type: QueryTypes.SELECT });
+    _.forEach(popularSkills, async (skillPopularity) => {
+        await esHelper.updateSkillPopularityInAutocompleteES(
+            skillPopularity.skill_id,
+            skillPopularity.popularity,
+        );
+
+        //logger.info(`Skill with id ${skillPopularity.skill_id} updated successfully`);
     });
 };
 

@@ -137,4 +137,18 @@ export default class SkillsController {
             next(error);
         }
     };
+
+
+    updateSkillPopularity = async (
+        req: Request<{ [key: string]: string }, any, any, any, any>,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const response = await skillsService.updateSkillPopularity();
+            res.status(200).json(response);
+        } catch (error) {
+            next(error);
+        }
+    };
 }

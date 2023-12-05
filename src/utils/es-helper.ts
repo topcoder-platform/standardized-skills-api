@@ -127,12 +127,17 @@ export const autocompleteSkills = async (query: {
                 (doc11: Record<string, any>, doc2: Record<string, any>) =>
                     doc2._source.doc.name.toLowerCase().startsWith(query.term.toLowerCase()) -
                     doc11._source.doc.name.toLowerCase().startsWith(query.term.toLowerCase()),
+            ).sort(
+                (doc11: Record<string, any>, doc2: Record<string, any>) =>
+                    doc2._source.doc.popularity -
+                    doc11._source.doc.popularity,
             )
             .slice(0, query.size)
             .map((doc: Record<string, any>) => {
                 return {
                     id: doc._source.doc.id,
                     name: doc._source.doc.name,
+                    popularity: doc._source.doc.popularity,
                     category: doc._source.doc.category,
                 };
             });
@@ -350,6 +355,35 @@ export const updateSkillInAutocompleteES = async (skill: {
         },
     });
     logger.info(`Skill ${skill.id} successfully updated in skills autocomplete ES`);
+};
+
+/**
+ * Updates the popularity of a given skill to the given popularity value, in the autocomplete
+ * index
+ * @param {string} id - the uuid id of the skill
+ * @param {number} popularity - the updated popularity of the skill
+ */
+export const updateSkillPopularityInAutocompleteES = async (id: string, popularity: number) => {
+    logger.info(
+        `Updating skill ${id} in skills autocomplete Elasticsearch index with popularity ${popularity}`,
+    );
+
+    skillsESClient = getSkillsESClient();
+    try {    
+        await skillsESClient.update({
+            id: id,
+            index: envConfig.SKILLS_ES.INDEX,
+            body: {
+                doc: {
+                    popularity : popularity
+                },
+            },
+            refresh: true,
+        });
+
+    } catch (error) {
+        logger.error(`Failed to update skill popularity of ${id} with error ${JSON.stringify(error, null, 4)}`);
+    }
 };
 
 /**
