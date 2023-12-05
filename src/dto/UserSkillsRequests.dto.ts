@@ -27,6 +27,9 @@ class UserSkillSkillRequestDto {
     @IsOptional()
     @IsUUID('all')
     levelId: string;
+
+    @IsUUID('all')
+    displayModeId: string;
 }
 
 export class UserIdParamDto {
@@ -39,4 +42,15 @@ export class UpdateUserSkillsRequestBodyDto {
     @ValidateNested()
     @Type(() => UserSkillSkillRequestDto)
     skills: UserSkillSkillRequestDto[];
+}
+
+export class GetUserSkillsDisplayModesQueryDto extends BasePaginatedSortedRequest {
+    @IsOptional()
+    @IsIn(['name'])
+    sortBy?: string;
+}
+
+export class GetUserSkillsDisplayModeParamDto {
+    @IsString()
+    name: string;
 }

@@ -23,7 +23,7 @@ const logger = new LoggerClient('SkillsService');
  * Gets all skills that match the given criteria, with the skillIds being given
  * the highest preference for search followed by name only if skillIds are
  * not provided
- * @param {GetSkillsQueryRequestDto} query the request query parameters
+ * @param {GetSkillsQueryRequestDto} query - the request query parameters
  * @returns {Promise<{
  *    skills: number | Skill[];}
  * | {
@@ -68,7 +68,7 @@ export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
     if (query.name && !query.skillId) {
         findAndCountOptions['where'] = {
             name: {
-                [Op.iLike]: `%${query.name}%`,
+                [Op.in]: query.name,
             },
         };
     }
@@ -104,7 +104,7 @@ export async function autocompleteSkills(query: GetAutocompleteRequestQueryDto) 
 
 /**
  * Gets a skill by its id
- * @param skillId the id of the skill to be fetched
+ * @param skillId - the id of the skill to be fetched
  * @returns {{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined;} }}
  */
 export async function getSkillById(skillId: string): Promise<{
@@ -141,8 +141,8 @@ export async function getSkillById(skillId: string): Promise<{
 
 /**
  * creates a new skill and assigns it to an existing category
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {SkillCreationRequestBodyDto} newSkill the name, description and the category of the new skill
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {SkillCreationRequestBodyDto} newSkill - the name, description and the category of the new skill
  * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined } }>}
  * the newly created skill along with its category information
  */
@@ -204,9 +204,9 @@ export const createSkill = async (
 
 /**
  * Updates a skill in postgreSQL and Elasticsearch index
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {SkillUpdatePutRequestBodyDto} body the request body containing the new skills details
- * @param id the id of the skill to update
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {SkillUpdatePutRequestBodyDto} body - the request body containing the new skills details
+ * @param {string} id - the id of the skill to update
  * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined } }>}
  * the newly updated skill along with its category information
  */
@@ -293,9 +293,9 @@ export const updateSkill = async (
 
 /**
  * Updates a skill partially via patch in postgreSQL and Elasticsearch index
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {SkillUpdatePatchRequestBodyDto} body the request body containing the new skills details
- * @param id the id of the skill to update
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {SkillUpdatePatchRequestBodyDto} body - the request body containing the new skills details
+ * @param {string} id - the id of the skill to update
  * @returns {Promise<{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined } }>}
  * the newly updated skill along with its category information
  */
@@ -388,8 +388,8 @@ export const patchSkill = async (
 
 /**
  * Deletes a skill from the PostgreSQL and Elasticsearch index
- * @param {AuthUser} user the authenticated user details from the JWT
- * @param {string} id the id of the skill to be deleted
+ * @param {AuthUser} user - the authenticated user details from the JWT
+ * @param {string} id - the id of the skill to be deleted
  */
 export const deleteSkill = async (user: AuthUser, id: string) => {
     logger.info(`Deleting skill with id ${id}`);
@@ -414,7 +414,7 @@ export const deleteSkill = async (user: AuthUser, id: string) => {
 
 /**
  * Checks whether the skill name is unique
- * @param {string} name the name of the skill
+ * @param {string} name - the name of the skill
  * @returns {Promise<boolean>} a boolean result wrapped in a promise
  */
 const skillNameIsUnique = async (name: string, id?: string): Promise<boolean> => {

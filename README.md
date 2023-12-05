@@ -1,6 +1,6 @@
 # standardized-skills-api
 This codebase provides CRUD APIs over the PostgreSQL database containing standardized skills and 
-its associations with members, challenges, jobs and resumes. It also provides a type-ahead
+its associations with members, challenges and jobs. It also provides a type-ahead
 API for suggestion of probable skills with each input.
 
 ## Local deployment
@@ -10,7 +10,11 @@ API for suggestion of probable skills with each input.
 - Set env variable (using export, or create an `.env` file) for `TC_SKILLS_DATABASE_URL=<AWS DEV DB URL FOR SKILLS>`
 - Connect to VPN
 - Execute `npm run load-data-es` to load all skill data into the created Elasticsearch index
-- Execute `npm run dev`
+
+### Setup local database
+- Run `npm run db:init` to create the database tables & seed initial data into it
+- Run `npm run db:sync` to create any new tables based on the db models created in `src/db/models`
+- Run `npm run db:seed` to insert the seed data into the current db tables
 
 ## Verification
 - Run the postman collection under `./docs/postman`

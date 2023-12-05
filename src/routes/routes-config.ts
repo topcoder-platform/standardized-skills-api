@@ -5,7 +5,6 @@ import {
     GetSkillsQueryRequestDto,
     GetUserSkillsQueryDto,
     UpdateUserSkillsRequestBodyDto,
-    SetWorkSkillsRequestBodyDto,
     UserIdParamDto,
     SkillEventRequestBodyDto,
     SkillIdRequestPathParamDto,
@@ -13,6 +12,11 @@ import {
     SkillUpdatePutRequestBodyDto,
     SkillUpdatePatchRequestBodyDto,
     SkillIdsRequestBodyDto,
+    GetUserSkillsDisplayModesQueryDto,
+    GetUserSkillsDisplayModeParamDto,
+    WorkSkillsRequestBodyDto,
+    JobIdRequestParamDto,
+    ChallengeIdRequestParamDto,
 } from '../dto';
 import {
     AllCategoriesRequestQueryDto,
@@ -125,6 +129,34 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/user-skills/display-modes',
+        verb: 'get',
+        controller: 'UserSkillsController',
+        method: 'getUserSkillsDisplayModes',
+        auth: true,
+        access: [config.UserRoles.Admin, config.UserRoles.User],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        validation: {
+            query: {
+                dto: GetUserSkillsDisplayModesQueryDto,
+            },
+        },
+    },
+    {
+        path: '/user-skills/display-modes/:name',
+        verb: 'get',
+        controller: 'UserSkillsController',
+        method: 'getUserSkillsDisplayModeByName',
+        auth: true,
+        access: [config.UserRoles.Admin, config.UserRoles.User],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
+        validation: {
+            params: {
+                dto: GetUserSkillsDisplayModeParamDto,
+            },
+        },
+    },
+    {
         path: '/user-skills/:userId',
         verb: 'get',
         controller: 'UserSkillsController',
@@ -176,12 +208,28 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
-        path: '/work-skills',
+        path: '/job-skills/:jobId',
         verb: 'post',
         controller: 'WorkSkillsController',
-        method: 'setWorkSkills',
+        method: 'setJobSkills',
         auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE],
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
+        validation: {
+            params: {
+                dto: JobIdRequestParamDto,
+            },
+            body: {
+                dto: WorkSkillsRequestBodyDto,
+            },
+        },
+    },
+    {
+        path: '/challenge-skills/:challengeId',
+        verb: 'post',
+        controller: 'WorkSkillsController',
+        method: 'setChallengeSkills',
+        auth: true,
+        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.CREATE, config.envConfig.SCOPES.UPDATE],
         access: [
             config.UserRoles.Admin,
             config.UserRoles.Copilot,
@@ -189,8 +237,11 @@ const RouteDefinitions: RouteDefinition[] = [
             config.UserRoles.SelfServiceCustomer,
         ],
         validation: {
+            params: {
+                dto: ChallengeIdRequestParamDto,
+            },
             body: {
-                dto: SetWorkSkillsRequestBodyDto,
+                dto: WorkSkillsRequestBodyDto,
             },
         },
     },

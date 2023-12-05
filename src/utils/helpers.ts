@@ -33,8 +33,8 @@ export function checkIfExists<T>(arr1: Array<T>, arr2: Array<T>): boolean {
     return arr1.some((item) => arr2.includes(item));
 }
 
-export const generateEmsiSkillSuggestionInputs = (skillName: string): Array<string> => {
-    const result = [];
+export const generateStandardizedSkillSuggestionInputs = (skillName: string): Array<string> => {
+    const result: string[] = [];
     const tokens = skillName.trim().split(/\s+/);
     let tempStr = skillName;
 

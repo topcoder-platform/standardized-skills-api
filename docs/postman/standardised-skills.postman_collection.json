@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "376831bd-be9c-4d93-b983-60bb13862086",
+		"_postman_id": "0dcbed55-29b9-4473-be21-312fdb03cd9c",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30186453"
@@ -90,7 +90,7 @@
 			"name": "WorkSkills",
 			"item": [
 				{
-					"name": "Set Work Skills",
+					"name": "associate skills to job",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -106,7 +106,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"workId\": \"fed687e1-4257-48bb-806c-38712f9bf14f\",\r\n    \"workTypeId\": \"413340e8-f56f-4061-8796-c916dfa82770\",\r\n    \"skillIds\": [\r\n        \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\r\n        \"0087514d-5ebc-4720-a635-17f0b5399692\"\r\n    ]\r\n}",
+							"raw": "{\n    \"skillIds\": [\n        \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\n        \"0087514d-5ebc-4720-a635-17f0b5399692\"\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -114,12 +114,50 @@
 							}
 						},
 						"url": {
-							"raw": "{{base_url}}/work-skills",
+							"raw": "{{base_url}}/job-skills/fed687e1-4257-48bb-806c-38712f9bf14f",
 							"host": [
 								"{{base_url}}"
 							],
 							"path": [
-								"work-skills"
+								"job-skills",
+								"fed687e1-4257-48bb-806c-38712f9bf14f"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "associate skills to challenge",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{userToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"skillIds\": [\n        \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\n        \"0087514d-5ebc-4720-a635-17f0b5399692\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/challenge-skills/67cb03b9-0d10-4359-b1b9-d4e785eaca0a",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"challenge-skills",
+								"67cb03b9-0d10-4359-b1b9-d4e785eaca0a"
 							]
 						}
 					},
@@ -204,7 +242,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"skills\": [\r\n    {\r\n      \"id\": \"01591f01-8a29-4aa8-9f53-0b2409a5b761\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    },\r\n    {\r\n      \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    }\r\n  ]\r\n}",
+							"raw": "{\r\n    \"skills\": [\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"0031dc8f-03bf-4740-8739-cd79e7971e23\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"9c42c728-47ff-4b20-916c-560739bad1ee\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"002015b4-9bcb-4b85-9d46-e648d0375a54\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"8c302488-aa23-4caf-8baa-f9cc02abb086\",\r\n            \"id\": \"32899253-5989-4c33-9948-cad29c9e0ab0\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"id\": \"02ef295b-7b65-487f-9172-2a31360b3363\"\r\n        },\r\n        {\r\n            \"displayModeId\": \"8c302488-aa23-4caf-8baa-f9cc02abb086\",\r\n            \"id\": \"7e8641e5-e5c1-4ab6-a8f4-1fd6a8686dbe\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -241,7 +279,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"skills\": [\r\n    {\r\n      \"id\": \"00038ad8-9bd1-47b4-8477-256e214a9f82\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    },\r\n    {\r\n      \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n      \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n    }\r\n  ]\r\n}",
+							"raw": "{\r\n    \"skills\": [\r\n        {\r\n            \"id\": \"00038ad8-9bd1-47b4-8477-256e214a9f82\",\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n        },\r\n        {\r\n            \"id\": \"03479d61-82e6-40b5-b9a2-b2ca60ea2701\",\r\n            \"displayModeId\": \"1555aa05-a764-4f0b-b3e0-51b824382abb\",\r\n            \"levelId\": \"5641bd98-784f-4f42-ad38-3ec2fc23de16\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -256,6 +294,63 @@
 							"path": [
 								"user-skills",
 								"{{userId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "get user skills display modes",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/user-skills/display-modes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"user-skills",
+								"display-modes"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "perPage",
+									"value": "2",
+									"disabled": true
+								},
+								{
+									"key": "sortBy",
+									"value": "level",
+									"description": "name, level, category",
+									"disabled": true
+								},
+								{
+									"key": "sortOrder",
+									"value": "DESC",
+									"description": "ASC, DESC",
+									"disabled": true
+								},
+								{
+									"key": "disablePagination",
+									"value": "false",
+									"disabled": true
+								}
 							]
 						}
 					},
@@ -284,6 +379,42 @@
 						"body": {
 							"mode": "raw",
 							"raw": "{\r\n    \"topic\": \"challenge.notification.update\",\r\n    \"originator\": \"topcoder-challenges-api\",\r\n    \"timestamp\": \"2022-10-03T00:27:16.291Z\",\r\n    \"mime-type\": \"application/json\",\r\n    \"payload\": {\r\n        \"status\": \"Completed\",\r\n        \"description\": \"Java Backend Developer with Kubernetes circleci angular nodejs javascript microsoft WCF knowledge\",\r\n        \"id\": \"813ce9a4-e213-4b34-875b-f3ad87b4baa5\",\r\n        \"tags\": [\r\n            \"Java\"\r\n        ],\r\n        \"skills\": [\r\n            {\r\n                \"id\": \"002015b4-9bcb-4b85-9d46-e648d0375a54\",\r\n                \"name\": \"Spring Data\",\r\n                \"category\": {\r\n                    \"name\": \"Programming and Development\",\r\n                    \"id\": \"481b5ebc-2fe6-45ed-a90c-736936d458d7\"\r\n                }\r\n            },\r\n            {\r\n                \"id\": \"02ef295b-7b65-487f-9172-2a31360b3363\",\r\n                \"name\": \"Spring Boot\",\r\n                \"category\": {\r\n                    \"name\": \"Programming and Development\",\r\n                    \"id\": \"481b5ebc-2fe6-45ed-a90c-736936d458d7\"\r\n                }\r\n            }\r\n        ],\r\n        \"winners\": [\r\n            {\r\n                \"handle\": \"devolariu\",\r\n                \"placement\": 1,\r\n                \"userId\": 88779225\r\n            }\r\n        ]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skill-events",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skill-events"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "TCACompletedSkillEvent",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"topic\": \"tca.notification.update\",\r\n    \"originator\": \"topcoder-learning-paths-api\",\r\n    \"timestamp\": \"2023-11-14T00:27:16.291Z\",\r\n    \"mime-type\": \"application/json\",\r\n    \"payload\": {\r\n        \"id\": \"f83b6763-a01a-46a8-ac33-5d5ada911451\",\r\n        \"skills\": [\r\n            {\r\n                \"id\": \"002015b4-9bcb-4b85-9d46-e648d0375a54\"\r\n            },\r\n            {\r\n                \"id\": \"02ef295b-7b65-487f-9172-2a31360b3363\"\r\n            }\r\n        ],\r\n        \"type\": \"certification\",\r\n        \"winner\": {\r\n            \"userId\": 88774619\r\n        }\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

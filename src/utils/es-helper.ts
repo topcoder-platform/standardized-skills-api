@@ -47,7 +47,7 @@ export function getMembersESClient() {
 
 /**
  * Indexes skills in the standardized_skills_suggester elasticsearch in bulk
- * @param {Array<{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}>} skills the skills to index in the skills autocomplete suggester ES
+ * @param {Array<{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}>} skills - the skills to index in the skills autocomplete suggester ES
  */
 export async function bulkCreateSkillsES(
     skills: {
@@ -75,7 +75,7 @@ export async function bulkCreateSkillsES(
             },
             {
                 doc: _.assign({}, skill, {
-                    name_suggest: { input: helper.generateEmsiSkillSuggestionInputs(skill.name) },
+                    name_suggest: { input: helper.generateStandardizedSkillSuggestionInputs(skill.name) },
                 }),
             },
         ]);
@@ -93,7 +93,7 @@ export async function bulkCreateSkillsES(
 
 /**
  * Searches elasticsearch and returns an array of skills that match the query
- * @param {{ term: string; size: number }} query the query object to use for autocomplete
+ * @param {{ term: string; size: number }} query - the query object to use for autocomplete
  * @returns {Promise<Array<Record<string, any>>>}
  */
 export const autocompleteSkills = async (query: {
@@ -152,7 +152,7 @@ export const autocompleteSkills = async (query: {
 
 /**
  * Searches elasticsearch challenge index by the challenge id
- * @param {String} id the uuid v4 id of the challenge
+ * @param {String} id - the uuid v4 id of the challenge
  * @returns {Promise<Record<string, any>>} the challenge document if found or empty object
  */
 export const getChallengeById = async (id: string): Promise<Record<string, any>> => {
@@ -175,7 +175,7 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
 
 /**
  * Searches elasticsearch job index by the job id
- * @param {String} id the uuid v4 id of the gig
+ * @param {String} id - the uuid v4 id of the gig
  * @returns {Promise<Record<string, any>>} the gig document if found or empty object
  */
 export const getJobById = async (id: string): Promise<Record<string, any>> => {
@@ -198,7 +198,7 @@ export const getJobById = async (id: string): Promise<Record<string, any>> => {
 
 /**
  * Searches elasticsearch members-2020-01 index by the member id
- * @param {String} id the uuid v4 id of the member
+ * @param {String} id - the uuid v4 id of the member
  * @returns {Promise<Record<string, any>>} the member document if found or empty object
  */
 export const getMemberById = async (id: string): Promise<Record<string, any>> => {
@@ -221,8 +221,8 @@ export const getMemberById = async (id: string): Promise<Record<string, any>> =>
 
 /**
  * Updates the elasticsearch challenge document indentified by id with the provided skills
- * @param {String} id the uuid v4 id of the challenge to update
- * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills the skills to update in the challenge
+ * @param {String} id - the uuid v4 id of the challenge to update
+ * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills - the skills to update in the challenge
  */
 export const updateSkillsInChallengeES = async (
     id: string,
@@ -246,8 +246,8 @@ export const updateSkillsInChallengeES = async (
 
 /**
  * Updates the elasticsearch job document indentified by id with the provided skills
- * @param {String} id the uuid v4 id of the gig to update
- * @param {Array<string>} skills the uuid id of skills to update in the job index
+ * @param {String} id - the uuid v4 id of the gig to update
+ * @param {Array<string>} skills - the uuid id of skills to update in the job index
  */
 export const updateSkillsInJobES = async (id: string, skills: string[]) => {
     logger.info(`Update skills in job ${id} with skills: ${JSON.stringify(skills)}`);
@@ -268,9 +268,9 @@ export const updateSkillsInJobES = async (id: string, skills: string[]) => {
 
 /**
  * Updates the elasticsearch member profiles indentified by id with the provided skills
- * @param {String} id the uuid v4 id of the member to update
+ * @param {String} id - the uuid v4 id of the member to update
  * @param {Array<{ id: string; name: string; category: { id: string; name: string };
- * levels: {id: string; name: string; description: string}[]}>} skills the skills to update in the member profile
+ * levels: {id: string; name: string; description: string}[]}>} skills - the skills to update in the member profile
  */
 export const updateSkillsInMemberES = async (
     id: string,
@@ -298,7 +298,7 @@ export const updateSkillsInMemberES = async (
 
 /**
  * Creates the skill in skills autocomplete ES
- * @param {{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}} skill
+ * @param {{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}} skill -
  * the skill to be created
  */
 export const createSkillInAutocompleteES = async (skill: {
@@ -312,7 +312,7 @@ export const createSkillInAutocompleteES = async (skill: {
     skillsESClient = getSkillsESClient();
 
     // generate the name suggestions on which Elasticsearch will provide autocomplete feature
-    const doc = assign({}, skill, { name_suggest: helper.generateEmsiSkillSuggestionInputs(skill.name) });
+    const doc = assign({}, skill, { name_suggest: helper.generateStandardizedSkillSuggestionInputs(skill.name) });
     await skillsESClient.create({
         id: skill.id,
         index: envConfig.SKILLS_ES.INDEX,
@@ -326,7 +326,7 @@ export const createSkillInAutocompleteES = async (skill: {
 
 /**
  * Updates the skill with the latest information in skills autocomplete ES
- * @param {{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}} skill
+ * @param {{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}} skill -
  * the skill to update in skills autocomplete ES
  */
 export const updateSkillInAutocompleteES = async (skill: {
@@ -341,7 +341,7 @@ export const updateSkillInAutocompleteES = async (skill: {
     );
 
     skillsESClient = getSkillsESClient();
-    const doc = assign({}, skill, { name_suggest: helper.generateEmsiSkillSuggestionInputs(skill.name) });
+    const doc = assign({}, skill, { name_suggest: helper.generateStandardizedSkillSuggestionInputs(skill.name) });
     await skillsESClient.index({
         id: skill.id,
         index: envConfig.SKILLS_ES.INDEX,
@@ -354,8 +354,8 @@ export const updateSkillInAutocompleteES = async (skill: {
 
 /**
  * Updates the category name of affected skills across the skills autocomplete index
- * @param id the uuid id of the category
- * @param name the updated name of the category
+ * @param {string} id - the uuid id of the category
+ * @param {string} name - the updated name of the category
  */
 export const updateSkillCategoryInAutocompleteES = async (id: string, name: string) => {
     logger.info(`Updating affected skills in skills autocomplete Elasticsearch index with new category name: ${name}`);
@@ -385,7 +385,7 @@ export const updateSkillCategoryInAutocompleteES = async (id: string, name: stri
 
 /**
  * Deletes a skill from the skills autocomplete ES
- * @param {string} id the id of the skill to be deleted
+ * @param {string} id - the id of the skill to be deleted
  */
 export const deleteSkillFromAutocompleteES = async (id: string) => {
     logger.info(`Deleting skill from autocomplete Elasticsearch index with id ${id}`);

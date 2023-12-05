@@ -1,20 +1,43 @@
 import { NextFunction, Request, Response } from 'express';
 
-import { SetWorkSkillsRequestBodyDto } from '../dto';
+import { WorkSkillsRequestBodyDto, JobIdRequestParamDto, ChallengeIdRequestParamDto } from '../dto';
 import * as workSkillsService from '../services/WorkSkillsService';
 import * as core from 'express-serve-static-core';
+import { AuthorizedRequest } from '../types';
 
 export default class WorkSkillsController {
     /**
-     * Create association for the work & provided skills
+     * Associates the given skills with the given job/gig id
      */
-    async setWorkSkills(
-        req: Request<{ [key: string]: string }, any, SetWorkSkillsRequestBodyDto, core.Query, Record<string, any>>,
+    async setJobSkills(
+        req: Request<JobIdRequestParamDto, any, WorkSkillsRequestBodyDto, core.Query, Record<string, any>>,
         res: Response,
         next: NextFunction,
     ) {
         try {
-            await workSkillsService.createWorkSkills(req.body);
+            await workSkillsService.createJobSkills(req.params.jobId, req.body.skillIds);
+            res.status(201).json();
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    /**
+     * Associates the given skills with the given challenge id
+     */
+    async setChallengeSkills(
+        req: AuthorizedRequest<
+            ChallengeIdRequestParamDto,
+            any,
+            WorkSkillsRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            await workSkillsService.createChallengeSkills(req.userToken, req.params.challengeId, req.body.skillIds);
             res.status(201).json();
         } catch (error) {
             next(error);

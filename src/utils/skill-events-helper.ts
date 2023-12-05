@@ -1,5 +1,5 @@
 import crypto, { BinaryToTextEncoding } from 'crypto';
-import { envConfig } from '../config';
+import { SkillEventTypes, envConfig } from '../config';
 import { Event, SkillEvent, SkillEventType } from '../db';
 import { Transaction, UniqueConstraintError } from 'sequelize';
 import { ConflictError, NotFoundError } from './errors';
@@ -8,6 +8,7 @@ import * as esHelper from '../utils/es-helper';
 import { ChallengeWinnerDto, UserSkillDto } from '../dto';
 
 let localSkillEventTypes: Promise<SkillEventType[]>;
+export const REVIEWER_TYPE_KEY = 'reviewer';
 
 /**
  * Create a hash string for the passed in data
@@ -50,7 +51,7 @@ export async function ensurePayloadChallengeExists(id: string) {
 /**
  * Checks each payload winner's id against Elasticsearch index and make sure they exist
  */
-export async function ensurePayloadWinnersAreValidUsers(winners: { userId: string }[]) {
+export async function ensurePayloadWinnersAreValidUsers(winners: { userId: number }[]) {
     const membersPromises = winners.map((winner) => esHelper.getMemberById(toString(winner.userId)));
     const members = await Promise.all(membersPromises);
 
@@ -72,49 +73,63 @@ export async function fetchAllSkillEventTypes(freshFetch = false) {
 }
 
 /**
- * Get a map of SkillEventTypes based on all possible places a user can receive if they win a challenge
+ * Get a map of SkillEventTypes based on:
+ * - all possible places a user can receive if they win a challenge
+ * - if they're reviewers or not
  */
-async function getSkillEventTypesPlacementMap() {
+async function getSkillEventTypesMap() {
     const allSkillEventTypes = await fetchAllSkillEventTypes();
 
     return {
-        '1': find(allSkillEventTypes, { name: 'challenge_win' }),
-        '2': find(allSkillEventTypes, { name: 'challenge_2nd_place' }),
-        '3': find(allSkillEventTypes, { name: 'challenge_3rd_place' }),
-        default: find(allSkillEventTypes, { name: 'challenge_finisher' }),
+        // reviewer type
+        [REVIEWER_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeReview }),
+        // winners placements types
+        '1': find(allSkillEventTypes, { name: SkillEventTypes.challengeWin }),
+        '2': find(allSkillEventTypes, { name: SkillEventTypes.challenge2ndPlace }),
+        '3': find(allSkillEventTypes, { name: SkillEventTypes.challenge3rdPlace }),
+        // tca
+        [SkillEventTypes.tcaCertCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCertCompleted }),
+        [SkillEventTypes.tcaCourseCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCourseCompleted }),
+        // TODO: add more types here as needed
+        // fallback type
+        default: find(allSkillEventTypes, { name: SkillEventTypes.challengeFinisher }),
     };
 }
 
 /**
  * Get the SkillEventType based on the placement a user received on a challenge
- * If placement is different than [1,2,3], then we return the "challenge finisher" type
+ * If placement is different than [1,2,3], then check if user is a reviewer,
+ * then we return the "challenge finisher" type as a fallback
  */
-export function getSkillEventTypesByPlacement(
-    placementMap: { [key: string]: SkillEventType | undefined },
-    placement: number,
+export function getSkillEventType(
+    eventTypesMap: { [key: string]: SkillEventType | undefined },
+    eventTypeSelector: number | string,
 ) {
-    return get(placementMap, `[${placement}]`, placementMap.default) as SkillEventType;
+    return get(eventTypesMap, `[${eventTypeSelector}]`, eventTypesMap.default) as SkillEventType;
 }
 
 /**
- * Creates the SkillEvents specific to each earned skill for a challenge winner (user)
- * @param user the winner that's earning the skills
- * @param payloadSkills The skills from the event payload
- * @param eventId The event id that triggered the skill event
- * @param sourceId The challenge id that the user won
- * @param sourceTypeId The challenge specific SourceType's id
- * @param tx The context transaction that this update is taking place into
+ * Creates the SkillEvents specific to each earned skill for a user
+ *
+ * @param user - the winner that's earning the skills
+ * @param payloadSkills - The skills from the event payload
+ * @param eventId - The event id that triggered the skill event
+ * @param sourceId - The event source id that the user won/completed
+ * @param sourceTypeId - The event specific SourceType's id
+ * @param tx - The context transaction that this update is taking place into
+ * @param skillEventType - The skill event type name to use for the skill event
  * @returns Promise<SkillEvent[]>
  */
 export async function createSkillEventsForUser(
-    user: ChallengeWinnerDto,
+    user: Partial<ChallengeWinnerDto & { type: string }>,
     payloadSkills: UserSkillDto[],
     eventId: string,
     sourceId: string,
     sourceTypeId: string,
     tx: Transaction,
+    skillEventType?: SkillEventTypes,
 ) {
-    const placementMap = await getSkillEventTypesPlacementMap();
+    const eventTypesMap = await getSkillEventTypesMap();
     const skillEvents = [];
 
     for (const skill of payloadSkills) {
@@ -124,7 +139,8 @@ export async function createSkillEventsForUser(
             skill_id: skill.id,
             source_id: sourceId,
             source_type_id: sourceTypeId,
-            skill_event_type_id: getSkillEventTypesByPlacement(placementMap, user.placement).id,
+            skill_event_type_id: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '')
+                .id,
         });
     }
 

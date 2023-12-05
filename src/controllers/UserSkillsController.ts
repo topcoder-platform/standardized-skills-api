@@ -1,12 +1,50 @@
 import { NextFunction, Response } from 'express';
 
-import { GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto, UserIdParamDto } from '../dto';
+import {
+    GetUserSkillsDisplayModeParamDto,
+    GetUserSkillsDisplayModesQueryDto,
+    GetUserSkillsQueryDto,
+    UpdateUserSkillsRequestBodyDto,
+    UserIdParamDto,
+} from '../dto';
 import * as UserSkillsService from '../services/UserSkillsService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
 import * as core from 'express-serve-static-core';
 
 export default class UserSkillsController {
+    /**
+     * Get the display modes for the user skills
+     */
+    async getUserSkillsDisplayModes(
+        req: AuthorizedRequest<any, any, any, GetUserSkillsDisplayModesQueryDto, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const { displayModes, ...paginationData } = await UserSkillsService.getUserSkillsDisplayModes(req.query);
+            setResHeaders(res, paginationData);
+            res.status(200).json(displayModes);
+        } catch (error) {
+            next(error);
+        }
+    }
+    /**
+     * Get the display modes for the user skills
+     */
+    async getUserSkillsDisplayModeByName(
+        req: AuthorizedRequest<GetUserSkillsDisplayModeParamDto, any, any, any, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) {
+        try {
+            const displayMode = await UserSkillsService.getUserSkillsDisplayModeByName(req.params.name);
+            res.status(200).json(displayMode);
+        } catch (error) {
+            next(error);
+        }
+    }
+
     /**
      * Get the associated skills for the User
      */

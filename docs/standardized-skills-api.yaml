@@ -16,12 +16,14 @@ paths:
     get:
       operationId: searchSkills
       tags: ['Standardized Skills API']
-      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br> Parameter skillIds should be valid comma-separated skill uuids. <br> Parameter name is a string used to fetch skills that contain the name value anywhere in the skill name. When the skillIds are specified, the name parameter is ignored. <br> If no criteria is provided, all available skills are fetched.'
+      description: 'This endpoint returns the list of all available standardized skills that match the specified criteria and returns them in a paginated fashion unless disablePagination header is set to true. <br> Parameter skillIds should be valid comma-separated skill uuids. <br> Parameter name is an array of skill-names used to fetch skills that are an exact match. When the skillIds are specified, the name parameter is ignored. <br> If no criteria is provided, all available skills are fetched.'
       parameters:
         - in: query
           name: name
           schema:
-            type: string
+            type: array
+            items:
+              type: string
         - in: query
           name: skillId
           schema:
@@ -790,6 +792,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'              
+  /user-skills/display-modes:
+    get:
+      operationId: getAllUserSkillsDisplayModes
+      tags: ['Standardized Skills API']
+      description: 'This endpoint returns all the user skills display modes. These display modes allow the user to control the way the skills are presented in their profiles'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserSkillDisplayMode'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
   /user-skills/{userId}:
     get:
       operationId: getAllUserSkills
@@ -1129,26 +1151,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ServerErrorResponse'
-  /work-skills:
+  /job-skills/{jobId}:
     post:
-      operationId: 'createWorkSkills'
+      operationId: 'createJobSkills'
       tags: ['Standardized Skills API']
-      description: 'Associates a list of skills to the work identified by workId and workTypeId'
+      description: 'Associates a list of skills to the job/gig indentified by jobId'
+      parameters:
+        - in: path
+          name: jobId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the job/gig to associate skills with'
       requestBody:
-        description: 'Associates the skills identified by the specified skill ids with the given work identified by workId and workTypeId'
+        description: 'Associates the skills identified by the specified skill ids with the given job/gig'
         required: true
         content:
           application/json:
             schema:
               type: object
-              required: ['workId', 'workTypeId']
               properties:
-                workId:
-                  type: string
-                  format: uuid
-                workTypeId:
-                  type: string
-                  format: uuid
                 skillIds:
                   type: array
                   items:
@@ -1174,7 +1197,66 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServerErrorResponse'
+                $ref: '#/components/schemas/ServerErrorResponse'              
+  /challenge-skills/{challengeId}:
+    post:
+      operationId: 'createChallengeSkills'
+      tags: ['Standardized Skills API']
+      description: 'Associates a list of skills to the challenge indentified by challengeId'
+      parameters:
+        - in: path
+          name: challengeId
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the challenge to associate skills with'
+      requestBody:
+        description: 'Associates the skills identified by the specified skill ids with the given challenge'
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                skillIds:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '201':
+          description: 'Created'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'
+        '401':
+          description: 'Unauthorized Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnauthorizedErrorResponse'        
+        '403':
+          description: 'Forbidden Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForbiddenErrorResponse'        
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'                            
   /skill-events:
     post:
       operationId: 'recordSkillEvent'
@@ -1301,6 +1383,9 @@ components:
         levelId:
           type: string
           format: uuid
+        displayModeId:
+          type: string
+          format: uuid
     UserSkill:
       properties:
         id:
@@ -1314,6 +1399,8 @@ components:
          type: array
          items:
           $ref: '#/components/schemas/SkillLevel'
+        displayMode:
+          $ref: '#/components/schemas/UserSkillDisplayMode'
     SkillSourceType:
       properties:
         id:
@@ -1333,7 +1420,15 @@ components:
           type: string
           example: 'self-declared'
         description:
-          type: string      
+          type: string    
+    UserSkillDisplayMode:
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          enum: ['principal', 'additional']
+          example: 'principal'
     WorkSkill:
       properties:
         id:
@@ -1347,6 +1442,10 @@ components:
       properties:
         message:
           type: string
+    UnauthorizedErrorResponse:
+      properties:
+        message:
+          type: string      
     ServerErrorResponse:
       properties:
         message:
