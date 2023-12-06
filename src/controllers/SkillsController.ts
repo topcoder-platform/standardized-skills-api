@@ -81,7 +81,29 @@ export default class SkillsController {
     ) => {
         try {
             const skill = await skillsService.updateSkill(req.authUser, req.body, req.params.skillId);
-            res.status(201).json(skill);
+            res.status(200).json(skill);
+        } catch (error) {
+            next(error);
+        }
+    };
+
+    /**
+     * Restores an archived skill
+     */
+    restoreSkill = async (
+        req: AuthorizedRequest<
+            dtos.SkillIdRequestPathParamDto,
+            any,
+            dtos.SkillUpdatePutRequestBodyDto,
+            core.Query,
+            Record<string, any>
+        >,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const skill = await skillsService.restoreSkill(req.params.skillId);
+            res.status(200).json(skill);
         } catch (error) {
             next(error);
         }

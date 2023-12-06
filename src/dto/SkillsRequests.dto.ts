@@ -10,6 +10,7 @@ import {
     IsIn,
     ValidateIf,
     ArrayUnique,
+    IsBooleanString,
 } from 'class-validator';
 import { BasePaginatedSortedRequest } from './BaseRequest.dto';
 import { Transform, Type } from 'class-transformer';
@@ -24,6 +25,10 @@ export class SkillIdRequestPathParamDto {
 }
 
 export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
+    @IsOptional()
+    @IsBooleanString()
+    showArchived?: string;
+
     @Transform(({ value }) => (!isArray(value) ? [value] : value))
     @IsOptional()
     @IsUUID('all', { each: true })
