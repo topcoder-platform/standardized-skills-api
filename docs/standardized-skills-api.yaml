@@ -61,6 +61,11 @@ paths:
           schema:
             type: string
             enum: ['true', 'false']
+        - in: query
+          name: showArchived
+          schema:
+            type: string
+            enum: ['true', 'false']
       responses:
         '200':
           description: 'OK'
@@ -337,7 +342,45 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ServerErrorResponse'            
+                $ref: '#/components/schemas/ServerErrorResponse'
+  /skills/{skillId}/restore:
+    put:
+      operationId: restoreSkill
+      tags: ['Standardized Skills API']
+      description: 'This endpoint restores a skill by id'
+      parameters:
+        - in: path
+          required: true
+          name: skillId
+          schema:
+            type: string
+            format: uuid
+          description: 'The id of the skill to retrieve'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StandardizedSkill'
+        '400':
+          description: 'Bad Request Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestResponse'        
+        '404':
+          description: 'Not Found Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotFoundErrorResponse'
+        '500':
+          description: 'Server Error'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServerErrorResponse'
   /categories:
     get:
       operationId: searchSkillCategories
