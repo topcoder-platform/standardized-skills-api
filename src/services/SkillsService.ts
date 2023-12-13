@@ -427,13 +427,27 @@ export const restoreSkill = async (id: string) => {
         }
 
         await skill.restore();
+        
+        // fetch updated skill details from PostgreSQL
+        const skillDetails = await Skill.findByPk(id, {
+            attributes: ['id', 'name', 'description', 'created_at', 'updated_at'],
+            include: {
+                model: SkillCategory,
+                as: 'category',
+                attributes: ['id', 'name', 'description'],
+            },
+        });
+
+        if (isNull(skillDetails)) {
+            throw new InternalServerError('Unable to fetch updated skill details from database!');
+        }
 
         esHelper.updateSkillInAutocompleteES({
-            id: skill.id,
-            name: skill.name,
+            id: skillDetails.id,
+            name: skillDetails.name,
             category: {
-                id: skill.category.id,
-                name: skill.category.name,
+                id: skillDetails.category.id,
+                name: skillDetails.category.name,
             },
             createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
             updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
