@@ -79,9 +79,10 @@ export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
         query,
         findAndCountOptions,
     );
+
     isEmpty(skills)
         ? logger.info('No skills found!')
-        : logger.info(`Fetched skills successfully: ${JSON.stringify(skills)}`);
+        : logger.info('Fetched skills successfully!');
 
     return {
         skills,
@@ -409,6 +410,36 @@ export const deleteSkill = async (user: AuthUser, id: string) => {
         esHelper.deleteSkillFromAutocompleteES(id);
 
         logger.info(`Successfully deleted skill with id ${id}`);
+    });
+};
+
+/**
+ * Restore an archived (soft-deleted) skill from the PostgreSQL and Elasticsearch index
+ * @param {string} id - the id of the skill to be deleted
+ */
+export const restoreSkill = async (id: string) => {
+    logger.info(`Restoring archived skill with id ${id}`);
+
+    return await db.sequelize.transaction(async () => {
+        const skill = await Skill.findByPk(id, {paranoid: false});
+        if (isNull(skill)) {
+            throw new NotFoundError(`The skill with id ${id} does not exist!`);
+        }
+
+        await skill.restore();
+
+        esHelper.updateSkillInAutocompleteES({
+            id: skill.id,
+            name: skill.name,
+            category: {
+                id: skill.category.id,
+                name: skill.category.name,
+            },
+            createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
+            updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
+        });
+
+        logger.info(`Successfully restored archived skill with id ${id}`);
     });
 };
 

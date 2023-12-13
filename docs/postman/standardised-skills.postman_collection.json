@@ -996,6 +996,44 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "restore skill",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10/restore",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
+								"restore"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},

@@ -84,6 +84,19 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/skills/:skillId/restore',
+        verb: 'put',
+        controller: 'SkillsController',
+        method: 'restoreSkill',
+        auth: true,
+        access: [config.UserRoles.Admin],
+        validation: {
+            params: {
+                dto: SkillIdRequestPathParamDto,
+            },
+        },
+    },
+    {
         path: '/skills/:skillId',
         verb: 'put',
         controller: 'SkillsController',
