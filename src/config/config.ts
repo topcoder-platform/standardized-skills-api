@@ -34,12 +34,6 @@ export const envConfig = {
         CHALLENGES_DOCUMENT_TYPE: process.env.CHALLENGES_ES_DOCUMENT_TYPE || '_doc',
         REFRESH: process.env.CHALLENGES_ES_REFRESH || false,
     },
-    JOBS_ES: {
-        HOST: process.env.JOBS_ES_HOST || 'http://localhost:9200',
-        JOB_INDEX: process.env.JOBS_ES_INDEX || 'job',
-        JOB_DOCUMENT_TYPE: process.env.JOBS_ES_DOCUMENT_TYPE || '_doc',
-        REFRESH: process.env.JOBS_ES_REFRESH || false,
-    },
     MEMBERS_ES: {
         HOST: process.env.MEMBERS_ES_HOST || 'http://localhost:9201',
         MEMBERS_INDEX: process.env.MEMBERS_ES_INDEX || 'members-2020-01',

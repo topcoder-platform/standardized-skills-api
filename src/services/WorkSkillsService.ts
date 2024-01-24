@@ -33,9 +33,6 @@ export async function createJobSkills(jobId: string, skillIds: string[]) {
         // create the association between job/gig and skill
         await associateSkillsToWorkId(jobId, workTypeDetail, skillIds, tx);
 
-        // update Elasticsearch job index to reflect the new association
-        await esHelper.updateSkillsInJobES(jobId, skillIds);
-
         logger.info(`Successfully associated skills to job with id ${jobId}`);
     });
 }
@@ -107,7 +104,8 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
     switch (workType) {
         case 'gig':
             // check valid gig id
-            if (_.isEmpty(await esHelper.getJobById(workId))) {
+            const jobId = (await tcAPI.get(`/jobs/${workId}`)).body.id as string;
+            if (jobId !== workId) {
                 throw new NotFoundError(`job/gig with id='${workId}' does not exist!`);
             }
 

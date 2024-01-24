@@ -80,7 +80,7 @@ export async function findAndCountPaginated<T>(
 
     if ((queryOptions as any).showArchived === 'true') {
         pgQuery.paranoid = false;
-        pgQuery.attributes = [...(pgQuery.attributes as string[]) ?? [], 'deleted_at'];
+        pgQuery.attributes = [...((pgQuery.attributes as string[]) ?? []), 'deleted_at'];
     }
 
     const [count, rows] = await Promise.all([
