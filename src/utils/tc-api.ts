@@ -1,4 +1,5 @@
 import { pick } from 'lodash';
+import { LoggerClient } from './LoggerClient';
 import request, { SuperAgentRequest } from 'superagent';
 // we override the default linting and ts rules to allow the use of tc-core-library-js
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -14,10 +15,11 @@ const m2m = m2mAuth(
         'AUTH0_URL',
         'AUTH0_AUDIENCE',
         'AUTH0_CLIENT_ID',
-        'AUTH0_CLIENT_SECRET',
-        'AUTH0_PROXY_SERVER_URL',
+        'AUTH0_CLIENT_SECRET'
     ]),
 );
+
+
 
 /**
  * Get a valid M2M authorization token
