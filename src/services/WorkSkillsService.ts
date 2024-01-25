@@ -101,14 +101,18 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
  * @param {Array<string>} skillIds - the array of uuid skill ids
  */
 async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId: string, skillIds: string[]) {
-    logger.info(`Validating request for work type ${workType} with id ${workId} and skillIds ${JSON.stringify(skillIds)}}`);
+    logger.info(
+        `Validating request for work type ${workType} with id ${workId} and skillIds ${JSON.stringify(skillIds)}}`,
+    );
 
     switch (workType) {
         case 'gig':
             // check valid gig id
-            const jobId = (await tcAPI.get(`/jobs/${workId}`)).body.id as string;
-            
-            logger.info(`jobId from TaaS API: ${jobId}`);
+            const response = (await tcAPI.get(`/jobs/${workId}`)).body;
+            logger.info(`response from taas-api for job ${workId}: ${JSON.stringify(response)}`);
+
+            const jobId = response.id as string;
+            logger.info(`Retrieved jobId from taas-api: ${jobId}`);
 
             if (jobId !== workId) {
                 throw new NotFoundError(`job/gig with id='${workId}' does not exist!`);
