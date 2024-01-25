@@ -108,14 +108,15 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
     switch (workType) {
         case 'gig':
             // check valid gig id
-            const response = (await tcAPI.get(`/jobs/${workId}`)).body;
-            logger.info(`response from taas-api for job ${workId}: ${JSON.stringify(response)}`);
-
-            const jobId = response.id as string;
-            logger.info(`Retrieved jobId from taas-api: ${jobId}`);
-
-            if (jobId !== workId) {
-                throw new NotFoundError(`job/gig with id='${workId}' does not exist!`);
+            try {
+                const response = (await tcAPI.get(`/jobs/${workId}`)).body;
+                logger.info(`response from taas-api for job ${workId}: ${JSON.stringify(response)}`);
+            } catch (error: any) {
+                errorHelper.handleAndTransformAPIError(
+                    error.status,
+                    error.response?.text ? JSON.parse(error.response.text).message : error.message,
+                    'Unable to associate skills to job! Please retry.',
+                );
             }
 
             break;
