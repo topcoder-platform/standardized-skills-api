@@ -90,7 +90,6 @@ workflows:
             branches:
               only:
                 - develop
-                - feature/tsjr-358-drop-job-es-index
       - "build-prod":
           context: org-global
           filters:
