@@ -80,9 +80,7 @@ export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
         findAndCountOptions,
     );
 
-    isEmpty(skills)
-        ? logger.info('No skills found!')
-        : logger.info('Fetched skills successfully!');
+    isEmpty(skills) ? logger.info('No skills found!') : logger.info('Fetched skills successfully!');
 
     return {
         skills,
@@ -421,13 +419,13 @@ export const restoreSkill = async (id: string) => {
     logger.info(`Restoring archived skill with id ${id}`);
 
     return await db.sequelize.transaction(async () => {
-        const skill = await Skill.findByPk(id, {paranoid: false});
+        const skill = await Skill.findByPk(id, { paranoid: false });
         if (isNull(skill)) {
             throw new NotFoundError(`The skill with id ${id} does not exist!`);
         }
 
         await skill.restore();
-        
+
         // fetch updated skill details from PostgreSQL
         const skillDetails = await Skill.findByPk(id, {
             attributes: ['id', 'name', 'description', 'created_at', 'updated_at'],

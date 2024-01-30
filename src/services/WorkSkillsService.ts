@@ -33,9 +33,6 @@ export async function createJobSkills(jobId: string, skillIds: string[]) {
         // create the association between job/gig and skill
         await associateSkillsToWorkId(jobId, workTypeDetail, skillIds, tx);
 
-        // update Elasticsearch job index to reflect the new association
-        await esHelper.updateSkillsInJobES(jobId, skillIds);
-
         logger.info(`Successfully associated skills to job with id ${jobId}`);
     });
 }
@@ -104,11 +101,22 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
  * @param {Array<string>} skillIds - the array of uuid skill ids
  */
 async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId: string, skillIds: string[]) {
+    logger.info(
+        `Validating request for work type ${workType} with id ${workId} and skillIds ${JSON.stringify(skillIds)}}`,
+    );
+
     switch (workType) {
         case 'gig':
             // check valid gig id
-            if (_.isEmpty(await esHelper.getJobById(workId))) {
-                throw new NotFoundError(`job/gig with id='${workId}' does not exist!`);
+            try {
+                const response = (await tcAPI.get(`/jobs/${workId}`)).body;
+                logger.info(`response from taas-api for job ${workId}: ${JSON.stringify(response)}`);
+            } catch (error: any) {
+                errorHelper.handleAndTransformAPIError(
+                    error.status,
+                    error.response?.text ? JSON.parse(error.response.text).message : error.message,
+                    'Unable to associate skills to job! Please retry.',
+                );
             }
 
             break;

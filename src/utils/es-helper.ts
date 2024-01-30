@@ -8,7 +8,6 @@ import { LoggerClient } from '../utils/LoggerClient';
 import * as constants from '../config/constants';
 
 let skillsESClient: elasticsearch7.Client;
-let jobsESClient: elasticsearch7.Client;
 let challengesESClient: elasticsearch6.Client;
 let membersESClient: elasticsearch6.Client;
 const logger = new LoggerClient('es-helper');
@@ -26,14 +25,6 @@ export function getChallengesESClient() {
     else {
         challengesESClient = new elasticsearch6.Client({ node: envConfig.CHALLENGES_ES.HOST });
         return challengesESClient;
-    }
-}
-
-export function getJobsESClient() {
-    if (jobsESClient) return jobsESClient;
-    else {
-        jobsESClient = new elasticsearch7.Client({ node: envConfig.JOBS_ES.HOST });
-        return jobsESClient;
     }
 }
 
@@ -174,29 +165,6 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
 };
 
 /**
- * Searches elasticsearch job index by the job id
- * @param {String} id - the uuid v4 id of the gig
- * @returns {Promise<Record<string, any>>} the gig document if found or empty object
- */
-export const getJobById = async (id: string): Promise<Record<string, any>> => {
-    logger.info(`Fetch job with id: ${id} from ES`);
-    try {
-        jobsESClient = getJobsESClient();
-        const job: Record<string, any> = await jobsESClient.get({
-            id,
-            index: envConfig.JOBS_ES.JOB_INDEX,
-            type: envConfig.JOBS_ES.JOB_DOCUMENT_TYPE,
-            refresh: envConfig.JOBS_ES.REFRESH as boolean,
-        });
-        logger.info(`Job with id: ${id} found in Elasticsearch`);
-        return job.body._source;
-    } catch (error) {
-        logger.error(`Unable to fetch job with id: ${id} from Elasticsearch`);
-        return {};
-    }
-};
-
-/**
  * Searches elasticsearch members-2020-01 index by the member id
  * @param {String} id - the uuid v4 id of the member
  * @returns {Promise<Record<string, any>>} the member document if found or empty object
@@ -242,28 +210,6 @@ export const updateSkillsInChallengeES = async (
         },
     });
     logger.info(`Challenge ${id} successfully updated with skills`);
-};
-
-/**
- * Updates the elasticsearch job document indentified by id with the provided skills
- * @param {String} id - the uuid v4 id of the gig to update
- * @param {Array<string>} skills - the uuid id of skills to update in the job index
- */
-export const updateSkillsInJobES = async (id: string, skills: string[]) => {
-    logger.info(`Update skills in job ${id} with skills: ${JSON.stringify(skills)}`);
-
-    jobsESClient = getJobsESClient();
-    await jobsESClient.update({
-        index: envConfig.JOBS_ES.JOB_INDEX,
-        type: envConfig.JOBS_ES.JOB_DOCUMENT_TYPE,
-        id,
-        body: {
-            doc: {
-                skills,
-            },
-        },
-    });
-    logger.info(`Job ${id} successfully updated with skills`);
 };
 
 /**

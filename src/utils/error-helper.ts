@@ -25,5 +25,9 @@ export function handleAndTransformAPIError(statusCode: number, message: string, 
         case 500:
             throw new InternalServerError(internalServerErrorMsg);
             break;
+
+        default:
+            throw new InternalServerError(internalServerErrorMsg);
+            break;
     }
 }
