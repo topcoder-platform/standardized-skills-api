@@ -79,9 +79,8 @@ export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
         query,
         findAndCountOptions,
     );
-    isEmpty(skills)
-        ? logger.info('No skills found!')
-        : logger.info(`Fetched skills successfully: ${JSON.stringify(skills)}`);
+
+    isEmpty(skills) ? logger.info('No skills found!') : logger.info('Fetched skills successfully!');
 
     return {
         skills,
@@ -409,6 +408,50 @@ export const deleteSkill = async (user: AuthUser, id: string) => {
         esHelper.deleteSkillFromAutocompleteES(id);
 
         logger.info(`Successfully deleted skill with id ${id}`);
+    });
+};
+
+/**
+ * Restore an archived (soft-deleted) skill from the PostgreSQL and Elasticsearch index
+ * @param {string} id - the id of the skill to be deleted
+ */
+export const restoreSkill = async (id: string) => {
+    logger.info(`Restoring archived skill with id ${id}`);
+
+    return await db.sequelize.transaction(async () => {
+        const skill = await Skill.findByPk(id, { paranoid: false });
+        if (isNull(skill)) {
+            throw new NotFoundError(`The skill with id ${id} does not exist!`);
+        }
+
+        await skill.restore();
+
+        // fetch updated skill details from PostgreSQL
+        const skillDetails = await Skill.findByPk(id, {
+            attributes: ['id', 'name', 'description', 'created_at', 'updated_at'],
+            include: {
+                model: SkillCategory,
+                as: 'category',
+                attributes: ['id', 'name', 'description'],
+            },
+        });
+
+        if (isNull(skillDetails)) {
+            throw new InternalServerError('Unable to fetch updated skill details from database!');
+        }
+
+        esHelper.updateSkillInAutocompleteES({
+            id: skillDetails.id,
+            name: skillDetails.name,
+            category: {
+                id: skillDetails.category.id,
+                name: skillDetails.category.name,
+            },
+            createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
+            updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
+        });
+
+        logger.info(`Successfully restored archived skill with id ${id}`);
     });
 };
 
