@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0dcbed55-29b9-4473-be21-312fdb03cd9c",
+		"_postman_id": "ad231ff9-d5c1-49bf-b371-b9a59d9f2c1a",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30186453"
@@ -45,7 +45,7 @@
 			"name": "Auth Token",
 			"item": [
 				{
-					"name": "dev- generate token",
+					"name": "dev - generate token",
 					"event": [
 						{
 							"listen": "test",
@@ -75,6 +75,46 @@
 							"host": [
 								"auth0proxy",
 								"topcoder-dev",
+								"com"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "prod - generate token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"token\", pm.response.json().access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"client_credentials\",\n    \"client_id\": \"{{PROD_client_id}}\",\n    \"client_secret\": \"{{PROD_client_secret}}\",\n    \"audience\": \"https://www.topcoder.com/\",\n    \"auth0_url\": \"https://topcoder.auth0.com/oauth/token\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://auth0proxy.topcoder.com/token",
+							"protocol": "https",
+							"host": [
+								"auth0proxy",
+								"topcoder",
 								"com"
 							],
 							"path": [
@@ -766,14 +806,7 @@
 					"name": "all skills",
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
@@ -992,44 +1025,6 @@
 							"path": [
 								"skills",
 								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "restore skill",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10/restore",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"skills",
-								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
-								"restore"
 							]
 						}
 					},
