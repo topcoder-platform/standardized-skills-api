@@ -39,9 +39,6 @@ const RouteDefinitions: RouteDefinition[] = [
         verb: 'get',
         controller: 'SkillsController',
         method: 'getSkills',
-        auth: true,
-        scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
-        access: [config.UserRoles.Admin],
         validation: {
             query: {
                 dto: GetSkillsQueryRequestDto,
