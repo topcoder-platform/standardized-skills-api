@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "ad231ff9-d5c1-49bf-b371-b9a59d9f2c1a",
+		"_postman_id": "44ca7ede-f479-4c0b-9600-cee94ac763ff",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30186453"
@@ -45,7 +45,7 @@
 			"name": "Auth Token",
 			"item": [
 				{
-					"name": "dev - generate token",
+					"name": "dev- generate token",
 					"event": [
 						{
 							"listen": "test",
@@ -1025,6 +1025,44 @@
 							"path": [
 								"skills",
 								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "restore skill",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/skills/8a0b834f-d7a6-46a4-83f6-b32ed15ffc10/restore",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"skills",
+								"8a0b834f-d7a6-46a4-83f6-b32ed15ffc10",
+								"restore"
 							]
 						}
 					},
