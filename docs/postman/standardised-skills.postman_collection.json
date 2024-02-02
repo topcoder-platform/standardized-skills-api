@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "0dcbed55-29b9-4473-be21-312fdb03cd9c",
+		"_postman_id": "44ca7ede-f479-4c0b-9600-cee94ac763ff",
 		"name": "Standardised Skills API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "30186453"
@@ -75,6 +75,46 @@
 							"host": [
 								"auth0proxy",
 								"topcoder-dev",
+								"com"
+							],
+							"path": [
+								"token"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "prod - generate token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.environment.set(\"token\", pm.response.json().access_token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"grant_type\": \"client_credentials\",\n    \"client_id\": \"{{PROD_client_id}}\",\n    \"client_secret\": \"{{PROD_client_secret}}\",\n    \"audience\": \"https://www.topcoder.com/\",\n    \"auth0_url\": \"https://topcoder.auth0.com/oauth/token\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "https://auth0proxy.topcoder.com/token",
+							"protocol": "https",
+							"host": [
+								"auth0proxy",
+								"topcoder",
 								"com"
 							],
 							"path": [
@@ -766,14 +806,7 @@
 					"name": "all skills",
 					"request": {
 						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{token}}",
-									"type": "string"
-								}
-							]
+							"type": "noauth"
 						},
 						"method": "GET",
 						"header": [],
