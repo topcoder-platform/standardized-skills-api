@@ -102,6 +102,20 @@ export async function autocompleteSkills(query: GetAutocompleteRequestQueryDto) 
 }
 
 /**
+ * Fetch a list of suggested skills based on a query string that will be matched against the skill names
+ * This path is used to purely "fuzzy" match the skills, without sorting or filtering.  If you need the "best" match
+ * to be displayed in a UI, use the autocomplete skills call instead.
+ */
+export async function fuzzyMatch(query: GetAutocompleteRequestQueryDto) {
+    logger.info(`Fetching fuzzyMatch suggestions based on ${JSON.stringify(query)}`);
+    try {
+        return await esHelper.fuzzyMatch({ term: query.term, size: query.size });
+    } catch (error) {
+        logger.error('Unable to fetch fuzzyMatch suggestions!');
+        throw error;
+    }
+}
+/**
  * Gets a skill by its id
  * @param skillId - the id of the skill to be fetched
  * @returns {{ id: string; name: string; description: string | undefined; category: { id: string; name: string; description: string | undefined;} }}

@@ -159,4 +159,17 @@ export default class SkillsController {
             next(error);
         }
     };
+
+    getFuzzyMatch = async (
+        req: Request<{ [key: string]: string }, any, any, dtos.GetAutocompleteRequestQueryDto, Record<string, any>>,
+        res: Response,
+        next: NextFunction,
+    ) => {
+        try {
+            const response = await skillsService.fuzzyMatch(req.query);
+            res.status(200).json(response);
+        } catch (error) {
+            next(error);
+        }
+    };
 }
