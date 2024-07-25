@@ -92,7 +92,7 @@ workflows:
                       branches:
                           only:
                               - develop
-			      - redeploy
+                              - redeploy
             - 'build-prod':
                   context: org-global
                   filters:
