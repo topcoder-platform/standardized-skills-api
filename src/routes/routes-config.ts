@@ -57,6 +57,17 @@ const RouteDefinitions: RouteDefinition[] = [
         },
     },
     {
+        path: '/skills/fuzzymatch',
+        verb: 'get',
+        controller: 'SkillsController',
+        method: 'getFuzzyMatch',
+        validation: {
+            query: {
+                dto: GetAutocompleteRequestQueryDto,
+            },
+        },
+    },
+    {
         path: '/skills/:skillId',
         verb: 'get',
         controller: 'SkillsController',

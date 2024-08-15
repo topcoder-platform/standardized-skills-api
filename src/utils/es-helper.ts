@@ -141,6 +141,60 @@ export const autocompleteSkills = async (query: {
     }
 };
 
+
+/**
+ * Searches elasticsearch and returns an array of skills that match the query.  Note that this doesn't sort
+ * or filter the results, purely returning what ElasticSearch sends back.
+ * @param {{ term: string; size: number }} query - the query object to use for fuzzy match
+ * @returns {Promise<Array<Record<string, any>>>}
+ */
+export const fuzzyMatch = async (query: {
+    term: string;
+    size: number;
+}): Promise<Array<Record<string, any>>> => {
+    logger.info(
+        `Querying Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for fuzzy match suggestions of skill`,
+    );
+    try {
+        skillsESClient = getSkillsESClient();
+
+        const params = {
+            index: config.envConfig.SKILLS_ES.INDEX,
+            body: {
+                suggest: {
+                    StandardizedSkills: {
+                        text: query.term,
+                        completion: {
+                            field: 'doc.name_suggest',
+                            size: constants.MAX_SUGGESTIONS_SIZE,
+                        },
+                    },
+                },
+            },
+        };
+        const docs = await skillsESClient.search(params);
+
+        const suggestedSkills = docs.body.suggest.StandardizedSkills[0].options
+            .map((doc: Record<string, any>) => {
+                return {
+                    id: doc._source.doc.id,
+                    name: doc._source.doc.name
+                };
+            });
+        logger.info(
+            `Successfully queried Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for fuzzy match skill suggestions`,
+        );
+        return suggestedSkills;
+    } catch (error) {
+        logger.error(
+            `Failed to query Elasticsearch index ${
+                config.envConfig.SKILLS_ES.INDEX
+            } for fuzzy match suggestions, error in ES: ${JSON.stringify(error)}`,
+        );
+        throw error;
+    }
+};
+
 /**
  * Searches elasticsearch challenge index by the challenge id
  * @param {String} id - the uuid v4 id of the challenge

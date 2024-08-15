@@ -1,24 +1,26 @@
 version: 2
 
 defaults: &defaults
-  docker:
-    - image: cimg/python:3.11.0-browsers
+    docker:
+        - image: cimg/python:3.12.0-browsers
 
 install_dependencies: &install_dependencies
-  name: Install Dependencies
-  command: |
-    sudo apt update
-    sudo apt install -y jq python3-pip
-    sudo pip3 install awscli --upgrade
+    name: Install Dependencies
+    command: |
+        sudo apt update
+        sudo apt install -y jq python3-pip
+        sudo pip3 install awscli --upgrade
+        sudo pip3 install docker==6.1.3
+        sudo pip3 install docker-compose
 
 install_deploy_scripts: &install_deploy_scripts
-  name: Install Deployment Scripts
-  command: |
-    git clone --branch dev-ps-var https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
-    cp ../buildscript/master_deploy.sh .
-    cp ../buildscript/buildenv.sh .
-    cp ../buildscript/awsconfiguration.sh .
-    cp ../buildscript/psvar-processor.sh .
+    name: Install Deployment Scripts
+    command: |
+        git clone --branch dev-ps-var https://github.com/topcoder-platform/tc-deploy-scripts ../buildscript
+        cp ../buildscript/master_deploy.sh .
+        cp ../buildscript/buildenv.sh .
+        cp ../buildscript/awsconfiguration.sh .
+        cp ../buildscript/psvar-processor.sh .
 
 running_linter: &running_linter
     name: Running linter
@@ -32,67 +34,67 @@ lint_steps: &lint_steps # Initialization.
     - run: *running_linter
 
 build_and_deploy_steps: &build_and_deploy_steps
-  - checkout
-  - setup_remote_docker
-  - run: *install_dependencies
-  - run: *install_deploy_scripts
-  - run:
-      name: Build Docker Image
-      command: |
-        ./build.sh ${APPNAME}
-  - deploy:
-      name: Deploy Using MasterScript
-      command: |
-        ./awsconfiguration.sh $DEPLOY_ENV
-        source awsenvconf
-        ./psvar-processor.sh -t appenv -p /config/standardized-skills-api/deployvar
-        source deployvar_env
-        ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -j /config/standardized-skills-api/appvar -i ${APPNAME}
+    - checkout
+    - setup_remote_docker
+    - run: *install_dependencies
+    - run: *install_deploy_scripts
+    - run:
+          name: Build Docker Image
+          command: |
+              ./build.sh ${APPNAME}
+    - deploy:
+          name: Deploy Using MasterScript
+          command: |
+              ./awsconfiguration.sh $DEPLOY_ENV
+              source awsenvconf
+              ./psvar-processor.sh -t appenv -p /config/standardized-skills-api/deployvar
+              source deployvar_env
+              ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -j /config/standardized-skills-api/appvar -i ${APPNAME}
 
 jobs:
-  lint-dev:
-      <<: *defaults
-      environment:
-          DEPLOY_ENV: "DEV"
-          LOGICAL_ENV: "dev"
-          APPNAME: "standardized-skills-api"
-      steps: *lint_steps
+    lint-dev:
+        <<: *defaults
+        environment:
+            DEPLOY_ENV: 'DEV'
+            LOGICAL_ENV: 'dev'
+            APPNAME: 'standardized-skills-api'
+        steps: *lint_steps
 
-  build-dev:
-    <<: *defaults
-    environment:
-      DEPLOY_ENV: "DEV"
-      LOGICAL_ENV: "dev"
-      APPNAME: "standardized-skills-api"
-    steps: *build_and_deploy_steps
+    build-dev:
+        <<: *defaults
+        environment:
+            DEPLOY_ENV: 'DEV'
+            LOGICAL_ENV: 'dev'
+            APPNAME: 'standardized-skills-api'
+        steps: *build_and_deploy_steps
 
-  build-prod:
-    <<: *defaults
-    environment:
-      DEPLOY_ENV: "PROD"
-      LOGICAL_ENV: "prod"
-      APPNAME: "standardized-skills-api"
-    steps: *build_and_deploy_steps
+    build-prod:
+        <<: *defaults
+        environment:
+            DEPLOY_ENV: 'PROD'
+            LOGICAL_ENV: 'prod'
+            APPNAME: 'standardized-skills-api'
+        steps: *build_and_deploy_steps
 
 workflows:
-  version: 2
-  build:
-    jobs:
-      - lint-dev:
-          context: org-global
-          filters:
-            branches:
-              ignore:
-                - master
-      - "build-dev":
-          context: org-global
-          filters:
-            branches:
-              only:
-                - develop
-      - "build-prod":
-          context: org-global
-          filters:
-            branches:
-              only:
-                - master                
+    version: 2
+    build:
+        jobs:
+            - lint-dev:
+                  context: org-global
+                  filters:
+                      branches:
+                          ignore:
+                              - master
+            - 'build-dev':
+                  context: org-global
+                  filters:
+                      branches:
+                          only:
+                              - develop
+            - 'build-prod':
+                  context: org-global
+                  filters:
+                      branches:
+                          only:
+                              - master
