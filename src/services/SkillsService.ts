@@ -216,7 +216,7 @@ export const createSkill = async (
 };
 
 /**
- * Updates a skill in postgreSQL and Elasticsearch index
+ * Updates a skill in postgreSQL and Opensearch index
  * @param {AuthUser} user - the authenticated user details from the JWT
  * @param {SkillUpdatePutRequestBodyDto} body - the request body containing the new skills details
  * @param {string} id - the id of the skill to update
@@ -251,7 +251,7 @@ export const updateSkill = async (
             throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
         }
 
-        //update the skill in PostgreSQL and Elasticsearch index
+        //update the skill in PostgreSQL and Opensearch index
         await Skill.update(
             {
                 name: body.name,
@@ -305,7 +305,7 @@ export const updateSkill = async (
 };
 
 /**
- * Updates a skill partially via patch in postgreSQL and Elasticsearch index
+ * Updates a skill partially via patch in postgreSQL and Opensearch index
  * @param {AuthUser} user - the authenticated user details from the JWT
  * @param {SkillUpdatePatchRequestBodyDto} body - the request body containing the new skills details
  * @param {string} id - the id of the skill to update
@@ -346,7 +346,7 @@ export const patchSkill = async (
             throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
         }
 
-        //update the skill in PostgreSQL and Elasticsearch index
+        //update the skill in PostgreSQL and Opensearch index
         await Skill.update(
             {
                 name: body.name,
@@ -400,7 +400,7 @@ export const patchSkill = async (
 };
 
 /**
- * Deletes a skill from the PostgreSQL and Elasticsearch index
+ * Deletes a skill from the PostgreSQL and Opensearch index
  * @param {AuthUser} user - the authenticated user details from the JWT
  * @param {string} id - the id of the skill to be deleted
  */
@@ -426,7 +426,7 @@ export const deleteSkill = async (user: AuthUser, id: string) => {
 };
 
 /**
- * Restore an archived (soft-deleted) skill from the PostgreSQL and Elasticsearch index
+ * Restore an archived (soft-deleted) skill from the PostgreSQL and Opensearch index
  * @param {string} id - the id of the skill to be deleted
  */
 export const restoreSkill = async (id: string) => {
