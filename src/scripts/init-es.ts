@@ -1,14 +1,14 @@
 import { getSkillsESClient } from '../utils/es-helper';
 import { envConfig } from '../config';
 import { LoggerClient } from '../utils/LoggerClient';
-import elasticsearch7 from 'elasticsearch7';
+import opensearch from '@opensearch-project/opensearch';
 
 const skillESClient = getSkillsESClient();
 const logger = new LoggerClient('init-es');
-let exists: elasticsearch7.ApiResponse;
+let exists: opensearch.ApiResponse;
 let index: string;
 
-const skillPutSettingsRequest: elasticsearch7.RequestParams.IndicesPutSettings = {
+const skillPutSettingsRequest: opensearch.RequestParams.IndicesPutSettings = {
     index: envConfig.SKILLS_ES.INDEX,
     body: {
         settings: {
@@ -23,7 +23,7 @@ const skillPutSettingsRequest: elasticsearch7.RequestParams.IndicesPutSettings =
     },
 };
 
-const skillPutMappingRequest: elasticsearch7.RequestParams.IndicesPutMapping = {
+const skillPutMappingRequest: opensearch.RequestParams.IndicesPutMapping = {
     index: envConfig.SKILLS_ES.INDEX,
     body: {
         properties: {

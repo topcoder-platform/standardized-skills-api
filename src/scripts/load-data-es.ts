@@ -8,7 +8,7 @@ import db, { Skill } from '../db';
 const logger = new LoggerClient('load-data-es');
 
 const loadSkillDataInES = async () => {
-    logger.info('Loading all skill data in Elasticsearch index for autocomplete');
+    logger.info('Loading all skill data in Opensearch index for autocomplete');
     let page = 0,
         totalPages = 1,
         skills: { rows: Skill[]; count: number };
@@ -56,18 +56,18 @@ const loadSkillDataInES = async () => {
         page++;
     } while (page <= totalPages);
 
-    // wait 8 seconds before calling the count on Elasticsearch as the index takes time to sync
+    // wait 8 seconds before calling the count on Opensearch as the index takes time to sync
     await new Promise((resolve) => setTimeout(resolve, 8000));
 
     logger.info(`Skills available in PostgreSQL ${skills.count}`);
     logger.info(
-        `Skills available in Elasticsearch index skills_autocomplete_suggester: ${await esHelper.countSkillsInAutocompleteES()}`,
+        `Skills available in Opensearch index skills_autocomplete_suggester: ${await esHelper.countSkillsInAutocompleteES()}`,
     );
 };
 
 loadSkillDataInES()
     .then(() => {
-        logger.info('All skill data indexed in Elasticsearch index for autocomplete');
+        logger.info('All skill data indexed in Opensearch index for autocomplete');
         process.exit(0);
     })
     .catch((err) => {
