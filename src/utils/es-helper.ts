@@ -31,7 +31,7 @@ export function getChallengesESClient() {
 export function getMembersESClient() {
     if (membersESClient) return membersESClient;
     else {
-        membersESClient = new opensearch.Client({ node: envConfig.MEMBERS_ES.HOST });
+        membersESClient = new elasticsearch6.Client({ node: envConfig.MEMBERS_ES.HOST });
         return membersESClient;
     }
 }
