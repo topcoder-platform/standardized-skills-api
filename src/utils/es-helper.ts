@@ -207,7 +207,6 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
         const challenge: Record<string, any> = await challengesESClient.get({
             id,
             index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
-            type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
             refresh: envConfig.CHALLENGES_ES.REFRESH as boolean,
         });
         logger.info(`Challenge with id: ${id} found in Opensearch`);
@@ -254,7 +253,6 @@ export const updateSkillsInChallengeES = async (
     challengesESClient = getChallengesESClient();
     await challengesESClient.update({
         index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
-        type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
         id,
         body: {
             doc: {
@@ -285,7 +283,6 @@ export const updateSkillsInMemberES = async (
     await membersESClient.update({
         id,
         index: envConfig.MEMBERS_ES.MEMBERS_INDEX,
-        type: envConfig.MEMBERS_ES.MEMBERS_DOCUMENT_TYPE,
         body: {
             doc: {
                 skills,
@@ -360,10 +357,9 @@ export const updateSkillCategoryInAutocompleteES = async (id: string, name: stri
     logger.info(`Updating affected skills in skills autocomplete Opensearch index with new category name: ${name}`);
 
     skillsESClient = getSkillsESClient();
-    await skillsESClient.updateByQuery({
+    await skillsESClient.update_by_query({
         index: envConfig.SKILLS_ES.INDEX,
         conflicts: 'proceed',
-        type: envConfig.SKILLS_ES.DOCUMENT_TYPE,
         body: {
             query: {
                 match_phrase: {
