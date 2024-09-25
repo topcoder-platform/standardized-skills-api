@@ -92,7 +92,7 @@ workflows:
                       branches:
                           only:
                               - develop
-                              - ES-to-OS
+                              - ES6_fix
             - 'build-prod':
                   context: org-global
                   filters:
