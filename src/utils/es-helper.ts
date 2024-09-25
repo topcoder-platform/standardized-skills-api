@@ -5,10 +5,11 @@ import * as config from '../config';
 import * as helper from '../utils/helpers';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as constants from '../config/constants';
+import elasticsearch6 from 'elasticsearch6';
 
 let skillsESClient: opensearch.Client;
 let challengesESClient: opensearch.Client;
-let membersESClient: opensearch.Client;
+let membersESClient: elasticsearch6.Client;
 const logger = new LoggerClient('es-helper');
 
 export function getSkillsESClient() {
