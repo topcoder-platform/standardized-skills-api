@@ -254,7 +254,6 @@ export const updateSkillsInChallengeES = async (
     challengesESClient = getChallengesESClient();
     await challengesESClient.update({
         index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
-        type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
         id,
         body: {
             doc: {
@@ -360,10 +359,9 @@ export const updateSkillCategoryInAutocompleteES = async (id: string, name: stri
     logger.info(`Updating affected skills in skills autocomplete Opensearch index with new category name: ${name}`);
 
     skillsESClient = getSkillsESClient();
-    await skillsESClient.updateByQuery({
+    await skillsESClient.update_by_query({
         index: envConfig.SKILLS_ES.INDEX,
         conflicts: 'proceed',
-        type: envConfig.SKILLS_ES.DOCUMENT_TYPE,
         body: {
             query: {
                 match_phrase: {
