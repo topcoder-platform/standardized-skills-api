@@ -58,20 +58,27 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
 
         // create the association between challenge and skill
         await associateSkillsToWorkId(challengeId, workTypeDetail, skillIds, tx);
+        
+        let associatedSkills:Skill[] = []
 
-        const associatedSkills = await Skill.findAll({
-            attributes: ['name', 'id'],
-            include: {
-                model: SkillCategory,
-                as: 'category',
+        try {
+            associatedSkills = await Skill.findAll({
                 attributes: ['name', 'id'],
-            },
-            where: {
-                id: {
-                    [Op.in]: skillIds,
+                include: {
+                    model: SkillCategory,
+                    as: 'category',
+                    attributes: ['name', 'id'],
                 },
-            },
-        });
+                where: {
+                    id: {
+                        [Op.in]: skillIds,
+                    },
+                },
+            });
+        } catch (error: any) {
+            logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
+            logger.error(`${JSON.stringify(error)}`);
+        }
 
         // call the challenge API to update the Elasticsearch challenge index
         try {
