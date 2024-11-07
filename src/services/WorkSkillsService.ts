@@ -175,20 +175,25 @@ async function associateSkillsToWorkId(
     skillIds: string[],
     tx: Transaction,
 ) {
-    // prepare the job skill association data for bulk insert
-    const workSkills = skillIds.map((skillId) => ({
-        work_id: workId,
-        work_type_id: workTypeDetail.id,
-        skill_id: skillId,
-    }));
-
-    // remove existing association and create new skills association
-    await WorkSkill.destroy({
-        where: {
+    try {
+        // prepare the job skill association data for bulk insert
+        const workSkills = skillIds.map((skillId) => ({
             work_id: workId,
             work_type_id: workTypeDetail.id,
-        },
-        transaction: tx,
-    });
-    await WorkSkill.bulkCreate(workSkills, { transaction: tx });
+        skill_id: skillId,
+        }));
+
+        // remove existing association and create new skills association
+        await WorkSkill.destroy({
+            where: {
+                work_id: workId,
+                work_type_id: workTypeDetail.id,
+            },
+            transaction: tx,
+        });
+        await WorkSkill.bulkCreate(workSkills, { transaction: tx });
+    } catch (error: any) {
+        logger.error(`Error encountered in associateSkillsToWorkId WorkID: ${workId} skillIds: ${skillIds}`);
+        logger.error(`${JSON.stringify(error)}`);
+    }
 }
