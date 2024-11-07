@@ -31,7 +31,7 @@ export function getChallengesESClient() {
 export function getMembersESClient() {
     if (membersESClient) return membersESClient;
     else {
-        membersESClient = new opensearch.Client({ node: envConfig.MEMBERS_ES.HOST });
+        membersESClient = new elasticsearch6.Client({ node: envConfig.MEMBERS_ES.HOST });
         return membersESClient;
     }
 }
@@ -229,6 +229,7 @@ export const getMemberById = async (id: string): Promise<Record<string, any>> =>
         const member: Record<string, any> = await membersESClient.get({
             id,
             index: envConfig.MEMBERS_ES.MEMBERS_INDEX,
+            type: envConfig.MEMBERS_ES.MEMBERS_DOCUMENT_TYPE,
             refresh: envConfig.MEMBERS_ES.REFRESH as boolean,
         });
         logger.info(`Member with id: ${id} found in ES`);
@@ -283,6 +284,7 @@ export const updateSkillsInMemberES = async (
     await membersESClient.update({
         id,
         index: envConfig.MEMBERS_ES.MEMBERS_INDEX,
+        type: envConfig.MEMBERS_ES.MEMBERS_DOCUMENT_TYPE,
         body: {
             doc: {
                 skills,
