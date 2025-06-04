@@ -49,7 +49,7 @@ build_and_deploy_steps: &build_and_deploy_steps
               source awsenvconf
               ./psvar-processor.sh -t appenv -p /config/standardized-skills-api/deployvar
               source deployvar_env
-              ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -j /config/standardized-skills-api/appvar -i ${APPNAME}
+              ./master_deploy.sh -d ECS -e $DEPLOY_ENV -t latest -j /config/standardized-skills-api/appvar -i ${APPNAME} -p FARGATE
 
 jobs:
     lint-dev:
