@@ -3,6 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill_category, skill_categoryId } from './skill_category';
 import type { skill_event, skill_eventId } from './skill_event';
 import type { user_skill, user_skillId } from './user_skill';
+import { envConfig } from '../../config';
 
 export interface skillAttributes {
     id: string;
@@ -93,7 +94,7 @@ export class skill extends Model<skillAttributes, skillCreationAttributes> imple
             {
                 sequelize,
                 tableName: 'skill',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 paranoid: true,
                 indexes: [

@@ -1,6 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill, skillId } from './skill';
+import { envConfig } from '../../config';
 
 export interface skillCategoryAttributes {
     id: string;
@@ -60,7 +61,7 @@ export class skill_category
             {
                 sequelize,
                 tableName: 'skill_category',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 indexes: [
                     {

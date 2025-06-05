@@ -4,6 +4,7 @@ import type { event, eventId } from './event';
 import type { skill, skillId } from './skill';
 import type { skill_event_type, skill_event_typeId } from './skill_event_type';
 import type { source_type, source_typeId } from './source_type';
+import { envConfig } from '../../config';
 
 export interface skillEventAttributes {
     id: string;
@@ -108,7 +109,7 @@ export class skill_event
             {
                 sequelize,
                 tableName: 'skill_event',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 updatedAt: false,
                 indexes: [
