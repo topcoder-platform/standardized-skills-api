@@ -16,7 +16,7 @@ const sequelize = new Sequelize(envConfig.DB_URL || '', {
     dialectOptions: {
       prependSearchPath: true
     },
-    schema: process.env.DB_SCHEMA
+    schema: envConfig.DB_SCHEMA
 });
 
 // Put models here when needed...

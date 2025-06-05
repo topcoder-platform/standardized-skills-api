@@ -3,6 +3,7 @@ import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill, skillId } from './skill';
 import type { user_skill_level, user_skill_levelId } from './user_skill_level';
 import type { user_skill_display_mode, user_skill_display_modeId } from './user_skill_display_mode';
+import { envConfig } from '../../config';
 
 export interface userSkillAttributes {
     id: string;
@@ -91,7 +92,7 @@ export class user_skill extends Model<userSkillAttributes, userSkillCreationAttr
             {
                 sequelize,
                 tableName: 'user_skill',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 indexes: [
                     {
