@@ -93,6 +93,7 @@ workflows:
                           only:
                               - develop
                               - ES6_fix
+                              - db_schema
             - 'build-prod':
                   context: org-global
                   filters:
