@@ -10,8 +10,6 @@ install_dependencies: &install_dependencies
         sudo apt update
         sudo apt install -y jq python3-pip
         sudo pip3 install awscli --upgrade
-        sudo pip3 install docker==6.1.3
-        sudo pip3 install docker-compose
 
 install_deploy_scripts: &install_deploy_scripts
     name: Install Deployment Scripts
