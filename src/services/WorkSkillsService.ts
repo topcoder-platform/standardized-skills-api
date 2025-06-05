@@ -59,7 +59,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
         // create the association between challenge and skill
         await associateSkillsToWorkId(challengeId, workTypeDetail, skillIds, tx);
         
-        let associatedSkills:Skill[] = []
+        let associatedSkills:Skill[] = [];
 
         try {
             associatedSkills = await Skill.findAll({
