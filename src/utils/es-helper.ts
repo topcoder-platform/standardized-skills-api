@@ -1,4 +1,5 @@
-import opensearch from '@opensearch-project/opensearch';
+import elasticsearch7 from 'elasticsearch7';
+import elasticsearch6 from 'elasticsearch6';
 import { envConfig } from '../config';
 import _, { assign } from 'lodash';
 import * as config from '../config';
@@ -6,15 +7,15 @@ import * as helper from '../utils/helpers';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as constants from '../config/constants';
 
-let skillsESClient: opensearch.Client;
-let challengesESClient: opensearch.Client;
-let membersESClient: opensearch.Client;
+let skillsESClient: elasticsearch7.Client;
+let challengesESClient: elasticsearch6.Client;
+let membersESClient: elasticsearch6.Client;
 const logger = new LoggerClient('es-helper');
 
 export function getSkillsESClient() {
     if (skillsESClient) return skillsESClient;
     else {
-        skillsESClient = new opensearch.Client({ node: envConfig.SKILLS_ES.HOST });
+        skillsESClient = new elasticsearch7.Client({ node: envConfig.SKILLS_ES.HOST });
         return skillsESClient;
     }
 }
@@ -22,7 +23,7 @@ export function getSkillsESClient() {
 export function getChallengesESClient() {
     if (challengesESClient) return challengesESClient;
     else {
-        challengesESClient = new opensearch.Client({ node: envConfig.CHALLENGES_ES.HOST });
+        challengesESClient = new elasticsearch6.Client({ node: envConfig.CHALLENGES_ES.HOST });
         return challengesESClient;
     }
 }
@@ -30,13 +31,13 @@ export function getChallengesESClient() {
 export function getMembersESClient() {
     if (membersESClient) return membersESClient;
     else {
-        membersESClient = new opensearch.Client({ node: envConfig.MEMBERS_ES.HOST });
+        membersESClient = new elasticsearch6.Client({ node: envConfig.MEMBERS_ES.HOST });
         return membersESClient;
     }
 }
 
 /**
- * Indexes skills in the standardized_skills_suggester opensearch in bulk
+ * Indexes skills in the standardized_skills_suggester elasticsearch in bulk
  * @param {Array<{id: string; name: string; category: { id: string; name: string }; createdAt: string; updatedAt: string;}>} skills - the skills to index in the skills autocomplete suggester ES
  */
 export async function bulkCreateSkillsES(
@@ -49,7 +50,7 @@ export async function bulkCreateSkillsES(
     }[],
 ) {
     logger.info(
-        `Bulk indexing skills for autocomplete: ${JSON.stringify(skills)} in Opensearch index ${
+        `Bulk indexing skills for autocomplete: ${JSON.stringify(skills)} in Elasticsearch index ${
             config.envConfig.SKILLS_ES.INDEX
         }`,
     );
@@ -71,10 +72,10 @@ export async function bulkCreateSkillsES(
         ]);
 
         await skillsESClient.bulk({ body, refresh: config.envConfig.SKILLS_ES.REFRESH as boolean });
-        logger.info(`Bulk indexing successful in ${config.envConfig.SKILLS_ES.INDEX} Opensearch index`);
+        logger.info(`Bulk indexing successful in ${config.envConfig.SKILLS_ES.INDEX} Elasticsearch index`);
     } catch (error) {
         logger.error(
-            `Error encountered while bulk indexing skills in ${config.envConfig.SKILLS_ES.INDEX} Opensearch index`,
+            `Error encountered while bulk indexing skills in ${config.envConfig.SKILLS_ES.INDEX} Elasticsearch index`,
         );
         logger.error(JSON.stringify(error));
         throw error;
@@ -82,7 +83,7 @@ export async function bulkCreateSkillsES(
 }
 
 /**
- * Searches Opensearch and returns an array of skills that match the query
+ * Searches elasticsearch and returns an array of skills that match the query
  * @param {{ term: string; size: number }} query - the query object to use for autocomplete
  * @returns {Promise<Array<Record<string, any>>>}
  */
@@ -91,7 +92,7 @@ export const autocompleteSkills = async (query: {
     size: number;
 }): Promise<Array<Record<string, any>>> => {
     logger.info(
-        `Querying Opensearch index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete suggestions of skill`,
+        `Querying Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete suggestions of skill`,
     );
     try {
         skillsESClient = getSkillsESClient();
@@ -127,14 +128,14 @@ export const autocompleteSkills = async (query: {
                 };
             });
         logger.info(
-            `Successfully queried Opensearch index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete skill suggestions`,
+            `Successfully queried Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for autocomplete skill suggestions`,
         );
         return suggestedSkills;
     } catch (error) {
         logger.error(
-            `Failed to query Opensearch index ${
+            `Failed to query Elasticsearch index ${
                 config.envConfig.SKILLS_ES.INDEX
-            } for autocomplete suggestions, error in OS: ${JSON.stringify(error)}`,
+            } for autocomplete suggestions, error in ES: ${JSON.stringify(error)}`,
         );
         throw error;
     }
@@ -142,8 +143,8 @@ export const autocompleteSkills = async (query: {
 
 
 /**
- * Searches Opensearch and returns an array of skills that match the query.  Note that this doesn't sort
- * or filter the results, purely returning what Opensearch sends back.
+ * Searches elasticsearch and returns an array of skills that match the query.  Note that this doesn't sort
+ * or filter the results, purely returning what ElasticSearch sends back.
  * @param {{ term: string; size: number }} query - the query object to use for fuzzy match
  * @returns {Promise<Array<Record<string, any>>>}
  */
@@ -152,7 +153,7 @@ export const fuzzyMatch = async (query: {
     size: number;
 }): Promise<Array<Record<string, any>>> => {
     logger.info(
-        `Querying Opensearch index ${config.envConfig.SKILLS_ES.INDEX} for fuzzy match suggestions of skill`,
+        `Querying Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for fuzzy match suggestions of skill`,
     );
     try {
         skillsESClient = getSkillsESClient();
@@ -181,12 +182,12 @@ export const fuzzyMatch = async (query: {
                 };
             });
         logger.info(
-            `Successfully queried Opensearch index ${config.envConfig.SKILLS_ES.INDEX} for fuzzy match skill suggestions`,
+            `Successfully queried Elasticsearch index ${config.envConfig.SKILLS_ES.INDEX} for fuzzy match skill suggestions`,
         );
         return suggestedSkills;
     } catch (error) {
         logger.error(
-            `Failed to query Opensearch index ${
+            `Failed to query Elasticsearch index ${
                 config.envConfig.SKILLS_ES.INDEX
             } for fuzzy match suggestions, error in ES: ${JSON.stringify(error)}`,
         );
@@ -195,7 +196,7 @@ export const fuzzyMatch = async (query: {
 };
 
 /**
- * Searches Opensearch challenge index by the challenge id
+ * Searches elasticsearch challenge index by the challenge id
  * @param {String} id - the uuid v4 id of the challenge
  * @returns {Promise<Record<string, any>>} the challenge document if found or empty object
  */
@@ -206,18 +207,19 @@ export const getChallengeById = async (id: string): Promise<Record<string, any>>
         const challenge: Record<string, any> = await challengesESClient.get({
             id,
             index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
+            type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
             refresh: envConfig.CHALLENGES_ES.REFRESH as boolean,
         });
-        logger.info(`Challenge with id: ${id} found in Opensearch`);
+        logger.info(`Challenge with id: ${id} found in Elasticsearch`);
         return challenge.body._source;
     } catch (error) {
-        logger.error(`Unable to fetch challenge with id: ${id} from Opensearch`);
+        logger.error(`Unable to fetch challenge with id: ${id} from Elasticsearch`);
         return {};
     }
 };
 
 /**
- * Searches Opensearch members-2020-01 index by the member id
+ * Searches elasticsearch members-2020-01 index by the member id
  * @param {String} id - the uuid v4 id of the member
  * @returns {Promise<Record<string, any>>} the member document if found or empty object
  */
@@ -228,6 +230,7 @@ export const getMemberById = async (id: string): Promise<Record<string, any>> =>
         const member: Record<string, any> = await membersESClient.get({
             id,
             index: envConfig.MEMBERS_ES.MEMBERS_INDEX,
+            type: envConfig.MEMBERS_ES.MEMBERS_DOCUMENT_TYPE,
             refresh: envConfig.MEMBERS_ES.REFRESH as boolean,
         });
         logger.info(`Member with id: ${id} found in ES`);
@@ -239,7 +242,7 @@ export const getMemberById = async (id: string): Promise<Record<string, any>> =>
 };
 
 /**
- * Updates the Opensearch challenge document indentified by id with the provided skills
+ * Updates the elasticsearch challenge document indentified by id with the provided skills
  * @param {String} id - the uuid v4 id of the challenge to update
  * @param {Array<{ id: string; name: string; category: { id: string; name: string } }>} skills - the skills to update in the challenge
  */
@@ -252,6 +255,7 @@ export const updateSkillsInChallengeES = async (
     challengesESClient = getChallengesESClient();
     await challengesESClient.update({
         index: envConfig.CHALLENGES_ES.CHALLENGES_INDEX,
+        type: envConfig.CHALLENGES_ES.CHALLENGES_DOCUMENT_TYPE,
         id,
         body: {
             doc: {
@@ -263,7 +267,7 @@ export const updateSkillsInChallengeES = async (
 };
 
 /**
- * Updates the Opensearch member profiles indentified by id with the provided skills
+ * Updates the elasticsearch member profiles indentified by id with the provided skills
  * @param {String} id - the uuid v4 id of the member to update
  * @param {Array<{ id: string; name: string; category: { id: string; name: string };
  * levels: {id: string; name: string; description: string}[]}>} skills - the skills to update in the member profile
@@ -282,6 +286,7 @@ export const updateSkillsInMemberES = async (
     await membersESClient.update({
         id,
         index: envConfig.MEMBERS_ES.MEMBERS_INDEX,
+        type: envConfig.MEMBERS_ES.MEMBERS_DOCUMENT_TYPE,
         body: {
             doc: {
                 skills,
@@ -303,10 +308,10 @@ export const createSkillInAutocompleteES = async (skill: {
     createdAt: string;
     updatedAt: string;
 }) => {
-    logger.info(`Creating skill in skills autocomplete Opensearch ${JSON.stringify(skill)}`);
+    logger.info(`Creating skill in skills autocomplete Elasticsearch ${JSON.stringify(skill)}`);
     skillsESClient = getSkillsESClient();
 
-    // generate the name suggestions on which ElasticOpensearchsearch will provide autocomplete feature
+    // generate the name suggestions on which Elasticsearch will provide autocomplete feature
     const doc = assign({}, skill, { name_suggest: helper.generateStandardizedSkillSuggestionInputs(skill.name) });
     await skillsESClient.create({
         id: skill.id,
@@ -332,7 +337,7 @@ export const updateSkillInAutocompleteES = async (skill: {
     updatedAt: string;
 }) => {
     logger.info(
-        `Updating skill ${skill.id} in skills autocomplete Opensearch index as per data ${JSON.stringify(skill)}`,
+        `Updating skill ${skill.id} in skills autocomplete Elasticsearch index as per data ${JSON.stringify(skill)}`,
     );
 
     skillsESClient = getSkillsESClient();
@@ -353,12 +358,13 @@ export const updateSkillInAutocompleteES = async (skill: {
  * @param {string} name - the updated name of the category
  */
 export const updateSkillCategoryInAutocompleteES = async (id: string, name: string) => {
-    logger.info(`Updating affected skills in skills autocomplete Opensearch index with new category name: ${name}`);
+    logger.info(`Updating affected skills in skills autocomplete Elasticsearch index with new category name: ${name}`);
 
     skillsESClient = getSkillsESClient();
-    await skillsESClient.update_by_query({
+    await skillsESClient.updateByQuery({
         index: envConfig.SKILLS_ES.INDEX,
         conflicts: 'proceed',
+        type: envConfig.SKILLS_ES.DOCUMENT_TYPE,
         body: {
             query: {
                 match_phrase: {
@@ -382,7 +388,7 @@ export const updateSkillCategoryInAutocompleteES = async (id: string, name: stri
  * @param {string} id - the id of the skill to be deleted
  */
 export const deleteSkillFromAutocompleteES = async (id: string) => {
-    logger.info(`Deleting skill from autocomplete Opensearch index with id ${id}`);
+    logger.info(`Deleting skill from autocomplete Elasticsearch index with id ${id}`);
 
     skillsESClient = getSkillsESClient();
     await skillsESClient.delete({
@@ -391,15 +397,15 @@ export const deleteSkillFromAutocompleteES = async (id: string) => {
         refresh: envConfig.SKILLS_ES.REFRESH as boolean,
     });
 
-    logger.info(`Successfully delete skill from autocomplete Opensearch index with id ${id}`);
+    logger.info(`Successfully delete skill from autocomplete Elasticsearch index with id ${id}`);
 };
 
 /**
- * Returns the count of skills available in Opensearch index skills_autocomplete_suggester
- * @returns {Promise<number>} the count of skills available in Opensearch index skills_autocomplete_suggester
+ * Returns the count of skills available in Elasticsearch index skills_autocomplete_suggester
+ * @returns {Promise<number>} the count of skills available in Elasticsearch index skills_autocomplete_suggester
  */
 export const countSkillsInAutocompleteES = async (): Promise<number> => {
-    logger.info('Counting skills in autocomplete skills suggester Opensearch index');
+    logger.info('Counting skills in autocomplete skills suggester Elasticsearch index');
 
     skillsESClient = getSkillsESClient();
     const response = await skillsESClient.count({

@@ -269,7 +269,7 @@ export const updateCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        // update category information in PostgreSQL and ElastiOpensearchcsearch index
+        // update category information in PostgreSQL and OpenSearch index
         await SkillCategory.update(
             {
                 name: body.name,
