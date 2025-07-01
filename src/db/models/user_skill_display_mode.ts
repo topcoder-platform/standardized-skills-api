@@ -1,6 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { user_skill, user_skillId } from './user_skill';
+import { envConfig } from '../../config';
 
 export interface userSkillDisplayModeAttributes {
     id: string;
@@ -62,7 +63,7 @@ export class user_skill_display_mode
             {
                 sequelize,
                 tableName: 'user_skill_display_mode',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 indexes: [
                     {

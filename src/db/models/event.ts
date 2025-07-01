@@ -1,6 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill_event, skill_eventId } from './skill_event';
+import { envConfig } from '../../config';
 
 export interface eventAttributes {
     id: string;
@@ -61,7 +62,7 @@ export class event extends Model<eventAttributes, eventCreationAttributes> imple
             {
                 sequelize,
                 tableName: 'event',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 updatedAt: false,
                 indexes: [

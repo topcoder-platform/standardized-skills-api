@@ -95,8 +95,8 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
             allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });
         }
 
-        // do the Elasticsearch index update only after we make sure all user skill db updates have been successful,
-        // otherwise we can't revert Elasticsearch index updates if db update fails
+        // do the Opensearch index update only after we make sure all user skill db updates have been successful,
+        // otherwise we can't revert Opensearch index updates if db update fails
         for (const { userId, skills } of allSkills) {
             await esHelper.updateSkillsInMemberES(userId, skills);
         }
@@ -151,8 +151,8 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
 
         allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });
 
-        // do the Elasticsearch index update only after we make sure all user skill db updates have been successful,
-        // otherwise we can't revert Elasticsearch index updates if db update fails
+        // do the Opensearch index update only after we make sure all user skill db updates have been successful,
+        // otherwise we can't revert Opensearch index updates if db update fails
         for (const { userId, skills } of allSkills) {
             await esHelper.updateSkillsInMemberES(userId, skills);
         }

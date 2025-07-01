@@ -1,6 +1,7 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { skill_event, skill_eventId } from './skill_event';
+import { envConfig } from '../../config';
 
 export interface sourceTypeAttributes {
     id: string;
@@ -60,7 +61,7 @@ export class source_type
             {
                 sequelize,
                 tableName: 'source_type',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 indexes: [
                     {

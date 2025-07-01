@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import { envConfig } from '../../config';
 
 export interface workSkillAttributes {
     id: string;
@@ -51,7 +52,7 @@ export class work_skill extends Model<workSkillAttributes, workSkillCreationAttr
             {
                 sequelize,
                 tableName: 'work_skill',
-                schema: 'public',
+                schema: envConfig.DB_SCHEMA,
                 timestamps: true,
                 indexes: [
                     {

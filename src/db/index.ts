@@ -13,6 +13,10 @@ const sequelize = new Sequelize(envConfig.DB_URL || '', {
         // instead of camel case "createdAt" and "updatedAt"
         underscored: true,
     },
+    dialectOptions: {
+      prependSearchPath: true
+    },
+    schema: envConfig.DB_SCHEMA
 });
 
 // Put models here when needed...

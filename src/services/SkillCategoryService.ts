@@ -200,7 +200,7 @@ export const bulkAssignSkillsToCategories = async (
             throw new NotFoundError('Not all skill ids exist!');
         }
 
-        // update the category in PostgreSQL and Elasticsearch index
+        // update the category in PostgreSQL and Opensearch index
         await Skill.update(
             {
                 category_id: categoryId,
@@ -269,7 +269,7 @@ export const updateCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        // update category information in PostgreSQL and Elasticsearch index
+        // update category information in PostgreSQL and OpenSearch index
         await SkillCategory.update(
             {
                 name: body.name,
@@ -326,7 +326,7 @@ export const patchCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        // update category in PostgreSQL andd Elasticsearch index
+        // update category in PostgreSQL andd Opensearch index
         await SkillCategory.update(
             {
                 name: body.name,
