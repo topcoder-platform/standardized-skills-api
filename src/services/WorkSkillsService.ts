@@ -1,6 +1,6 @@
 import db, { Skill, SkillCategory, SourceType, WorkSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
-import { InternalServerError, NotFoundError } from '../utils/errors';
+import { InternalServerError, NotFoundError, StandardizedSkillApiError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import _, { isNull } from 'lodash';
@@ -51,80 +51,108 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
         )}`,
     );
 
-    await db.sequelize.transaction(async (tx) => {
-        // validate request
-        await validateRequestForWorkType('challenge', challengeId, skillIds);
+    const logContext = `challengeId=${challengeId} skillCount=${skillIds.length}`;
+    let currentStep = 'initializing';
 
-        // find the work type for challenge
-        const workTypeDetail = await findWorkType('challenge');
+    try {
+        await db.sequelize.transaction(async (tx) => {
+            // validate request
+            currentStep = 'validateRequestForWorkType';
+            logger.info(`Validating challenge request for ${logContext}`);
+            await validateRequestForWorkType('challenge', challengeId, skillIds);
 
-        // create the association between challenge and skill
-        await associateSkillsToWorkId(challengeId, workTypeDetail, skillIds, tx);
+            // find the work type for challenge
+            currentStep = 'findWorkType';
+            logger.info(`Fetching work type metadata for ${logContext}`);
+            const workTypeDetail = await findWorkType('challenge');
 
-        const associatedSkills = await Skill.findAll({
-            attributes: ['name', 'id'],
-            include: {
-                model: SkillCategory,
-                as: 'category',
+            // create the association between challenge and skill
+            currentStep = 'associateSkillsToWorkId';
+            logger.info(`Associating skills in PostgreSQL for ${logContext}`);
+            await associateSkillsToWorkId(challengeId, workTypeDetail, skillIds, tx);
+
+            currentStep = 'loadAssociatedSkills';
+            logger.info(`Fetching associated skill records for ${logContext}`);
+            const associatedSkills = await Skill.findAll({
                 attributes: ['name', 'id'],
-            },
-            where: {
-                id: {
-                    [Op.in]: skillIds,
+                include: {
+                    model: SkillCategory,
+                    as: 'category',
+                    attributes: ['name', 'id'],
                 },
-            },
-        });
-
-        let challengeDbSyncSucceeded = false;
-        try {
-            await syncChallengeSkillsInChallengeDb(challengeId, skillIds);
-            challengeDbSyncSucceeded = true;
-        } catch (error: any) {
-            logger.error(`Error syncing challenge skills in database for challenge ${challengeId}`);
-            logger.error(`${JSON.stringify(error)}`);
-        }
-
-        // call the challenge API to update the Elasticsearch challenge index
-        let challengeApiPatchSucceeded = false;
-        let challengeApiPatchError: any = null;
-        try {
-            // set the app-version header to 1.1.0 for challenge API to deal with the standardized skills
-            await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken, {
-                'app-version': constants.CHALLENGE_API_VERSION,
+                where: {
+                    id: {
+                        [Op.in]: skillIds,
+                    },
+                },
             });
-            challengeApiPatchSucceeded = true;
-        } catch (error: any) {
-            challengeApiPatchError = error;
-            logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
-            logger.error(`${JSON.stringify(error)}`);
-        }
+            logger.info(`Fetched ${associatedSkills.length} associated skill records for ${logContext}`);
 
-        if (!challengeDbSyncSucceeded && !challengeApiPatchSucceeded) {
-            if (challengeApiPatchError) {
-                errorHelper.handleAndTransformAPIError(
-                    challengeApiPatchError.status,
-                    challengeApiPatchError.response?.text
-                        ? JSON.parse(challengeApiPatchError.response.text).message
-                        : challengeApiPatchError.message,
-                    'Unable to associate skills to challenge! Please retry.',
-                );
+            currentStep = 'syncChallengeDb';
+            logger.info(`Syncing challenge database records for ${logContext}`);
+            let challengeDbSyncSucceeded = false;
+            try {
+                await syncChallengeSkillsInChallengeDb(challengeId, skillIds);
+                challengeDbSyncSucceeded = true;
+            } catch (error: any) {
+                logger.error(`Error syncing challenge skills in database for ${logContext}`);
+                logger.error(serializeError(error));
             }
 
-            throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+            // call the challenge API to update the Elasticsearch challenge index
+            currentStep = 'patchChallengeApi';
+            logger.info(`Updating challenge API for ${logContext}`);
+            let challengeApiPatchSucceeded = false;
+            let challengeApiPatchError: any = null;
+            try {
+                // set the app-version header to 1.1.0 for challenge API to deal with the standardized skills
+                await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken, {
+                    'app-version': constants.CHALLENGE_API_VERSION,
+                });
+                challengeApiPatchSucceeded = true;
+            } catch (error: any) {
+                challengeApiPatchError = error;
+                logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
+                logger.error(serializeError(error));
+            }
+
+            currentStep = 'finalize';
+            if (!challengeDbSyncSucceeded && !challengeApiPatchSucceeded) {
+                if (challengeApiPatchError) {
+                    errorHelper.handleAndTransformAPIError(
+                        challengeApiPatchError.status,
+                        challengeApiPatchError.response?.text
+                            ? JSON.parse(challengeApiPatchError.response.text).message
+                            : challengeApiPatchError.message,
+                        'Unable to associate skills to challenge! Please retry.',
+                    );
+                }
+
+                throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+            }
+
+            if (challengeDbSyncSucceeded && challengeApiPatchSucceeded) {
+                logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
+            } else if (challengeDbSyncSucceeded) {
+                logger.info(
+                    `Successfully synced challenge skills in database for challenge ${challengeId}; challenge API update failed but continuing.`,
+                );
+            } else {
+                logger.info(
+                    `Successfully updated challenge ${challengeId} via challenge API; challenge database sync failed but continuing.`,
+                );
+            }
+        });
+    } catch (error: any) {
+        logger.error(`Error while associating skills to challenge at step '${currentStep}' for ${logContext}`);
+        logger.error(serializeError(error));
+
+        if (error instanceof StandardizedSkillApiError) {
+            throw error;
         }
 
-        if (challengeDbSyncSucceeded && challengeApiPatchSucceeded) {
-            logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
-        } else if (challengeDbSyncSucceeded) {
-            logger.info(
-                `Successfully synced challenge skills in database for challenge ${challengeId}; challenge API update failed but continuing.`,
-            );
-        } else {
-            logger.info(
-                `Successfully updated challenge ${challengeId} via challenge API; challenge database sync failed but continuing.`,
-            );
-        }
-    });
+        throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+    }
 }
 
 /**
@@ -238,4 +266,18 @@ async function associateSkillsToWorkId(
         transaction: tx,
     });
     await WorkSkill.bulkCreate(workSkills, { transaction: tx });
+}
+
+function serializeError(error: any): string {
+    if (!error) {
+        return 'Unknown error';
+    }
+
+    try {
+        return JSON.stringify(error, Object.getOwnPropertyNames(error));
+    } catch (serializationError: any) {
+        const message = serializationError?.message || serializationError;
+        const fallback = error?.message || String(error);
+        return `Failed to serialize error due to: ${message}. Fallback message: ${fallback}`;
+    }
 }
