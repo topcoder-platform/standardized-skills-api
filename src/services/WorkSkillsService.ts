@@ -75,31 +75,53 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
             },
         });
 
+        let challengeDbSyncSucceeded = false;
         try {
             await syncChallengeSkillsInChallengeDb(challengeId, skillIds);
+            challengeDbSyncSucceeded = true;
         } catch (error: any) {
             logger.error(`Error syncing challenge skills in database for challenge ${challengeId}`);
             logger.error(`${JSON.stringify(error)}`);
-
-            throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
         }
 
         // call the challenge API to update the Elasticsearch challenge index
+        let challengeApiPatchSucceeded = false;
+        let challengeApiPatchError: any = null;
         try {
             // set the app-version header to 1.1.0 for challenge API to deal with the standardized skills
             await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken, {
                 'app-version': constants.CHALLENGE_API_VERSION,
             });
-
-            logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
+            challengeApiPatchSucceeded = true;
         } catch (error: any) {
+            challengeApiPatchError = error;
             logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
             logger.error(`${JSON.stringify(error)}`);
+        }
 
-            errorHelper.handleAndTransformAPIError(
-                error.status,
-                error.response?.text ? JSON.parse(error.response.text).message : error.message,
-                'Unable to associate skills to challenge! Please retry.',
+        if (!challengeDbSyncSucceeded && !challengeApiPatchSucceeded) {
+            if (challengeApiPatchError) {
+                errorHelper.handleAndTransformAPIError(
+                    challengeApiPatchError.status,
+                    challengeApiPatchError.response?.text
+                        ? JSON.parse(challengeApiPatchError.response.text).message
+                        : challengeApiPatchError.message,
+                    'Unable to associate skills to challenge! Please retry.',
+                );
+            }
+
+            throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+        }
+
+        if (challengeDbSyncSucceeded && challengeApiPatchSucceeded) {
+            logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
+        } else if (challengeDbSyncSucceeded) {
+            logger.info(
+                `Successfully synced challenge skills in database for challenge ${challengeId}; challenge API update failed but continuing.`,
+            );
+        } else {
+            logger.info(
+                `Successfully updated challenge ${challengeId} via challenge API; challenge database sync failed but continuing.`,
             );
         }
     });
