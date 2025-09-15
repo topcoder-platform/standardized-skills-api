@@ -160,12 +160,20 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
 
             if (_.isEmpty(challenge)) {
                 const challengePrisma = getChallengePrismaClient();
-                const challengeRecords = await challengePrisma.$queryRaw<{ id: string }[]>`
-                    SELECT "id"
-                    FROM "Challenge"
-                    WHERE "id" = ${workId}
-                    LIMIT 1
-                `;
+                let challengeRecords: { id: string }[] = [];
+
+                try {
+                    challengeRecords = await challengePrisma.$queryRaw<{ id: string }[]>`
+                        SELECT "id"
+                        FROM "Challenge"
+                        WHERE "id" = ${workId}
+                        LIMIT 1
+                    `;
+                } catch (error: any) {
+                    logger.error(`Error verifying challenge ${workId} via prisma`);
+                    logger.error(`${JSON.stringify(error)}`);
+                    throw new InternalServerError('Unable to validate challenge! Please retry.');
+                }
 
                 if (challengeRecords.length === 0) {
                     throw new NotFoundError(`challenge with id='${workId}' does not exist!`);
