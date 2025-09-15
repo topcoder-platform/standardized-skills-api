@@ -1,0 +1,20 @@
+datasource db {
+    provider = "postgresql"
+    url      = env("CHALLENGE_DB_URL")
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model ChallengeSkill {
+    id          String   @id @default(uuid())
+    challengeId String
+    skillId     String
+    createdAt   DateTime @default(now())
+    createdBy   String
+    updatedAt   DateTime @default(now()) @updatedAt
+    updatedBy   String
+
+    @@index([challengeId])
+}

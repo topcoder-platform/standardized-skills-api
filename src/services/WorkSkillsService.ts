@@ -8,6 +8,7 @@ import { Op, Transaction } from 'sequelize';
 import * as constants from '../config';
 import * as tcAPI from '../utils/tc-api';
 import * as errorHelper from '../utils/error-helper';
+import { syncChallengeSkillsInChallengeDb } from '../utils/challenge-skill-sync';
 
 const logger = new LoggerClient('WorkSkillsService');
 
@@ -72,6 +73,15 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
                 },
             },
         });
+
+        try {
+            await syncChallengeSkillsInChallengeDb(challengeId, skillIds);
+        } catch (error: any) {
+            logger.error(`Error syncing challenge skills in database for challenge ${challengeId}`);
+            logger.error(`${JSON.stringify(error)}`);
+
+            throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+        }
 
         // call the challenge API to update the Elasticsearch challenge index
         try {

@@ -5,6 +5,7 @@ export const envConfig = {
     PORT: process.env.PORT || 3000,
     DB_URL: process.env.TC_SKILLS_DATABASE_URL,
     DB_SCHEMA: process.env.TC_SKILLS_DATABASE_SCHEMA,
+    CHALLENGE_DB_URL: process.env.CHALLENGE_API_DATABASE_URL,
     AUTH0_URL: process.env.AUTH0_URL,
     AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,

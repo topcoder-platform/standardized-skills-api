@@ -8,6 +8,7 @@ API for suggestion of probable skills with each input.
 - Run `npx tsc` to generate the dist script files
 - On success, execute `npm run es-init` to initialize the Opensearch index for autocomplete suggestions
 - Set env variable (using export, or create an `.env` file) for `TC_SKILLS_DATABASE_URL=<AWS DEV DB URL FOR SKILLS>`
+- Set env variable for `CHALLENGE_API_DATABASE_URL=<AWS DEV DB URL FOR CHALLENGE API>` so challenge skills can be synchronized directly in the challenge service database
 - Connect to VPN
 - Execute `npm run load-data-es` to load all skill data into the created Opensearch index
 
