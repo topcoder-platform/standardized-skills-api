@@ -187,10 +187,11 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
             const challenge = await esHelper.getChallengeById(workId);
 
             if (_.isEmpty(challenge)) {
-                const challengePrisma = getChallengePrismaClient();
-                let challengeRecords: { id: string }[] = [];
-
                 try {
+                    logger.info(`Challenge with id ${workId} not found in ES, checking via prisma`);
+                    const challengePrisma = getChallengePrismaClient();
+                    let challengeRecords: { id: string }[] = [];
+
                     challengeRecords = await challengePrisma.$queryRaw<{ id: string }[]>`
                         SELECT "id"
                         FROM "Challenge"
