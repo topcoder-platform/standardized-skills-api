@@ -9,6 +9,7 @@ import * as constants from '../config';
 import * as tcAPI from '../utils/tc-api';
 import * as errorHelper from '../utils/error-helper';
 import { syncChallengeSkillsInChallengeDb } from '../utils/challenge-skill-sync';
+import { getChallengePrismaClient } from '../db/challengePrisma';
 
 const logger = new LoggerClient('WorkSkillsService');
 
@@ -131,13 +132,26 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
 
             break;
 
-        case 'challenge':
+        case 'challenge': {
             // check valid challenge id
-            if (_.isEmpty(await esHelper.getChallengeById(workId))) {
-                throw new NotFoundError(`challenge with id='${workId}' does not exist!`);
+            const challenge = await esHelper.getChallengeById(workId);
+
+            if (_.isEmpty(challenge)) {
+                const challengePrisma = getChallengePrismaClient();
+                const challengeRecords = await challengePrisma.$queryRaw<{ id: string }[]>`
+                    SELECT "id"
+                    FROM "Challenge"
+                    WHERE "id" = ${workId}
+                    LIMIT 1
+                `;
+
+                if (challengeRecords.length === 0) {
+                    throw new NotFoundError(`challenge with id='${workId}' does not exist!`);
+                }
             }
 
             break;
+        }
     }
 
     // check valid skills ids
