@@ -4,12 +4,11 @@ import { InternalServerError, NotFoundError, StandardizedSkillApiError } from '.
 import { LoggerClient } from '../utils/LoggerClient';
 import * as esHelper from '../utils/es-helper';
 import _, { isNull } from 'lodash';
-import { Op, Transaction } from 'sequelize';
+import { Op, QueryTypes, Transaction } from 'sequelize';
 import * as constants from '../config';
 import * as tcAPI from '../utils/tc-api';
 import * as errorHelper from '../utils/error-helper';
 import { syncChallengeSkillsInChallengeDb } from '../utils/challenge-skill-sync';
-import { getChallengePrismaClient } from '../db/challengePrisma';
 
 const logger = new LoggerClient('WorkSkillsService');
 
@@ -187,24 +186,26 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
             const challenge = await esHelper.getChallengeById(workId);
 
             if (_.isEmpty(challenge)) {
-                let challengeRecords: { id: string }[] = [];
+                let challengeRecord: { id: string } | null = null;
                 try {
-                    logger.info(`Challenge with id ${workId} not found in ES, checking via prisma`);
-                    const challengePrisma = getChallengePrismaClient();
-
-                    challengeRecords = await challengePrisma.$queryRaw<{ id: string }[]>`
-                        SELECT "id"
-                        FROM "Challenge"
-                        WHERE "id" = ${workId}
-                        LIMIT 1
-                    `;
+                    logger.info(`Challenge with id ${workId} not found in ES, checking via challenge database`);
+                    challengeRecord = await db.sequelize.query<{ id: string }>(
+                        'SELECT "id" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
+                        {
+                            bind: [workId],
+                            type: QueryTypes.SELECT,
+                            plain: false,
+                            // disable search_path prefix to avoid pg parsing multi-statement prepared queries
+                            ...( { supportsSearchPath: false } as any ),
+                        },
+                    );
                 } catch (error: any) {
-                    logger.error(`Error verifying challenge ${workId} via prisma`);
+                    logger.error(`Error verifying challenge ${workId} via challenge database`);
                     logger.error(`${JSON.stringify(error)}`);
                     throw new InternalServerError('Unable to validate challenge! Please retry.');
                 }
 
-                if (challengeRecords.length === 0) {
+                if (!challengeRecord) {
                     throw new NotFoundError(`challenge with id='${workId}' does not exist!`);
                 }
             }
