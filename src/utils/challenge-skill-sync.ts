@@ -15,7 +15,7 @@ async function replaceChallengeSkills(
     skillIds: string[],
     actor: string,
 ) {
-    logger.info("Deleting existing challenge skill records if any for challenge id: " + challengeId);
+    logger.info('Deleting existing challenge skill records if any for challenge id: ' + challengeId);
     await sequelize.query('DELETE FROM challenges."ChallengeSkill" WHERE "challengeId" = $1', {
         bind: [challengeId],
         transaction,
