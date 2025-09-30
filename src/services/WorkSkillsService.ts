@@ -2,13 +2,13 @@ import db, { Skill, SkillCategory, SourceType, WorkSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
 import { InternalServerError, NotFoundError, StandardizedSkillApiError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
-import * as esHelper from '../utils/es-helper';
-import _, { isNull } from 'lodash';
-import { Op, QueryTypes, Transaction } from 'sequelize';
+import { isNull } from 'lodash';
+import { Op, Transaction } from 'sequelize';
 import * as constants from '../config';
 import * as tcAPI from '../utils/tc-api';
 import * as errorHelper from '../utils/error-helper';
 import { syncChallengeSkillsInChallengeDb } from '../utils/challenge-skill-sync';
+import { ensureChallengeExists } from '../utils/challenge-db-helper';
 
 const logger = new LoggerClient('WorkSkillsService');
 
@@ -98,7 +98,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
                 logger.error(serializeError(error));
             }
 
-            // call the challenge API to update the Elasticsearch challenge index
+            // call the challenge API to update the challenge metadata downstream
             currentStep = 'patchChallengeApi';
             logger.info(`Updating challenge API for ${logContext}`);
             let challengeApiPatchSucceeded = false;
@@ -181,37 +181,9 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
 
             break;
 
-        case 'challenge': {
-            // check valid challenge id
-            const challenge = await esHelper.getChallengeById(workId);
-
-            if (_.isEmpty(challenge)) {
-                let challengeRecord: { id: string } | null = null;
-                try {
-                    logger.info(`Challenge with id ${workId} not found in ES, checking via challenge database`);
-                    challengeRecord = await db.sequelize.query<{ id: string }>(
-                        'SELECT "id" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
-                        {
-                            bind: [workId],
-                            type: QueryTypes.SELECT,
-                            plain: false,
-                            // disable search_path prefix to avoid pg parsing multi-statement prepared queries
-                            ...( { supportsSearchPath: false } as any ),
-                        },
-                    );
-                } catch (error: any) {
-                    logger.error(`Error verifying challenge ${workId} via challenge database`);
-                    logger.error(`${JSON.stringify(error)}`);
-                    throw new InternalServerError('Unable to validate challenge! Please retry.');
-                }
-
-                if (!challengeRecord) {
-                    throw new NotFoundError(`challenge with id='${workId}' does not exist!`);
-                }
-            }
-
+        case 'challenge':
+            await ensureChallengeExists(workId);
             break;
-        }
     }
 
     // check valid skills ids

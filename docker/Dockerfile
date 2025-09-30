@@ -1,5 +1,5 @@
-# Use the LTS base image for Node.js
-FROM node:17.8.0-alpine
+# Use the current Node.js 22 base image
+FROM node:22-alpine
 
 # Set working directory for future use
 WORKDIR /usr/standardized-skills-api/app
@@ -7,17 +7,18 @@ WORKDIR /usr/standardized-skills-api/app
 # Copy the codebase
 COPY . .
 
-# Install the dependencies from package.json
-RUN npm install
+# Enable pnpm via Corepack and install dependencies
+RUN corepack enable pnpm
+RUN pnpm install --frozen-lockfile
 
 # Run the lint to check for lint errors and stop further progress
-RUN npm run lint
+RUN pnpm run lint
 
 # Expose the API on PORT 3000
 EXPOSE 3000
 
-# Transpile the codebase
-RUN npm run transpile
+# Build the codebase
+RUN pnpm run build
 
 # Execute to start app
-CMD [ "node", "dist/index.js" ]
+CMD [ "node", "dist/main.js" ]

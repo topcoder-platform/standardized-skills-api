@@ -16,7 +16,6 @@
     "src/interfaces",
     "src/middlewares",
     "src/routes",
-    "src/scripts/load-data-es.ts",
     "src/scripts/sync-db.ts",
     "src/services",
     "src/types.ts",

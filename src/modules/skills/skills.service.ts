@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import dayjs from 'dayjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../common/interfaces/auth-user.interface';
@@ -17,18 +16,37 @@ import {
   InternalServerError,
   NotFoundError,
 } from '../../utils/errors';
-import * as esHelper from '../../utils/es-helper';
-import { ES_SKILL_TIME_FORMAT } from '../../config';
+import { DEFAULT_SUGGESTIONS_SIZE, MAX_SUGGESTIONS_SIZE } from '../../config';
 
 type SkillWithCategory = Prisma.SkillGetPayload<{
   include: { category: true };
 }>;
+
+type AutocompleteSkill = SkillWithCategory;
 
 @Injectable()
 export class SkillsService {
   private readonly logger = new Logger(SkillsService.name);
 
   constructor(private readonly prisma: PrismaService) {}
+
+  private clampSuggestionSize(size?: number) {
+    const requested = size ?? DEFAULT_SUGGESTIONS_SIZE;
+    return Math.min(requested, MAX_SUGGESTIONS_SIZE);
+  }
+
+  private mapSkillToAutocompleteResult(skill: AutocompleteSkill) {
+    return {
+      id: skill.id,
+      name: skill.name,
+      category: skill.category
+        ? {
+            id: skill.category.id,
+            name: skill.category.name,
+          }
+        : null,
+    };
+  }
 
   async getAllSkills(query: GetSkillsQueryRequestDto) {
     this.logger.log(`Fetching skills based on request ${JSON.stringify(query)}`);
@@ -144,17 +162,6 @@ export class SkillsService {
         throw new InternalServerError('Unable to load category information for created skill');
       }
 
-      await esHelper.createSkillInAutocompleteES({
-        id: skill.id,
-        name: skill.name,
-        category: {
-          id: skill.category!.id,
-          name: skill.category!.name,
-        },
-        createdAt: dayjs(skill.createdAt).format(ES_SKILL_TIME_FORMAT),
-        updatedAt: dayjs(skill.updatedAt).format(ES_SKILL_TIME_FORMAT),
-      });
-
       this.logger.log(`Skill created successfully ${JSON.stringify({ id: skill.id })}`);
       return this.serializeSkill(skill);
     });
@@ -198,17 +205,6 @@ export class SkillsService {
       if (!updatedSkill.category) {
         throw new InternalServerError('Unable to load category information for updated skill');
       }
-
-      await esHelper.updateSkillInAutocompleteES({
-        id: updatedSkill.id,
-        name: updatedSkill.name,
-        category: {
-          id: updatedSkill.category!.id,
-          name: updatedSkill.category!.name,
-        },
-        createdAt: dayjs(updatedSkill.createdAt).format(ES_SKILL_TIME_FORMAT),
-        updatedAt: dayjs(updatedSkill.updatedAt).format(ES_SKILL_TIME_FORMAT),
-      });
 
       this.logger.log(`Skill with id ${id} updated successfully`);
       return this.serializeSkill(updatedSkill);
@@ -260,17 +256,6 @@ export class SkillsService {
         throw new InternalServerError('Unable to load category information for updated skill');
       }
 
-      await esHelper.updateSkillInAutocompleteES({
-        id: updatedSkill.id,
-        name: updatedSkill.name,
-        category: {
-          id: updatedSkill.category!.id,
-          name: updatedSkill.category!.name,
-        },
-        createdAt: dayjs(updatedSkill.createdAt).format(ES_SKILL_TIME_FORMAT),
-        updatedAt: dayjs(updatedSkill.updatedAt).format(ES_SKILL_TIME_FORMAT),
-      });
-
       this.logger.log(`Skill with id ${id} updated successfully`);
       return this.serializeSkill(updatedSkill);
     });
@@ -292,8 +277,6 @@ export class SkillsService {
           deletedAt: new Date(),
         },
       });
-
-      await esHelper.deleteSkillFromAutocompleteES(id);
 
       this.logger.log(`Successfully deleted skill with id ${id}`);
     });
@@ -328,30 +311,104 @@ export class SkillsService {
         throw new InternalServerError('Unable to fetch updated skill details from database!');
       }
 
-      await esHelper.updateSkillInAutocompleteES({
-        id: restoredSkill.id,
-        name: restoredSkill.name,
-        category: {
-          id: restoredSkill.category!.id,
-          name: restoredSkill.category!.name,
-        },
-        createdAt: dayjs(restoredSkill.createdAt).format(ES_SKILL_TIME_FORMAT),
-        updatedAt: dayjs(restoredSkill.updatedAt).format(ES_SKILL_TIME_FORMAT),
-      });
-
       this.logger.log(`Successfully restored archived skill with id ${id}`);
       return this.serializeSkill(restoredSkill);
     });
   }
 
-  autocompleteSkills(query: GetAutocompleteRequestQueryDto) {
+  async autocompleteSkills(query: GetAutocompleteRequestQueryDto) {
     this.logger.log(`Fetching autocomplete suggestions based on ${JSON.stringify(query)}`);
-    return esHelper.autocompleteSkills({ term: query.term, size: query.size });
+    const term = query.term.trim();
+
+    if (!term) {
+      return [];
+    }
+
+    const limit = this.clampSuggestionSize(query.size);
+
+    const prefixMatches = await this.prisma.skill.findMany({
+      where: {
+        deletedAt: null,
+        name: {
+          startsWith: term,
+          mode: 'insensitive',
+        },
+      },
+      include: {
+        category: true,
+      },
+      orderBy: {
+        name: 'asc',
+      },
+      take: limit,
+    });
+
+    const results: AutocompleteSkill[] = [...prefixMatches];
+    const seenIds = new Set(prefixMatches.map((skill) => skill.id));
+
+    if (results.length < limit) {
+      const additionalMatches = await this.prisma.skill.findMany({
+        where: {
+          deletedAt: null,
+          name: {
+            contains: term,
+            mode: 'insensitive',
+          },
+          ...(seenIds.size
+            ? {
+                id: {
+                  notIn: Array.from(seenIds),
+                },
+              }
+            : {}),
+        },
+        include: {
+          category: true,
+        },
+        orderBy: {
+          name: 'asc',
+        },
+        take: limit - results.length,
+      });
+
+      results.push(...additionalMatches);
+    }
+
+    return results.map((skill) => this.mapSkillToAutocompleteResult(skill));
   }
 
-  fuzzyMatch(query: GetAutocompleteRequestQueryDto) {
+  async fuzzyMatch(query: GetAutocompleteRequestQueryDto) {
     this.logger.log(`Fetching fuzzyMatch suggestions based on ${JSON.stringify(query)}`);
-    return esHelper.fuzzyMatch({ term: query.term, size: query.size });
+    const term = query.term.trim();
+
+    if (!term) {
+      return [];
+    }
+
+    const limit = this.clampSuggestionSize(query.size);
+
+    const matches = await this.prisma.skill.findMany({
+      where: {
+        deletedAt: null,
+        name: {
+          contains: term,
+          mode: 'insensitive',
+        },
+      },
+      orderBy: {
+        name: 'asc',
+      },
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+      },
+    });
+
+    return matches.map((skill) => ({
+      id: skill.id,
+      name: skill.name,
+    }));
   }
 
   private buildOrderBy(sortBy?: string, sortOrder?: 'ASC' | 'DESC') {

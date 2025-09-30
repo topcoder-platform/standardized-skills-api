@@ -1,5 +1,5 @@
 import { Op } from 'sequelize';
-import { uniqBy, map, toString, isEmpty, pick, uniq, isNull } from 'lodash';
+import { uniqBy, map, pick, uniq, isNull } from 'lodash';
 
 import db, { Skill, SkillCategory, UserSkill, UserSkillLevel, UserSkillDisplayMode } from '../db';
 import { LoggerClient } from '../utils/LoggerClient';
@@ -8,7 +8,7 @@ import { bulkCheckValidIds, findAndCountPaginated } from '../utils/postgres-help
 import { BadRequestError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
 import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../utils/helpers';
-import * as esHelper from '../utils/es-helper';
+import { ensureMemberExists } from '../utils/member-db-helper';
 import { getOrderBy, updateDisplayModeForUserSkills } from '../utils/user-skills-helper';
 import { fetchSelfDeclaredSkillLevel } from '../utils/skills-helper';
 import { UserSkillLevels } from '../config';
@@ -163,8 +163,6 @@ export async function updateDbUserSkills(
             disablePagination: 'true',
         });
 
-        await esHelper.updateSkillsInMemberES(toString(userId), allSkills.skills);
-
         return allSkills;
     });
 }
@@ -181,10 +179,7 @@ export async function getUserSkills(currentUser: AuthUser, userId: number, query
     );
     ensureUserCanManageMemberSkills(currentUser, userId);
 
-    const member = await esHelper.getMemberById(toString(userId));
-    if (isEmpty(member)) {
-        throw new NotFoundError(`Member ${userId} does not exist!`);
-    }
+    await ensureMemberExists(userId);
 
     return fetchDbUserSkills(userId, query);
 }
@@ -206,10 +201,7 @@ export async function createUserSkills(
 
     ensureUserCanManageMemberSkills(currentUser, userId);
 
-    const member = await esHelper.getMemberById(toString(userId));
-    if (isEmpty(member)) {
-        throw new NotFoundError(`Member ${userId} does not exist!`);
-    }
+    await ensureMemberExists(userId);
 
     const hasUserSkillsAlready = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (hasUserSkillsAlready) {
@@ -236,10 +228,7 @@ export async function updateUserSkills(
 
     ensureUserCanManageMemberSkills(currentUser, userId);
 
-    const member = await esHelper.getMemberById(toString(userId));
-    if (isEmpty(member)) {
-        throw new NotFoundError(`Member ${userId} does not exist!`);
-    }
+    await ensureMemberExists(userId);
 
     const hasUserSkillsAssociated = Boolean(await UserSkill.findOne({ where: { user_id: userId } }));
     if (!hasUserSkillsAssociated) {

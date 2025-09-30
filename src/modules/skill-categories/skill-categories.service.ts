@@ -1,6 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import dayjs from 'dayjs';
 
 import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../common/interfaces/auth-user.interface';
@@ -11,14 +10,7 @@ import {
   UpdateCategoryPartialRequestDto,
   UpdateCategoryRequestBodyDto,
 } from '../../dto';
-import {
-  BadRequestError,
-  ConflictError,
-  InternalServerError,
-  NotFoundError,
-} from '../../utils/errors';
-import { bulkCreateSkillsES, updateSkillCategoryInAutocompleteES } from '../../utils/es-helper';
-import { ES_SKILL_TIME_FORMAT } from '../../config';
+import { BadRequestError, ConflictError, NotFoundError } from '../../utils/errors';
 
 type SkillWithCategory = Prisma.SkillGetPayload<{
   include: { category: true };
@@ -234,25 +226,6 @@ export class SkillCategoriesService {
         },
       });
 
-      const skillsToIndex = updatedSkills.map((skill) => {
-        if (!skill.category) {
-          throw new InternalServerError('Unable to load category information for skill');
-        }
-
-        return {
-          id: skill.id,
-          name: skill.name,
-          category: {
-            id: skill.category.id,
-            name: skill.category.name,
-          },
-          createdAt: dayjs(skill.createdAt).format(ES_SKILL_TIME_FORMAT),
-          updatedAt: dayjs(skill.updatedAt).format(ES_SKILL_TIME_FORMAT),
-        };
-      });
-
-      await bulkCreateSkillsES(skillsToIndex);
-
       this.logger.log(`Successfully assigned skills to new category ${categoryId}`);
 
       return updatedSkills.map((skill) => ({
@@ -290,8 +263,6 @@ export class SkillCategoriesService {
         },
       });
 
-      await updateSkillCategoryInAutocompleteES(category.id, category.name);
-
       this.logger.log(`Category ${id} updated successfully`);
       return this.serializeCategory(category);
     });
@@ -320,8 +291,6 @@ export class SkillCategoriesService {
           description: body.description ?? undefined,
         },
       });
-
-      await updateSkillCategoryInAutocompleteES(category.id, category.name);
 
       this.logger.log(`Category ${id} updated successfully`);
       return this.serializeCategory(category);

@@ -1,27 +1,20 @@
-import { map, toString } from 'lodash';
+import { map } from 'lodash';
 
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, SkillEventTypes, WorkType } from '../config';
-import {
-    SkillEventPayloadChallengeUpdate,
-    GetUserSkillsQueryDto,
-    SkillEventRequestBodyDto,
-    SkillEventPayloadTCAUpdate,
-    UserSkillDto,
-} from '../dto';
+import { SkillEventPayloadChallengeUpdate, SkillEventRequestBodyDto, SkillEventPayloadTCAUpdate, UserSkillDto } from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
-import { fetchDbUserSkills } from './UserSkillsService';
 import db, { Skill, UserSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
 import { NotFoundError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
-import * as esHelper from '../utils/es-helper';
 import { fetchSourceType, fetchVerifiedSkillLevel } from '../utils/skills-helper';
 import {
     createAndEnsureEventNotProcessedAlready,
-    ensurePayloadWinnersAreValidUsers,
     createSkillEventsForUser,
     ensurePayloadChallengeExists,
+    ensureMembersExist,
+    ensurePayloadWinnersAreValidUsers,
     REVIEWER_TYPE_KEY,
 } from '../utils/skill-events-helper';
 import { fetchAdditionalUserSkillDisplayMode } from '../utils/user-skills-helper';
@@ -63,9 +56,9 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     // fetch challenge reviewers so we assign the challenge skills to them as well
     const reviewers = await fetchChallengeReviewers(payload.id);
 
-    return db.sequelize.transaction(async (tx) => {
-        const allSkills = [];
+    await ensureMembersExist(reviewers.map((reviewer) => reviewer.memberId));
 
+    return db.sequelize.transaction(async (tx) => {
         const users = [
             ...payload.winners,
             ...reviewers.map((p) => ({
@@ -86,19 +79,6 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
             await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
             await createSkillEventsForUser(user, payload.skills, eventId, payload.id, sourceType.id, tx);
-
-            const allUserSkills = await fetchDbUserSkills(user.userId, {
-                ...new GetUserSkillsQueryDto(),
-                disablePagination: 'true',
-            });
-
-            allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });
-        }
-
-        // do the Opensearch index update only after we make sure all user skill db updates have been successful,
-        // otherwise we can't revert Opensearch index updates if db update fails
-        for (const { userId, skills } of allSkills) {
-            await esHelper.updateSkillsInMemberES(userId, skills);
         }
 
         logger.info('Successfully associated user skills via challenge completed skill event');
@@ -129,7 +109,6 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
         payload.type === WorkType.certification ? SkillEventTypes.tcaCertCompleted : SkillEventTypes.tcaCourseCompleted;
 
     return db.sequelize.transaction(async (tx) => {
-        const allSkills = [];
         const user = payload.graduate;
 
         // update each user with the skills data
@@ -143,19 +122,6 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
 
         await createSkillEventsForUser(user, payload.skills, eventId, payload.id, sourceType.id, tx, eventType);
-
-        const allUserSkills = await fetchDbUserSkills(user.userId, {
-            ...new GetUserSkillsQueryDto(),
-            disablePagination: 'true',
-        });
-
-        allSkills.push({ userId: toString(user.userId), skills: allUserSkills.skills });
-
-        // do the Opensearch index update only after we make sure all user skill db updates have been successful,
-        // otherwise we can't revert Opensearch index updates if db update fails
-        for (const { userId, skills } of allSkills) {
-            await esHelper.updateSkillsInMemberES(userId, skills);
-        }
 
         logger.info('Successfully associated user skills via TCA completed skill event');
     });
