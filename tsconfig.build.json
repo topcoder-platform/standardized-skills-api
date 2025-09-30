@@ -1,0 +1,29 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "declaration": true,
+    "removeComments": true,
+    "incremental": false
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "test",
+    "**/*.spec.ts",
+    "src/controllers",
+    "src/db",
+    "src/interfaces",
+    "src/middlewares",
+    "src/routes",
+    "src/scripts/load-data-es.ts",
+    "src/scripts/sync-db.ts",
+    "src/services",
+    "src/types.ts",
+    "src/utils/challenge-skill-sync.ts",
+    "src/utils/postgres-helper.ts",
+    "src/utils/skill-events-helper.ts",
+    "src/utils/skills-helper.ts",
+    "src/utils/user-skills-helper.ts"
+  ]
+}

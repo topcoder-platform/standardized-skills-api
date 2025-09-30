@@ -1,6 +1,7 @@
 import { Response } from 'express';
+
+import { AuthUser } from '../common/interfaces/auth-user.interface';
 import { UserRoles } from '../config';
-import { AuthUser } from '../types';
 import { ForbiddenError } from './errors';
 
 /**
