@@ -2,7 +2,7 @@ version: 2
 
 defaults: &defaults
     docker:
-        - image: cimg/node:18.20.4
+        - image: cimg/node:22.1.0
 
 install_dependencies: &install_dependencies
     name: Install Dependencies
@@ -23,8 +23,9 @@ install_deploy_scripts: &install_deploy_scripts
 running_linter: &running_linter
     name: Running linter
     command: |
-        npm install
-        npm run lint
+        corepack enable pnpm
+        pnpm install --frozen-lockfile
+        pnpm run lint
 
 lint_steps: &lint_steps # Initialization.
     - checkout

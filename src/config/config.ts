@@ -23,23 +23,11 @@ export const envConfig = {
         DELETE: process.env.SCOPE_STANDARDIZED_SKILLS_DELETE || 'delete:standardized-skills',
         ALL: process.env.SCOPE_STANDARDIZED_SKILLS_ALL || 'all:standardized-skills',
     },
-    SKILLS_ES: {
-        HOST: process.env.SKILL_ES_HOST || 'http://localhost:9200',
-        INDEX: process.env.SKILL_ES_INDEX || 'standardized_skills_suggester',
-        DOCUMENT_TYPE: process.env.SKILL_ES_DOCUMENT_TYPE || '_doc',
-        REFRESH: process.env.SKILL_ES_REFRESH || false,
-    },
-    CHALLENGES_ES: {
-        HOST: process.env.CHALLENGES_ES_HOST || 'http://localhost:9201',
-        CHALLENGES_INDEX: process.env.CHALLENGES_ES_INDEX || 'challenge',
-        CHALLENGES_DOCUMENT_TYPE: process.env.CHALLENGES_ES_DOCUMENT_TYPE || '_doc',
-        REFRESH: process.env.CHALLENGES_ES_REFRESH || false,
-    },
-    MEMBERS_ES: {
-        HOST: process.env.MEMBERS_ES_HOST || 'http://localhost:9201',
-        MEMBERS_INDEX: process.env.MEMBERS_ES_INDEX || 'members-2020-01',
-        MEMBERS_DOCUMENT_TYPE: process.env.MEMBERS_ES_DOCUMENT_TYPE || 'profiles',
-        REFRESH: process.env.MEMBERS_ES_REFRESH || false,
+    MEMBER_DB: {
+        URL: process.env.MEMBER_DB_URL,
+        SCHEMA: process.env.MEMBER_DB_SCHEMA || 'member',
+        TABLE: process.env.MEMBER_DB_TABLE || 'member_profile',
+        ID_COLUMN: process.env.MEMBER_DB_ID_COLUMN || 'user_id',
     },
     API_BASE: '/v5/standardized-skills',
 

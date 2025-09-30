@@ -2,9 +2,10 @@ import crypto, { BinaryToTextEncoding } from 'crypto';
 import { SkillEventTypes, envConfig } from '../config';
 import { Event, SkillEvent, SkillEventType } from '../db';
 import { Transaction, UniqueConstraintError } from 'sequelize';
-import { ConflictError, NotFoundError } from './errors';
-import { find, get, isEmpty, toNumber, toString } from 'lodash';
-import * as esHelper from '../utils/es-helper';
+import { ConflictError } from './errors';
+import { find, get, toNumber } from 'lodash';
+import { ensureChallengeExists } from './challenge-db-helper';
+import { ensureMemberExists } from './member-db-helper';
 import { ChallengeWinnerDto, UserSkillDto } from '../dto';
 
 let localSkillEventTypes: Promise<SkillEventType[]>;
@@ -38,27 +39,25 @@ export async function createAndEnsureEventNotProcessedAlready(topic: string, pay
 }
 
 /**
- * Checks the payload id (which is a challenge.id) to make sure the linked challenge exists in ES
+ * Checks the payload id (which is a challenge.id) to make sure the linked challenge exists in Postgres
  */
 export async function ensurePayloadChallengeExists(id: string) {
-    const challenge = await esHelper.getChallengeById(id);
-
-    if (!challenge || isEmpty(challenge)) {
-        throw new NotFoundError(`Challenge with id '${id}' does not exist!`);
-    }
+    await ensureChallengeExists(id);
 }
 
 /**
- * Checks each payload winner's id against Opensearch index and make sure they exist
+ * Ensures all provided member ids exist in the member database
  */
-export async function ensurePayloadWinnersAreValidUsers(winners: { userId: number }[]) {
-    const membersPromises = winners.map((winner) => esHelper.getMemberById(toString(winner.userId)));
-    const members = await Promise.all(membersPromises);
-
-    const notFoundMembers = members.filter(isEmpty);
-    if (notFoundMembers.length > 0) {
-        throw new NotFoundError('Some members have invalid userIds!');
+export async function ensureMembersExist(memberIds: Array<number | string>) {
+    if (memberIds.length === 0) {
+        return;
     }
+
+    await Promise.all(memberIds.map((memberId) => ensureMemberExists(memberId)));
+}
+
+export async function ensurePayloadWinnersAreValidUsers(winners: { userId: number }[]) {
+    await ensureMembersExist(winners.map((winner) => winner.userId));
 }
 
 /**
