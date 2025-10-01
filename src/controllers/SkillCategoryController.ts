@@ -10,7 +10,6 @@ import {
 import * as SkillCategoryService from '../services/SkillCategoryService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
-import * as core from 'express-serve-static-core';
 import { SkillIdsRequestBodyDto } from '../dto';
 
 export default class SkillCategoryController {
@@ -18,7 +17,7 @@ export default class SkillCategoryController {
      * Gets a category by id
      */
     async getCategoryById(
-        req: Request<CategoryIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
+        req: Request<CategoryIdRequestPathParamDto>,
         res: Response,
         next: NextFunction,
     ) {
@@ -76,13 +75,7 @@ export default class SkillCategoryController {
      * Bulk assigns skills to new category
      */
     async bulkAssignSkillsToCategory(
-        req: AuthorizedRequest<
-            CategoryIdRequestPathParamDto,
-            any,
-            SkillIdsRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<CategoryIdRequestPathParamDto, any, SkillIdsRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) {
@@ -102,13 +95,7 @@ export default class SkillCategoryController {
      * Creates a new category
      */
     async createCategory(
-        req: AuthorizedRequest<
-            { [key: string]: string },
-            any,
-            NewCategoryRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<{ [key: string]: string }, any, NewCategoryRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) {
@@ -124,13 +111,7 @@ export default class SkillCategoryController {
      * Updates the name and/or description of an existing category
      */
     async updateCategory(
-        req: AuthorizedRequest<
-            CategoryIdRequestPathParamDto,
-            any,
-            UpdateCategoryRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<CategoryIdRequestPathParamDto, any, UpdateCategoryRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) {
@@ -147,13 +128,7 @@ export default class SkillCategoryController {
      * of an existing category
      */
     async patchCategory(
-        req: AuthorizedRequest<
-            CategoryIdRequestPathParamDto,
-            any,
-            UpdateCategoryPartialRequestDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<CategoryIdRequestPathParamDto, any, UpdateCategoryPartialRequestDto>,
         res: Response,
         next: NextFunction,
     ) {
@@ -169,7 +144,7 @@ export default class SkillCategoryController {
      * Deletes an existing category by id
      */
     async deleteCategory(
-        req: AuthorizedRequest<CategoryIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
+        req: AuthorizedRequest<CategoryIdRequestPathParamDto>,
         res: Response,
         next: NextFunction,
     ) {

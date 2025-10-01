@@ -1,6 +1,5 @@
 import { isEmpty, isNull, isUndefined } from 'lodash';
-import { WhereOptions, Op, FindAndCountOptions } from 'sequelize';
-import { Model, ModelCtor } from 'sequelize-typescript';
+import { WhereOptions, Op, FindAndCountOptions, Model, ModelCtor } from 'sequelize';
 
 import { DbModelsType } from '../db';
 import { BasePaginatedSortedRequest } from '../dto';

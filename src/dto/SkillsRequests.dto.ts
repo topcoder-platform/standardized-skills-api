@@ -40,7 +40,7 @@ export class GetSkillsQueryRequestDto extends BasePaginatedSortedRequest {
     @IsString()
     @IsNotEmpty()
     @IsIn(['name', 'description', 'created_at', 'updated_at'])
-    sortBy?: string;
+    override sortBy?: string = undefined;
 
     @Transform(({ value }) => (!isArray(value) ? [value] : value))
     @IsOptional()

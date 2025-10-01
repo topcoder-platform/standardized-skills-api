@@ -23,6 +23,9 @@ export const envConfig = {
         DELETE: process.env.SCOPE_STANDARDIZED_SKILLS_DELETE || 'delete:standardized-skills',
         ALL: process.env.SCOPE_STANDARDIZED_SKILLS_ALL || 'all:standardized-skills',
     },
+    SKILLS_ES: process.env.SKILLS_ES,
+    CHALLENGES_ES: process.env.CHALLENGES_ES,
+    MEMBERS_ES: process.env.MEMBERS_ES,
     MEMBER_DB: {
         URL: process.env.MEMBER_DB_URL,
         SCHEMA: process.env.MEMBER_DB_SCHEMA || 'member',
