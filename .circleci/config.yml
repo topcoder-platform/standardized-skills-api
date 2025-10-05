@@ -23,7 +23,7 @@ install_deploy_scripts: &install_deploy_scripts
 running_linter: &running_linter
     name: Running linter
     command: |
-        corepack enable pnpm
+        sudo corepack enable pnpm
         pnpm install --frozen-lockfile
         pnpm run lint
 
