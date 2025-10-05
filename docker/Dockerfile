@@ -1,24 +1,29 @@
-# Use the current Node.js 22 base image
-FROM node:22-alpine
+# syntax=docker/dockerfile:1
 
-# Set working directory for future use
-WORKDIR /usr/standardized-skills-api/app
+FROM node:22.13.1-alpine
 
-# Copy the codebase
+# Install shell and update package index (align with review-api)
+RUN apk add --no-cache bash && apk update
+
+# Ensure Prisma uses musl-compatible binaries on Alpine
+ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x
+
+# Working directory (align with review-api)
+WORKDIR /app
+
+# Copy repository contents
 COPY . .
 
-# Enable pnpm via Corepack and install dependencies
+# Install pnpm and dependencies
 RUN npm install pnpm -g
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
-# Run the lint to check for lint errors and stop further progress
+# Lint and build
 RUN pnpm run lint
-
-# Expose the API on PORT 3000
-EXPOSE 3000
-
-# Build the codebase
 RUN pnpm run build
 
-# Execute to start app
+# Expose API port
+EXPOSE 3000
+
+# Start the application
 CMD [ "node", "dist/main.js" ]
