@@ -20,18 +20,6 @@ install_deploy_scripts: &install_deploy_scripts
         cp ../buildscript/awsconfiguration.sh .
         cp ../buildscript/psvar-processor.sh .
 
-running_linter: &running_linter
-    name: Running linter
-    command: |
-        npm i -g pnpm 
-        pnpm install --frozen-lockfile
-        pnpm run lint
-
-lint_steps: &lint_steps # Initialization.
-    - checkout
-    - setup_remote_docker
-    - run: *running_linter
-
 build_and_deploy_steps: &build_and_deploy_steps
     - checkout
     - setup_remote_docker

@@ -8,7 +8,7 @@ WORKDIR /usr/standardized-skills-api/app
 COPY . .
 
 # Enable pnpm via Corepack and install dependencies
-RUN corepack enable pnpm
+RUN npm install pnpm -g
 RUN pnpm install --frozen-lockfile
 
 # Run the lint to check for lint errors and stop further progress
