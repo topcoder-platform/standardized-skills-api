@@ -2,10 +2,13 @@
 
 FROM node:22.13.1-alpine
 
-# Install shell and update package index (align with review-api)
-RUN apk add --no-cache bash && apk update
+# Install shell and required OpenSSL 1.1 compatibility libs for Prisma 5.x
+# Also update package index (align with review-api)
+RUN apk add --no-cache bash openssl1.1-compat && apk update
 
 # Ensure Prisma uses musl-compatible binaries on Alpine
+# Note: Prisma 5.x on Alpine may still require OpenSSL 1.1; the compat
+# package above satisfies libssl.so.1.1 at runtime.
 ENV PRISMA_CLI_BINARY_TARGETS=linux-musl-openssl-3.0.x
 
 # Working directory (align with review-api)
