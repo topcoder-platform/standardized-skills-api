@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './modules/health/health.module';
 import { SkillCategoriesModule } from './modules/skill-categories/skill-categories.module';
 import { SkillsModule } from './modules/skills/skills.module';
+import { UserSkillsModule } from './modules/user-skills/user-skills.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { SkillsModule } from './modules/skills/skills.module';
     HealthModule,
     SkillsModule,
     SkillCategoriesModule,
+    UserSkillsModule,
   ],
 })
 export class AppModule {}
