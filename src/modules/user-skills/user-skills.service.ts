@@ -197,7 +197,7 @@ export class UserSkillsService {
     const unique = Array.from(new Set(skillIds));
     const found = await this.prisma.skill.findMany({ where: { id: { in: unique } }, select: { id: true } });
     if (found.length !== unique.length) {
-      throw new BadRequestError("Some of the passed 'skills.id' are invalid!");
+      throw new BadRequestError('Some of the passed \'skills.id\' are invalid!');
     }
   }
 
