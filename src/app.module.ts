@@ -7,6 +7,7 @@ import { HealthModule } from './modules/health/health.module';
 import { SkillCategoriesModule } from './modules/skill-categories/skill-categories.module';
 import { SkillsModule } from './modules/skills/skills.module';
 import { UserSkillsModule } from './modules/user-skills/user-skills.module';
+import { WorkSkillsModule } from './modules/work-skills/work-skills.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { UserSkillsModule } from './modules/user-skills/user-skills.module';
     SkillsModule,
     SkillCategoriesModule,
     UserSkillsModule,
+    WorkSkillsModule,
   ],
 })
 export class AppModule {}
