@@ -6,8 +6,11 @@ import { BasePaginatedSortedRequest } from '../dto';
 
 /**
  * Convert types for fixing typescript types looping
+ * Sequelize's ModelCtor requires a model type parameter. Use a broad Model
+ * instance type here to satisfy the generic constraint across all models.
  */
-const getModelCtor = (model: DbModelsType): ModelCtor => model as unknown as ModelCtor;
+type AnyModelCtor = ModelCtor<Model<any, any>>;
+const getModelCtor = (model: DbModelsType): AnyModelCtor => model as unknown as AnyModelCtor;
 
 /**
  * Finds the record matching the given search criteria in the database
