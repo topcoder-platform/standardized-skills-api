@@ -162,7 +162,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
  */
 async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId: string, skillIds: string[]) {
     logger.info(
-        `Validating request for work type ${workType} with id ${workId} and skillIds ${JSON.stringify(skillIds)}}`,
+        `Validating request for work type ${workType} with id ${workId} and skillIds ${JSON.stringify(skillIds)}`,
     );
 
     switch (workType) {
@@ -200,15 +200,18 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
 async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> {
     // find the work type for challenge/gig
     const workTypeDetail = await SourceType.findOne({
+        attributes: ['id', 'name'],
         where: {
             name: workType,
         },
     });
-    if (isNull(workTypeDetail)) {
+
+    // ensure we found a row and it contains an id
+    if (isNull(workTypeDetail) || !((workTypeDetail as any).id)) {
         throw new InternalServerError(`Unable to fetch work type id for ${workType}!`);
     }
 
-    return workTypeDetail;
+    return workTypeDetail as SourceType;
 }
 
 /**
@@ -224,10 +227,19 @@ async function associateSkillsToWorkId(
     skillIds: string[],
     tx: Transaction,
 ) {
+    const workTypeId = (workTypeDetail as any)?.id;
+
+    if (!workTypeId) {
+        // Extra guard to avoid passing undefined to Sequelize WHERE clause
+        throw new InternalServerError(
+            `Unable to resolve work type id when associating skills for work ${workId}. Please verify source_type rows are seeded.`,
+        );
+    }
+
     // prepare the job skill association data for bulk insert
     const workSkills = skillIds.map((skillId) => ({
         work_id: workId,
-        work_type_id: workTypeDetail.id,
+        work_type_id: workTypeId,
         skill_id: skillId,
     }));
 
@@ -235,7 +247,7 @@ async function associateSkillsToWorkId(
     await WorkSkill.destroy({
         where: {
             work_id: workId,
-            work_type_id: workTypeDetail.id,
+            work_type_id: workTypeId,
         },
         transaction: tx,
     });
