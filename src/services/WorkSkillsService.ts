@@ -3,8 +3,9 @@ import { bulkCheckValidIds } from '../utils/postgres-helper';
 import { InternalServerError, NotFoundError, StandardizedSkillApiError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
 import { isNull } from 'lodash';
-import { Op, Transaction } from 'sequelize';
+import { Op, Transaction, QueryTypes } from 'sequelize';
 import * as constants from '../config';
+import { envConfig } from '../config';
 import * as tcAPI from '../utils/tc-api';
 import * as errorHelper from '../utils/error-helper';
 import { syncChallengeSkillsInChallengeDb } from '../utils/challenge-skill-sync';
@@ -208,6 +209,42 @@ async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> 
 
     // ensure we found a row and it contains an id
     if (isNull(workTypeDetail) || !((workTypeDetail as any).id)) {
+        // Enhanced diagnostics to aid environment/schema debugging
+        try {
+            const dbUrlString = envConfig.DB_URL ?? '';
+            let dbHost = 'unknown';
+            let dbPort = 'unknown';
+            let dbName = 'unknown';
+            try {
+                const parsed = new URL(dbUrlString);
+                dbHost = parsed.hostname || dbHost;
+                dbPort = parsed.port || dbPort;
+                dbName = (parsed.pathname || '').replace(/^\//, '') || dbName;
+            } catch {}
+
+            let searchPath = 'unknown';
+            try {
+                const result: any = await db.sequelize.query('SHOW search_path', { type: QueryTypes.SELECT, plain: true });
+                // postgres returns an object like { search_path: '"schema", public' }
+                searchPath = result?.search_path ?? JSON.stringify(result);
+            } catch {}
+
+            let sourceTypeNames: string | undefined;
+            try {
+                const rows = (await SourceType.findAll({ attributes: ['name'], raw: true })) as Array<{ name: string }>;
+                sourceTypeNames = rows.map((r) => r.name).join(', ');
+            } catch {}
+
+            logger.error(
+                `Diagnostics: SourceType lookup failed for workType='${workType}'. ` +
+                    `db='${dbName}' host='${dbHost}' port='${dbPort}' schema='${envConfig.DB_SCHEMA || '(unset)'}' ` +
+                    `search_path='${searchPath}' available_source_types='${sourceTypeNames ?? 'unavailable'}'`,
+            );
+        } catch (diagErr: any) {
+            // Swallow any diagnostics errors; do not mask the original failure
+            logger.error(`Diagnostics error while logging SourceType failure: ${diagErr?.message || diagErr}`);
+        }
+
         throw new InternalServerError(`Unable to fetch work type id for ${workType}!`);
     }
 
