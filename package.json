@@ -15,9 +15,6 @@
     "format": "eslint -c .eslintrc 'src/**/*.ts' --fix",
     "pretty": "prettier --write \"src/**/*.ts\"",
     "services:up": "cd ./local && docker-compose up -d",
-    "db:sync": "ts-node src/scripts/sync-db.ts",
-    "db:seed": "pnpm exec sequelize-cli db:seed:all",
-    "db:init": "pnpm run db:sync && pnpm run db:seed",
     "prisma:generate": "pnpm exec prisma generate",
     "prisma:migrate:deploy": "pnpm exec prisma migrate deploy",
     "prisma:studio": "pnpm exec prisma studio"
