@@ -1,4 +1,4 @@
-import { Sequelize } from 'sequelize';
+import { Options, Sequelize } from 'sequelize';
 import { createNamespace } from 'cls-hooked';
 import { initModels } from './models/init-models';
 import { SEQUELIZE_CLS_NAMESPACE, envConfig } from '../config';
@@ -6,18 +6,24 @@ import { SEQUELIZE_CLS_NAMESPACE, envConfig } from '../config';
 const namespace = createNamespace(SEQUELIZE_CLS_NAMESPACE);
 Sequelize.useCLS(namespace);
 
-const sequelize = new Sequelize(envConfig.DB_URL || '', {
+const sequelizeOptions: Options = {
     logging: false,
     define: {
-        // instruct sequelize to use snake case for  "created_at" and "updated_at",
+        // instruct sequelize to use snake case for "created_at" and "updated_at",
         // instead of camel case "createdAt" and "updatedAt"
         underscored: true,
     },
-    dialectOptions: {
-      prependSearchPath: true
-    },
-    schema: envConfig.DB_SCHEMA
-});
+};
+
+if (envConfig.DB_SCHEMA) {
+    sequelizeOptions.dialectOptions = {
+        ...(sequelizeOptions.dialectOptions ?? {}),
+        prependSearchPath: true,
+    };
+    sequelizeOptions.schema = envConfig.DB_SCHEMA;
+}
+
+const sequelize = new Sequelize(envConfig.DB_URL || '', sequelizeOptions);
 
 // Put models here when needed...
 const models = initModels(sequelize);

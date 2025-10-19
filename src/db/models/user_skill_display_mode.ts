@@ -23,11 +23,11 @@ export class user_skill_display_mode
     extends Model<userSkillDisplayModeAttributes, userSkillDisplayModeCreationAttributes>
     implements userSkillDisplayModeAttributes
 {
-    id!: string;
-    name!: string;
-    description?: string | null;
-    created_at!: Date;
-    updated_at!: Date;
+    declare id: string;
+    declare name: string;
+    declare description?: string | null;
+    declare created_at: Date;
+    declare updated_at: Date;
 
     // user_skill_display_mode hasMany user_skill via user_skill_display_mode_id
     user_skills!: user_skill[];

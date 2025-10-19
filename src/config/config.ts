@@ -1,10 +1,29 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+function resolveDbSchema(): string | undefined {
+    const explicitSchema = process.env.TC_SKILLS_DATABASE_SCHEMA;
+    if (explicitSchema) {
+        return explicitSchema;
+    }
+
+    const dbUrl = process.env.TC_SKILLS_DATABASE_URL;
+    if (!dbUrl) {
+        return undefined;
+    }
+
+    try {
+        const parsed = new URL(dbUrl);
+        return parsed.searchParams.get('schema') ?? undefined;
+    } catch {
+        return undefined;
+    }
+}
+
 export const envConfig = {
     PORT: process.env.PORT || 3000,
     DB_URL: process.env.TC_SKILLS_DATABASE_URL,
-    DB_SCHEMA: process.env.TC_SKILLS_DATABASE_SCHEMA,
+    DB_SCHEMA: resolveDbSchema(),
     AUTH0_URL: process.env.AUTH0_URL,
     AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
