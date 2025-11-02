@@ -17,11 +17,11 @@ export type eventOptionalAttributes = 'id' | 'payload_hash' | 'created_at';
 export type eventCreationAttributes = Optional<eventAttributes, eventOptionalAttributes>;
 
 export class event extends Model<eventAttributes, eventCreationAttributes> implements eventAttributes {
-    id!: string;
-    topic!: string;
-    payload!: object;
-    payload_hash?: string;
-    created_at!: Date;
+    declare id: string;
+    declare topic: string;
+    declare payload: object;
+    declare payload_hash?: string;
+    declare created_at: Date;
 
     // event hasMany skill_event via event_id
     skill_events!: skill_event[];

@@ -20,11 +20,11 @@ export class source_type
     extends Model<sourceTypeAttributes, sourceTypeCreationAttributes>
     implements sourceTypeAttributes
 {
-    id!: string;
-    name!: string;
-    description?: string;
-    created_at!: Date;
-    updated_at!: Date;
+    declare id: string;
+    declare name: string;
+    declare description?: string;
+    declare created_at: Date;
+    declare updated_at: Date;
 
     // source_type hasMany skill_event via source_type_id
     skill_events!: skill_event[];

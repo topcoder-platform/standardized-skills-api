@@ -9,7 +9,13 @@ export interface AuthUser {
     scopes?: string[];
 }
 
-export interface AuthorizedRequest<T, Te, Tr, Tt, Tu extends Record<string, any>> extends Request<T, Te, Tr, Tt, Tu> {
+export interface AuthorizedRequest<
+    Params = Record<string, any>,
+    ResBody = any,
+    ReqBody = any,
+    ReqQuery = Record<string, any>,
+    Locals extends Record<string, any> = Record<string, any>,
+> extends Request<Params, ResBody, ReqBody, ReqQuery, Locals> {
     authUser: AuthUser;
     userToken: string;
 }

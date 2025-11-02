@@ -3,7 +3,6 @@ import { NextFunction, Request, Response } from 'express';
 import * as helper from '../utils/helpers';
 import * as dtos from '../dto/SkillsRequests.dto';
 import { AuthorizedRequest } from '../types';
-import * as core from 'express-serve-static-core';
 
 export default class SkillsController {
     /**
@@ -31,7 +30,7 @@ export default class SkillsController {
      * Gets a skill by id
      */
     getSkillById = async (
-        req: Request<dtos.SkillIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
+        req: Request<dtos.SkillIdRequestPathParamDto>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -47,13 +46,7 @@ export default class SkillsController {
      * Creates a new skill and assigns it to an existing category
      */
     createSkill = async (
-        req: AuthorizedRequest<
-            { [key: string]: string },
-            any,
-            dtos.SkillCreationRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<{ [key: string]: string }, any, dtos.SkillCreationRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -69,13 +62,7 @@ export default class SkillsController {
      * Updates an existing skill via put
      */
     updateSkill = async (
-        req: AuthorizedRequest<
-            dtos.SkillIdRequestPathParamDto,
-            any,
-            dtos.SkillUpdatePutRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<dtos.SkillIdRequestPathParamDto, any, dtos.SkillUpdatePutRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -91,13 +78,7 @@ export default class SkillsController {
      * Restores an archived skill
      */
     restoreSkill = async (
-        req: AuthorizedRequest<
-            dtos.SkillIdRequestPathParamDto,
-            any,
-            dtos.SkillUpdatePutRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<dtos.SkillIdRequestPathParamDto, any, dtos.SkillUpdatePutRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -113,13 +94,7 @@ export default class SkillsController {
      * Updates an existing skill partially via patch
      */
     patchSkill = async (
-        req: AuthorizedRequest<
-            dtos.SkillIdRequestPathParamDto,
-            any,
-            dtos.SkillUpdatePatchRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<dtos.SkillIdRequestPathParamDto, any, dtos.SkillUpdatePatchRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) => {
@@ -135,7 +110,7 @@ export default class SkillsController {
      * Deletes an existing skill
      */
     deleteSkill = async (
-        req: AuthorizedRequest<dtos.SkillIdRequestPathParamDto, any, any, core.Query, Record<string, any>>,
+        req: AuthorizedRequest<dtos.SkillIdRequestPathParamDto>,
         res: Response,
         next: NextFunction,
     ) => {

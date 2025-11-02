@@ -10,7 +10,6 @@ import {
 import * as UserSkillsService from '../services/UserSkillsService';
 import { setResHeaders } from '../utils/helpers';
 import { AuthorizedRequest } from '../types';
-import * as core from 'express-serve-static-core';
 
 export default class UserSkillsController {
     /**
@@ -72,13 +71,7 @@ export default class UserSkillsController {
      * Create association for the User & provided skills
      */
     async createUserSkills(
-        req: AuthorizedRequest<
-            { [key: string]: string },
-            any,
-            UpdateUserSkillsRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<{ [key: string]: string }, any, UpdateUserSkillsRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) {
@@ -93,13 +86,7 @@ export default class UserSkillsController {
      * Update association for the User & provided skills
      */
     async updateUserSkills(
-        req: AuthorizedRequest<
-            { [key: string]: string },
-            any,
-            UpdateUserSkillsRequestBodyDto,
-            core.Query,
-            Record<string, any>
-        >,
+        req: AuthorizedRequest<{ [key: string]: string }, any, UpdateUserSkillsRequestBodyDto>,
         res: Response,
         next: NextFunction,
     ) {

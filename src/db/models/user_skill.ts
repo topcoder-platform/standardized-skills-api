@@ -21,13 +21,13 @@ export type user_skillOptionalAttributes = 'id' | 'created_at' | 'updated_at';
 export type userSkillCreationAttributes = Optional<userSkillAttributes, user_skillOptionalAttributes>;
 
 export class user_skill extends Model<userSkillAttributes, userSkillCreationAttributes> implements userSkillAttributes {
-    id!: string;
-    user_id!: number;
-    skill_id!: string;
-    user_skill_level_id!: string;
-    user_skill_display_mode_id!: string;
-    created_at!: Date;
-    updated_at!: Date;
+    declare id: string;
+    declare user_id: number;
+    declare skill_id: string;
+    declare user_skill_level_id: string;
+    declare user_skill_display_mode_id: string;
+    declare created_at: Date;
+    declare updated_at: Date;
 
     // user_skill belongsTo skill via skill_id
     skill!: skill;

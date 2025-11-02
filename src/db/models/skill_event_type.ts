@@ -20,11 +20,11 @@ export class skill_event_type
     extends Model<skillEventTypeAttributes, skillEventTypeCreationAttributes>
     implements skillEventTypeAttributes
 {
-    id!: string;
-    name!: string;
-    description?: string;
-    created_at!: Date;
-    updated_at!: Date;
+    declare id: string;
+    declare name: string;
+    declare description?: string;
+    declare created_at: Date;
+    declare updated_at: Date;
 
     // skill_event_type hasMany skill_event via skill_event_type_id
     skill_events!: skill_event[];

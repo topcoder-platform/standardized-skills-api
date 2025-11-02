@@ -1,23 +1,26 @@
-# Use the LTS base image for Node.js
-FROM node:17.8.0-alpine
+# syntax=docker/dockerfile:1
 
-# Set working directory for future use
-WORKDIR /usr/standardized-skills-api/app
+FROM node:22.13.1-alpine
 
-# Copy the codebase
+# Install shell; Prisma 6 uses OpenSSL 3 by default on Alpine
+RUN apk add --no-cache bash && apk update
+
+# Working directory (align with review-api)
+WORKDIR /app
+
+# Copy repository contents
 COPY . .
 
-# Install the dependencies from package.json
-RUN npm install
+# Install pnpm and dependencies
+RUN npm install pnpm -g
+RUN pnpm install
 
-# Run the lint to check for lint errors and stop further progress
-RUN npm run lint
+# Lint and build
+RUN pnpm run lint
+RUN pnpm run build
 
-# Expose the API on PORT 3000
+# Expose API port
 EXPOSE 3000
 
-# Transpile the codebase
-RUN npm run transpile
-
-# Execute to start app
-CMD [ "node", "dist/index.js" ]
+# Start the application
+CMD [ "node", "dist/main.js" ]

@@ -1,8 +1,6 @@
-import { format, transports, createLogger, Logger } from 'winston';
-import { Service } from 'typedi';
+import { createLogger, format, Logger, transports } from 'winston';
 const { combine, timestamp, json, label } = format;
 
-@Service()
 export class LoggerClient {
     private logger: Logger;
 

@@ -1,0 +1,41 @@
+import { CanActivate, ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
+
+import { ROLES_KEY } from '../decorators';
+import { AuthenticatedRequest } from '../interfaces/auth-user.interface';
+
+@Injectable()
+export class RolesGuard implements CanActivate {
+  constructor(private readonly reflector: Reflector) {}
+
+  canActivate(context: ExecutionContext): boolean {
+    const requiredRoles = this.reflector.getAllAndOverride<string[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ]);
+
+    if (!requiredRoles || requiredRoles.length === 0) {
+      return true;
+    }
+
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
+    const user = request.authUser;
+
+    if (!user) {
+      throw new ForbiddenException('Missing authentication context');
+    }
+
+    if (user.isMachine) {
+      return true;
+    }
+
+    const normalizedRoles = user.roles?.map((role) => role.toLowerCase()) ?? [];
+    const matches = requiredRoles.some((role) => normalizedRoles.includes(role.toLowerCase()));
+
+    if (!matches) {
+      throw new ForbiddenException('You are not allowed to perform this action');
+    }
+
+    return true;
+  }
+}

@@ -21,13 +21,13 @@ export type skillOptionalAttributes = 'id' | 'description' | 'category_id' | 'cr
 export type skillCreationAttributes = Optional<skillAttributes, skillOptionalAttributes>;
 
 export class skill extends Model<skillAttributes, skillCreationAttributes> implements skillAttributes {
-    id!: string;
-    name!: string;
-    description?: string;
-    category_id?: string;
-    created_at!: Date;
-    updated_at!: Date;
-    deleted_at?: Date;
+    declare id: string;
+    declare name: string;
+    declare description?: string;
+    declare category_id?: string;
+    declare created_at: Date;
+    declare updated_at: Date;
+    declare deleted_at?: Date;
 
     countLegacy_skill_maps!: Sequelize.HasManyCountAssociationsMixin;
     // skill hasMany skill_event via skill_id
