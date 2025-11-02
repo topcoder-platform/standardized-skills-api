@@ -12,9 +12,6 @@ import { BadRequestError, ConflictError, InternalServerError, NotFoundError } fr
 import { findAndCountPaginated } from '../utils/postgres-helper';
 import { AuthUser } from '../types';
 import { FindAndCountOptions, Op } from 'sequelize';
-import { bulkCreateSkillsES, updateSkillCategoryInAutocompleteES } from '../utils/es-helper';
-import dayjs from 'dayjs';
-import * as constants from '../config/constants';
 
 const logger = new LoggerClient('SkillCategoryService');
 
@@ -200,7 +197,7 @@ export const bulkAssignSkillsToCategories = async (
             throw new NotFoundError('Not all skill ids exist!');
         }
 
-        // update the category in PostgreSQL and Opensearch index
+        // update the category in PostgreSQL
         await Skill.update(
             {
                 category_id: categoryId,
@@ -223,21 +220,6 @@ export const bulkAssignSkillsToCategories = async (
                 id: skillIds,
             },
         });
-
-        const skillsToIndexInES = map(skills, (skill) => {
-            return {
-                id: skill.id,
-                name: skill.name,
-                category: {
-                    id: skill.category.id,
-                    name: skill.category.name,
-                },
-                createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
-                updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
-            };
-        });
-
-        await bulkCreateSkillsES(skillsToIndexInES);
 
         logger.info(`Successfully assigned skills to new category ${categoryId}`);
 
@@ -269,7 +251,7 @@ export const updateCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        // update category information in PostgreSQL and OpenSearch index
+        // update category information in PostgreSQL
         await SkillCategory.update(
             {
                 name: body.name,
@@ -289,8 +271,6 @@ export const updateCategory = async (
         if (isNull(category)) {
             throw new InternalServerError('Unable to connect to database!');
         }
-
-        await updateSkillCategoryInAutocompleteES(category.id, category.name);
 
         logger.info(`Category ${id} updated successfully`);
         return category;
@@ -326,7 +306,7 @@ export const patchCategory = async (
             throw new ConflictError(`Category with name ${body.name} already exists!`);
         }
 
-        // update category in PostgreSQL andd Opensearch index
+        // update category in PostgreSQL
         await SkillCategory.update(
             {
                 name: body.name,
@@ -346,8 +326,6 @@ export const patchCategory = async (
         if (isNull(category)) {
             throw new InternalServerError('Unable to connect to database!');
         }
-
-        await updateSkillCategoryInAutocompleteES(category.id, category.name);
 
         logger.info(`Category ${id} updated successfully`);
         return category;

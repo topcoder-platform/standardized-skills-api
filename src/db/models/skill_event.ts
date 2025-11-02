@@ -26,14 +26,14 @@ export class skill_event
     extends Model<skillEventAttributes, skillEventCreationAttributes>
     implements skillEventAttributes
 {
-    id!: string;
-    event_id!: string;
-    user_id!: number;
-    skill_id!: string;
-    skill_event_type_id!: string;
-    source_id!: string;
-    source_type_id!: string;
-    created_at!: Date;
+    declare id: string;
+    declare event_id: string;
+    declare user_id: number;
+    declare skill_id: string;
+    declare skill_event_type_id: string;
+    declare source_id: string;
+    declare source_type_id: string;
+    declare created_at: Date;
 
     // skill_event belongsTo event via event_id
     event!: event;

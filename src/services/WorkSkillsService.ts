@@ -1,13 +1,15 @@
 import db, { Skill, SkillCategory, SourceType, WorkSkill } from '../db';
 import { bulkCheckValidIds } from '../utils/postgres-helper';
-import { InternalServerError, NotFoundError } from '../utils/errors';
+import { InternalServerError, NotFoundError, StandardizedSkillApiError } from '../utils/errors';
 import { LoggerClient } from '../utils/LoggerClient';
-import * as esHelper from '../utils/es-helper';
-import _, { isNull } from 'lodash';
-import { Op, Transaction } from 'sequelize';
+import { isNull } from 'lodash';
+import { Op, Transaction, QueryTypes } from 'sequelize';
 import * as constants from '../config';
+import { envConfig } from '../config';
 import * as tcAPI from '../utils/tc-api';
 import * as errorHelper from '../utils/error-helper';
+import { syncChallengeSkillsInChallengeDb } from '../utils/challenge-skill-sync';
+import { ensureChallengeExists } from '../utils/challenge-db-helper';
 
 const logger = new LoggerClient('WorkSkillsService');
 
@@ -49,49 +51,108 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
         )}`,
     );
 
-    await db.sequelize.transaction(async (tx) => {
-        // validate request
-        await validateRequestForWorkType('challenge', challengeId, skillIds);
+    const logContext = `challengeId=${challengeId} skillCount=${skillIds.length}`;
+    let currentStep = 'initializing';
 
-        // find the work type for challenge
-        const workTypeDetail = await findWorkType('challenge');
+    try {
+        await db.sequelize.transaction(async (tx) => {
+            // validate request
+            currentStep = 'validateRequestForWorkType';
+            logger.info(`Validating challenge request for ${logContext}`);
+            await validateRequestForWorkType('challenge', challengeId, skillIds);
 
-        // create the association between challenge and skill
-        await associateSkillsToWorkId(challengeId, workTypeDetail, skillIds, tx);
+            // find the work type for challenge
+            currentStep = 'findWorkType';
+            logger.info(`Fetching work type metadata for ${logContext}`);
+            const workTypeDetail = await findWorkType('challenge');
 
-        const associatedSkills = await Skill.findAll({
-            attributes: ['name', 'id'],
-            include: {
-                model: SkillCategory,
-                as: 'category',
+            // create the association between challenge and skill
+            currentStep = 'associateSkillsToWorkId';
+            logger.info(`Associating skills in PostgreSQL for ${logContext}`);
+            await associateSkillsToWorkId(challengeId, workTypeDetail, skillIds, tx);
+
+            currentStep = 'loadAssociatedSkills';
+            logger.info(`Fetching associated skill records for ${logContext}`);
+            const associatedSkills = await Skill.findAll({
                 attributes: ['name', 'id'],
-            },
-            where: {
-                id: {
-                    [Op.in]: skillIds,
+                include: {
+                    model: SkillCategory,
+                    as: 'category',
+                    attributes: ['name', 'id'],
                 },
-            },
-        });
-
-        // call the challenge API to update the Elasticsearch challenge index
-        try {
-            // set the app-version header to 1.1.0 for challenge API to deal with the standardized skills
-            await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken, {
-                'app-version': constants.CHALLENGE_API_VERSION,
+                where: {
+                    id: {
+                        [Op.in]: skillIds,
+                    },
+                },
             });
+            logger.info(`Fetched ${associatedSkills.length} associated skill records for ${logContext}`);
 
-            logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
-        } catch (error: any) {
-            logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
-            logger.error(`${JSON.stringify(error)}`);
+            currentStep = 'syncChallengeDb';
+            logger.info(`Syncing challenge database records for ${logContext}`);
+            let challengeDbSyncSucceeded = false;
+            try {
+                await syncChallengeSkillsInChallengeDb(challengeId, skillIds);
+                challengeDbSyncSucceeded = true;
+            } catch (error: any) {
+                logger.error(`Error syncing challenge skills in database for ${logContext}`);
+                logger.error(serializeError(error));
+            }
 
-            errorHelper.handleAndTransformAPIError(
-                error.status,
-                error.response?.text ? JSON.parse(error.response.text).message : error.message,
-                'Unable to associate skills to challenge! Please retry.',
-            );
+            // call the challenge API to update the challenge metadata downstream
+            currentStep = 'patchChallengeApi';
+            logger.info(`Updating challenge API for ${logContext}`);
+            let challengeApiPatchSucceeded = false;
+            let challengeApiPatchError: any = null;
+            try {
+                // set the app-version header to 1.1.0 for challenge API to deal with the standardized skills
+                await tcAPI.patch(`/challenges/${challengeId}`, { skills: associatedSkills }, userToken, {
+                    'app-version': constants.CHALLENGE_API_VERSION,
+                });
+                challengeApiPatchSucceeded = true;
+            } catch (error: any) {
+                challengeApiPatchError = error;
+                logger.error(`Error encountered in associating skills to challenge with id ${challengeId}`);
+                logger.error(serializeError(error));
+            }
+
+            currentStep = 'finalize';
+            if (!challengeDbSyncSucceeded && !challengeApiPatchSucceeded) {
+                if (challengeApiPatchError) {
+                    errorHelper.handleAndTransformAPIError(
+                        challengeApiPatchError.status,
+                        challengeApiPatchError.response?.text
+                            ? JSON.parse(challengeApiPatchError.response.text).message
+                            : challengeApiPatchError.message,
+                        'Unable to associate skills to challenge! Please retry.',
+                    );
+                }
+
+                throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+            }
+
+            if (challengeDbSyncSucceeded && challengeApiPatchSucceeded) {
+                logger.info(`Successfully associated skills to challenge with id ${challengeId}`);
+            } else if (challengeDbSyncSucceeded) {
+                logger.info(
+                    `Successfully synced challenge skills in database for challenge ${challengeId}; challenge API update failed but continuing.`,
+                );
+            } else {
+                logger.info(
+                    `Successfully updated challenge ${challengeId} via challenge API; challenge database sync failed but continuing.`,
+                );
+            }
+        });
+    } catch (error: any) {
+        logger.error(`Error while associating skills to challenge at step '${currentStep}' for ${logContext}`);
+        logger.error(serializeError(error));
+
+        if (error instanceof StandardizedSkillApiError) {
+            throw error;
         }
-    });
+
+        throw new InternalServerError('Unable to associate skills to challenge! Please retry.');
+    }
 }
 
 /**
@@ -102,7 +163,7 @@ export async function createChallengeSkills(userToken: any, challengeId: string,
  */
 async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId: string, skillIds: string[]) {
     logger.info(
-        `Validating request for work type ${workType} with id ${workId} and skillIds ${JSON.stringify(skillIds)}}`,
+        `Validating request for work type ${workType} with id ${workId} and skillIds ${JSON.stringify(skillIds)}`,
     );
 
     switch (workType) {
@@ -122,11 +183,7 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
             break;
 
         case 'challenge':
-            // check valid challenge id
-            if (_.isEmpty(await esHelper.getChallengeById(workId))) {
-                throw new NotFoundError(`challenge with id='${workId}' does not exist!`);
-            }
-
+            await ensureChallengeExists(workId);
             break;
     }
 
@@ -144,15 +201,54 @@ async function validateRequestForWorkType(workType: 'gig' | 'challenge', workId:
 async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> {
     // find the work type for challenge/gig
     const workTypeDetail = await SourceType.findOne({
+        attributes: ['id', 'name'],
         where: {
             name: workType,
         },
     });
-    if (isNull(workTypeDetail)) {
+
+    // ensure we found a row and it contains an id
+    if (isNull(workTypeDetail) || !((workTypeDetail as any).id)) {
+        // Enhanced diagnostics to aid environment/schema debugging
+        try {
+            const dbUrlString = envConfig.DB_URL ?? '';
+            let dbHost = 'unknown';
+            let dbPort = 'unknown';
+            let dbName = 'unknown';
+            try {
+                const parsed = new URL(dbUrlString);
+                dbHost = parsed.hostname || dbHost;
+                dbPort = parsed.port || dbPort;
+                dbName = (parsed.pathname || '').replace(/^\//, '') || dbName;
+            } catch {}
+
+            let searchPath = 'unknown';
+            try {
+                const result: any = await db.sequelize.query('SHOW search_path', { type: QueryTypes.SELECT, plain: true });
+                // postgres returns an object like { search_path: '"schema", public' }
+                searchPath = result?.search_path ?? JSON.stringify(result);
+            } catch {}
+
+            let sourceTypeNames: string | undefined;
+            try {
+                const rows = (await SourceType.findAll({ attributes: ['name'], raw: true })) as Array<{ name: string }>;
+                sourceTypeNames = rows.map((r) => r.name).join(', ');
+            } catch {}
+
+            logger.error(
+                `Diagnostics: SourceType lookup failed for workType='${workType}'. ` +
+                    `db='${dbName}' host='${dbHost}' port='${dbPort}' schema='${envConfig.DB_SCHEMA || '(unset)'}' ` +
+                    `search_path='${searchPath}' available_source_types='${sourceTypeNames ?? 'unavailable'}'`,
+            );
+        } catch (diagErr: any) {
+            // Swallow any diagnostics errors; do not mask the original failure
+            logger.error(`Diagnostics error while logging SourceType failure: ${diagErr?.message || diagErr}`);
+        }
+
         throw new InternalServerError(`Unable to fetch work type id for ${workType}!`);
     }
 
-    return workTypeDetail;
+    return workTypeDetail as SourceType;
 }
 
 /**
@@ -168,10 +264,19 @@ async function associateSkillsToWorkId(
     skillIds: string[],
     tx: Transaction,
 ) {
+    const workTypeId = (workTypeDetail as any)?.id;
+
+    if (!workTypeId) {
+        // Extra guard to avoid passing undefined to Sequelize WHERE clause
+        throw new InternalServerError(
+            `Unable to resolve work type id when associating skills for work ${workId}. Please verify source_type rows are seeded.`,
+        );
+    }
+
     // prepare the job skill association data for bulk insert
     const workSkills = skillIds.map((skillId) => ({
         work_id: workId,
-        work_type_id: workTypeDetail.id,
+        work_type_id: workTypeId,
         skill_id: skillId,
     }));
 
@@ -179,9 +284,23 @@ async function associateSkillsToWorkId(
     await WorkSkill.destroy({
         where: {
             work_id: workId,
-            work_type_id: workTypeDetail.id,
+            work_type_id: workTypeId,
         },
         transaction: tx,
     });
     await WorkSkill.bulkCreate(workSkills, { transaction: tx });
+}
+
+function serializeError(error: any): string {
+    if (!error) {
+        return 'Unknown error';
+    }
+
+    try {
+        return JSON.stringify(error, Object.getOwnPropertyNames(error));
+    } catch (serializationError: any) {
+        const message = serializationError?.message || serializationError;
+        const fallback = error?.message || String(error);
+        return `Failed to serialize error due to: ${message}. Fallback message: ${fallback}`;
+    }
 }

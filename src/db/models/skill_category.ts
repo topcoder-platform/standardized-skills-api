@@ -20,11 +20,11 @@ export class skill_category
     extends Model<skillCategoryAttributes, skillCategoryCreationAttributes>
     implements skillCategoryAttributes
 {
-    id!: string;
-    name!: string;
-    description?: string;
-    created_at!: Date;
-    updated_at!: Date;
+    declare id: string;
+    declare name: string;
+    declare description?: string;
+    declare created_at: Date;
+    declare updated_at: Date;
 
     // skill_category hasMany skill via category_id
     skills!: skill[];

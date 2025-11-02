@@ -17,7 +17,7 @@ export class GetUserSkillsQueryDto extends BasePaginatedSortedRequest {
     @IsString()
     @IsNotEmpty()
     @IsIn(['name', 'category', 'level'])
-    sortBy?: string;
+    override sortBy?: string = undefined;
 }
 
 class UserSkillSkillRequestDto {
@@ -47,7 +47,7 @@ export class UpdateUserSkillsRequestBodyDto {
 export class GetUserSkillsDisplayModesQueryDto extends BasePaginatedSortedRequest {
     @IsOptional()
     @IsIn(['name'])
-    sortBy?: string;
+    override sortBy?: string = undefined;
 }
 
 export class GetUserSkillsDisplayModeParamDto {

@@ -6,7 +6,7 @@ export class AllCategoriesRequestQueryDto extends BasePaginatedSortedRequest {
     @IsString()
     @IsNotEmpty()
     @IsIn(['name', 'description', 'created_at', 'updated_at'])
-    sortBy?: string;
+    override sortBy?: string = undefined;
 
     @IsOptional()
     @IsString()
@@ -52,5 +52,5 @@ export class GetCategorySkillsRequestQueryDto extends BasePaginatedSortedRequest
     @IsString()
     @IsNotEmpty()
     @IsIn(['name', 'description', 'created_at', 'updated_at'])
-    sortBy?: string;
+    override sortBy?: string = undefined;
 }

@@ -17,12 +17,12 @@ export type work_skillOptionalAttributes = 'id' | 'created_at' | 'updated_at';
 export type workSkillCreationAttributes = Optional<workSkillAttributes, work_skillOptionalAttributes>;
 
 export class work_skill extends Model<workSkillAttributes, workSkillCreationAttributes> implements workSkillAttributes {
-    id!: string;
-    work_id!: string;
-    work_type_id!: string;
-    skill_id!: string;
-    created_at?: Date;
-    updated_at?: Date;
+    declare id: string;
+    declare work_id: string;
+    declare work_type_id: string;
+    declare skill_id: string;
+    declare created_at?: Date;
+    declare updated_at?: Date;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof work_skill {
         return work_skill.init(

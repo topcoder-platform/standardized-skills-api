@@ -6,7 +6,6 @@ export enum UserRoles {
     SelfServiceCustomer = 'Self-Service Customer',
     Talent = 'Topcoder Talent',
 }
-export const ES_SKILL_TIME_FORMAT = 'YYYY-MM-DD HH:mm:ss';
 
 export const MAX_SUGGESTIONS_SIZE = 1500;
 

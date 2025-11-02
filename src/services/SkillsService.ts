@@ -1,5 +1,4 @@
 import { LoggerClient } from '../utils/LoggerClient';
-import * as esHelper from '../utils/es-helper';
 import { FindAndCountOptions } from 'sequelize';
 import { isEmpty, isNull } from 'lodash';
 import {
@@ -12,12 +11,29 @@ import {
 import db, { Skill, SkillCategory } from '../db';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../utils/errors';
 import { AuthUser } from '../types';
-import dayjs from 'dayjs';
-import * as constants from '../config/constants';
+import { DEFAULT_SUGGESTIONS_SIZE, MAX_SUGGESTIONS_SIZE } from '../config/constants';
 import { Op } from 'sequelize';
 import { findAndCountPaginated } from '../utils/postgres-helper';
 
 const logger = new LoggerClient('SkillsService');
+
+const escapeLikePattern = (value: string): string => value.replace(/[\\%_]/g, '\\$&');
+
+const clampSuggestionSize = (size?: number) => {
+    const requested = size ?? DEFAULT_SUGGESTIONS_SIZE;
+    return Math.min(requested, MAX_SUGGESTIONS_SIZE);
+};
+
+const mapSkillToAutocompleteResult = (skill: Skill & { category?: SkillCategory | null }) => ({
+    id: skill.id,
+    name: skill.name,
+    category: skill.category
+        ? {
+              id: skill.category.id,
+              name: skill.category.name,
+          }
+        : null,
+});
 
 /**
  * Gets all skills that match the given criteria, with the skillIds being given
@@ -93,12 +109,62 @@ export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
  */
 export async function autocompleteSkills(query: GetAutocompleteRequestQueryDto) {
     logger.info(`Fetching autocomplete suggestions based on ${JSON.stringify(query)}`);
-    try {
-        return await esHelper.autocompleteSkills({ term: query.term, size: query.size });
-    } catch (error) {
-        logger.error('Unable to fetch autocomplete suggestions!');
-        throw error;
+    const term = query.term.trim();
+
+    if (!term) {
+        return [];
     }
+
+    const limit = clampSuggestionSize(query.size);
+    const sanitizedTerm = escapeLikePattern(term);
+
+    const prefixMatches = await Skill.findAll({
+        attributes: ['id', 'name'],
+        include: {
+            model: SkillCategory,
+            as: 'category',
+            attributes: ['id', 'name'],
+        },
+        where: {
+            name: {
+                [Op.iLike]: `${sanitizedTerm}%`,
+            },
+        },
+        order: [['name', 'ASC']],
+        limit,
+    });
+
+    const seenIds = new Set(prefixMatches.map((skill) => skill.id));
+
+    if (prefixMatches.length >= limit) {
+        return prefixMatches.map(mapSkillToAutocompleteResult);
+    }
+
+    const remainingMatches = await Skill.findAll({
+        attributes: ['id', 'name'],
+        include: {
+            model: SkillCategory,
+            as: 'category',
+            attributes: ['id', 'name'],
+        },
+        where: {
+            name: {
+                [Op.iLike]: `%${sanitizedTerm}%`,
+            },
+            ...(seenIds.size
+                ? {
+                      id: {
+                          [Op.notIn]: Array.from(seenIds),
+                      },
+                  }
+                : {}),
+        },
+        order: [['name', 'ASC']],
+        limit: limit - prefixMatches.length,
+    });
+
+    const results = prefixMatches.concat(remainingMatches);
+    return results.map(mapSkillToAutocompleteResult);
 }
 
 /**
@@ -108,12 +174,30 @@ export async function autocompleteSkills(query: GetAutocompleteRequestQueryDto) 
  */
 export async function fuzzyMatch(query: GetAutocompleteRequestQueryDto) {
     logger.info(`Fetching fuzzyMatch suggestions based on ${JSON.stringify(query)}`);
-    try {
-        return await esHelper.fuzzyMatch({ term: query.term, size: query.size });
-    } catch (error) {
-        logger.error('Unable to fetch fuzzyMatch suggestions!');
-        throw error;
+    const term = query.term.trim();
+
+    if (!term) {
+        return [];
     }
+
+    const sanitizedTerm = escapeLikePattern(term);
+    const limit = clampSuggestionSize(query.size);
+
+    const matches = await Skill.findAll({
+        attributes: ['id', 'name'],
+        where: {
+            name: {
+                [Op.iLike]: `%${sanitizedTerm}%`,
+            },
+        },
+        order: [['name', 'ASC']],
+        limit,
+    });
+
+    return matches.map((skill) => ({
+        id: skill.id,
+        name: skill.name,
+    }));
 }
 /**
  * Gets a skill by its id
@@ -189,18 +273,6 @@ export const createSkill = async (
             category_id: newSkill.categoryId,
         });
 
-        // create skill in skills autocomplete ES
-        await esHelper.createSkillInAutocompleteES({
-            id: skill.id,
-            name: skill.name,
-            category: {
-                id: category.id,
-                name: category.name,
-            },
-            createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
-            updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
-        });
-
         logger.info(`Skill created successfully ${JSON.stringify(skill)}`);
         return {
             id: skill.id,
@@ -216,7 +288,7 @@ export const createSkill = async (
 };
 
 /**
- * Updates a skill in postgreSQL and Opensearch index
+ * Updates a skill in PostgreSQL
  * @param {AuthUser} user - the authenticated user details from the JWT
  * @param {SkillUpdatePutRequestBodyDto} body - the request body containing the new skills details
  * @param {string} id - the id of the skill to update
@@ -251,7 +323,7 @@ export const updateSkill = async (
             throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
         }
 
-        //update the skill in PostgreSQL and Opensearch index
+        // update the skill in PostgreSQL
         await Skill.update(
             {
                 name: body.name,
@@ -279,17 +351,6 @@ export const updateSkill = async (
             throw new InternalServerError('Unable to fetch updated skill details from database!');
         }
 
-        await esHelper.updateSkillInAutocompleteES({
-            id: skillDetails.id,
-            name: skillDetails.name,
-            category: {
-                id: skillDetails.category.id,
-                name: skillDetails.category.name,
-            },
-            createdAt: dayjs(skillDetails.created_at).format(constants.ES_SKILL_TIME_FORMAT),
-            updatedAt: dayjs(skillDetails.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
-        });
-
         logger.info(`Skill with id ${id} updated successfully`);
         return {
             id: skillDetails.id,
@@ -305,7 +366,7 @@ export const updateSkill = async (
 };
 
 /**
- * Updates a skill partially via patch in postgreSQL and Opensearch index
+ * Updates a skill partially via patch in PostgreSQL
  * @param {AuthUser} user - the authenticated user details from the JWT
  * @param {SkillUpdatePatchRequestBodyDto} body - the request body containing the new skills details
  * @param {string} id - the id of the skill to update
@@ -346,7 +407,7 @@ export const patchSkill = async (
             throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
         }
 
-        //update the skill in PostgreSQL and Opensearch index
+        // update the skill in PostgreSQL
         await Skill.update(
             {
                 name: body.name,
@@ -374,17 +435,6 @@ export const patchSkill = async (
             throw new InternalServerError('Unable to fetch updated skill details from database!');
         }
 
-        await esHelper.updateSkillInAutocompleteES({
-            id: skillDetails.id,
-            name: skillDetails.name,
-            category: {
-                id: skillDetails.category.id,
-                name: skillDetails.category.name,
-            },
-            createdAt: dayjs(skillDetails.created_at).format(constants.ES_SKILL_TIME_FORMAT),
-            updatedAt: dayjs(skillDetails.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
-        });
-
         logger.info(`Skill with id ${id} updated successfully`);
         return {
             id: skillDetails.id,
@@ -400,7 +450,7 @@ export const patchSkill = async (
 };
 
 /**
- * Deletes a skill from the PostgreSQL and Opensearch index
+ * Deletes a skill from PostgreSQL
  * @param {AuthUser} user - the authenticated user details from the JWT
  * @param {string} id - the id of the skill to be deleted
  */
@@ -419,14 +469,12 @@ export const deleteSkill = async (user: AuthUser, id: string) => {
             },
         });
 
-        esHelper.deleteSkillFromAutocompleteES(id);
-
         logger.info(`Successfully deleted skill with id ${id}`);
     });
 };
 
 /**
- * Restore an archived (soft-deleted) skill from the PostgreSQL and Opensearch index
+ * Restore an archived (soft-deleted) skill in PostgreSQL
  * @param {string} id - the id of the skill to be deleted
  */
 export const restoreSkill = async (id: string) => {
@@ -453,17 +501,6 @@ export const restoreSkill = async (id: string) => {
         if (isNull(skillDetails)) {
             throw new InternalServerError('Unable to fetch updated skill details from database!');
         }
-
-        esHelper.updateSkillInAutocompleteES({
-            id: skillDetails.id,
-            name: skillDetails.name,
-            category: {
-                id: skillDetails.category.id,
-                name: skillDetails.category.name,
-            },
-            createdAt: dayjs(skill.created_at).format(constants.ES_SKILL_TIME_FORMAT),
-            updatedAt: dayjs(skill.updated_at).format(constants.ES_SKILL_TIME_FORMAT),
-        });
 
         logger.info(`Successfully restored archived skill with id ${id}`);
     });

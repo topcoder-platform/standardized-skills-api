@@ -20,11 +20,11 @@ export class user_skill_level
     extends Model<userSkillLevelAttributes, userSkillLevelCreationAttributes>
     implements userSkillLevelAttributes
 {
-    id!: string;
-    name!: string;
-    description?: string;
-    created_at!: Date;
-    updated_at!: Date;
+    declare id: string;
+    declare name: string;
+    declare description?: string;
+    declare created_at: Date;
+    declare updated_at: Date;
 
     // user_skill_level hasMany user_skill via user_skill_level_id
     user_skills!: user_skill[];
