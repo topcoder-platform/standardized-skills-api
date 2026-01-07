@@ -15,7 +15,7 @@ function formatError(error: unknown): string {
 
     try {
         return JSON.stringify(error);
-    } catch (serializationError) {
+    } catch {
         return String(error);
     }
 }

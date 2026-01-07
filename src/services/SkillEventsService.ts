@@ -1,7 +1,12 @@
 import { map } from 'lodash';
 
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, SkillEventTypes, WorkType } from '../config';
-import { SkillEventPayloadChallengeUpdate, SkillEventRequestBodyDto, SkillEventPayloadTCAUpdate, UserSkillDto } from '../dto';
+import {
+    SkillEventPayloadChallengeUpdate,
+    SkillEventRequestBodyDto,
+    SkillEventPayloadTCAUpdate,
+    UserSkillDto,
+} from '../dto';
 import { AuthUser } from '../types';
 import { ensureUserHasAdminPrivilege } from '../utils/helpers';
 import db, { Skill, UserSkill } from '../db';

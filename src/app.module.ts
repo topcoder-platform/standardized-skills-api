@@ -10,18 +10,18 @@ import { UserSkillsModule } from './modules/user-skills/user-skills.module';
 import { WorkSkillsModule } from './modules/work-skills/work-skills.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      load: [configuration],
-      expandVariables: true,
-    }),
-    PrismaModule,
-    HealthModule,
-    SkillsModule,
-    SkillCategoriesModule,
-    UserSkillsModule,
-    WorkSkillsModule,
-  ],
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            load: [configuration],
+            expandVariables: true,
+        }),
+        PrismaModule,
+        HealthModule,
+        SkillsModule,
+        SkillCategoriesModule,
+        UserSkillsModule,
+        WorkSkillsModule,
+    ],
 })
 export class AppModule {}

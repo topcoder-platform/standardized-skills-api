@@ -208,7 +208,7 @@ async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> 
     });
 
     // ensure we found a row and it contains an id
-    if (isNull(workTypeDetail) || !((workTypeDetail as any).id)) {
+    if (isNull(workTypeDetail) || !(workTypeDetail as any).id) {
         // Enhanced diagnostics to aid environment/schema debugging
         try {
             const dbUrlString = envConfig.DB_URL ?? '';
@@ -220,20 +220,37 @@ async function findWorkType(workType: 'gig' | 'challenge'): Promise<SourceType> 
                 dbHost = parsed.hostname || dbHost;
                 dbPort = parsed.port || dbPort;
                 dbName = (parsed.pathname || '').replace(/^\//, '') || dbName;
-            } catch {}
+            } catch (parseErr) {
+                logger.warn(`Failed to parse DB_URL for diagnostics: ${parseErr instanceof Error ? parseErr.message : parseErr}`);
+            }
 
             let searchPath = 'unknown';
             try {
-                const result: any = await db.sequelize.query('SHOW search_path', { type: QueryTypes.SELECT, plain: true });
+                const result: any = await db.sequelize.query('SHOW search_path', {
+                    type: QueryTypes.SELECT,
+                    plain: true,
+                });
                 // postgres returns an object like { search_path: '"schema", public' }
                 searchPath = result?.search_path ?? JSON.stringify(result);
-            } catch {}
+            } catch (searchPathErr) {
+                logger.warn(
+                    `Failed to query search_path during diagnostics: ${
+                        searchPathErr instanceof Error ? searchPathErr.message : searchPathErr
+                    }`,
+                );
+            }
 
             let sourceTypeNames: string | undefined;
             try {
                 const rows = (await SourceType.findAll({ attributes: ['name'], raw: true })) as Array<{ name: string }>;
                 sourceTypeNames = rows.map((r) => r.name).join(', ');
-            } catch {}
+            } catch (sourceTypeErr) {
+                logger.warn(
+                    `Failed to fetch SourceType names during diagnostics: ${
+                        sourceTypeErr instanceof Error ? sourceTypeErr.message : sourceTypeErr
+                    }`,
+                );
+            }
 
             logger.error(
                 `Diagnostics: SourceType lookup failed for workType='${workType}'. ` +

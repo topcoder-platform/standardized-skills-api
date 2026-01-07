@@ -40,6 +40,10 @@ export class LoggerClient {
         this.logger.info(message);
     };
 
+    warn = (message: string) => {
+        this.logger.warn(message);
+    };
+
     error = (message: string) => {
         this.logger.error(message);
     };

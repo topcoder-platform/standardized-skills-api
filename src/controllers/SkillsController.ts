@@ -29,11 +29,7 @@ export default class SkillsController {
     /**
      * Gets a skill by id
      */
-    getSkillById = async (
-        req: Request<dtos.SkillIdRequestPathParamDto>,
-        res: Response,
-        next: NextFunction,
-    ) => {
+    getSkillById = async (req: Request<dtos.SkillIdRequestPathParamDto>, res: Response, next: NextFunction) => {
         try {
             const skill = await skillsService.getSkillById(req.params.skillId);
             res.status(200).json(skill);
