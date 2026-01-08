@@ -80,7 +80,11 @@ export const getAllCategories = async (
         findAndCountOptions,
     );
 
-    isEmpty(categories) ? logger.info('No categories found!') : logger.info('Fetched categories successfully!');
+    if (isEmpty(categories)) {
+        logger.info('No categories found!');
+    } else {
+        logger.info('Fetched categories successfully!');
+    }
 
     return {
         categories,

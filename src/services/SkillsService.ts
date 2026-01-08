@@ -96,7 +96,11 @@ export async function getAllSkills(query: GetSkillsQueryRequestDto): Promise<
         findAndCountOptions,
     );
 
-    isEmpty(skills) ? logger.info('No skills found!') : logger.info('Fetched skills successfully!');
+    if (isEmpty(skills)) {
+        logger.info('No skills found!');
+    } else {
+        logger.info('Fetched skills successfully!');
+    }
 
     return {
         skills,

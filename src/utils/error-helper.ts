@@ -8,26 +8,20 @@ export function handleAndTransformAPIError(statusCode: number, message: string, 
     switch (statusCode) {
         case 400:
             throw new BadRequestError(message);
-            break;
 
         case 401:
             throw new UnauthorizedError(message);
-            break;
 
         case 403:
             throw new ForbiddenError(message);
-            break;
 
         case 404:
             throw new NotFoundError(message);
-            break;
 
         case 500:
             throw new InternalServerError(internalServerErrorMsg);
-            break;
 
         default:
             throw new InternalServerError(internalServerErrorMsg);
-            break;
     }
 }

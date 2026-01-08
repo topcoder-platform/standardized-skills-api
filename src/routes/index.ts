@@ -105,8 +105,10 @@ allRoutes.forEach((route) => {
         // for async/await error handling
         async (req: Request, res: Response, next: NextFunction) => {
             try {
-                // eslint-disable-next-line @typescript-eslint/no-var-requires
-                const controller = new (require(`../controllers/${route.controller}`).default)();
+                const controllerModule = await import(`../controllers/${route.controller}`);
+                const ControllerClass = controllerModule.default;
+                const controller = new ControllerClass();
+
                 await controller[route.method](req, res, next).catch((error: any) => {
                     next(error);
                 });

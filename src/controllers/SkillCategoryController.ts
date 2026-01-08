@@ -16,11 +16,7 @@ export default class SkillCategoryController {
     /**
      * Gets a category by id
      */
-    async getCategoryById(
-        req: Request<CategoryIdRequestPathParamDto>,
-        res: Response,
-        next: NextFunction,
-    ) {
+    async getCategoryById(req: Request<CategoryIdRequestPathParamDto>, res: Response, next: NextFunction) {
         try {
             const category = await SkillCategoryService.getCategoryById(req.params.categoryId);
             res.status(200).json(category);
@@ -143,11 +139,7 @@ export default class SkillCategoryController {
     /**
      * Deletes an existing category by id
      */
-    async deleteCategory(
-        req: AuthorizedRequest<CategoryIdRequestPathParamDto>,
-        res: Response,
-        next: NextFunction,
-    ) {
+    async deleteCategory(req: AuthorizedRequest<CategoryIdRequestPathParamDto>, res: Response, next: NextFunction) {
         try {
             await SkillCategoryService.deleteCategory(req.authUser, req.params.categoryId);
             res.status(204).send();

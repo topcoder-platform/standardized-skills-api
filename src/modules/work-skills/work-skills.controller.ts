@@ -11,33 +11,28 @@ import { createChallengeSkills, createJobSkills } from '../../services/WorkSkill
 @Controller()
 @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
 export class WorkSkillsController {
-  // POST /v5/standardized-skills/job-skills/:jobId
-  @Post('job-skills/:jobId')
-  @HttpCode(201)
-  @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.CREATE, envConfig.SCOPES.UPDATE)
-  async setJobSkills(@Param() params: JobIdRequestParamDto, @Body() body: WorkSkillsRequestBodyDto) {
-    await createJobSkills(params.jobId, body.skillIds);
-    return {};
-  }
+    // POST /v5/standardized-skills/job-skills/:jobId
+    @Post('job-skills/:jobId')
+    @HttpCode(201)
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.CREATE, envConfig.SCOPES.UPDATE)
+    async setJobSkills(@Param() params: JobIdRequestParamDto, @Body() body: WorkSkillsRequestBodyDto) {
+        await createJobSkills(params.jobId, body.skillIds);
+        return {};
+    }
 
-  // POST /v5/standardized-skills/challenge-skills/:challengeId
-  @Post('challenge-skills/:challengeId')
-  @HttpCode(201)
-  @Roles(
-    UserRoles.Admin,
-    UserRoles.Copilot,
-    UserRoles.Manager,
-    UserRoles.SelfServiceCustomer,
-  )
-  @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.CREATE, envConfig.SCOPES.UPDATE)
-  async setChallengeSkills(
-    @Req() req: AuthenticatedRequest,
-    @AuthUserDecorator() _user: AuthUser,
-    @Param() params: ChallengeIdRequestParamDto,
-    @Body() body: WorkSkillsRequestBodyDto,
-  ) {
-    const userToken = req.userToken as string | undefined;
-    await createChallengeSkills(userToken, params.challengeId, body.skillIds);
-    return {};
-  }
+    // POST /v5/standardized-skills/challenge-skills/:challengeId
+    @Post('challenge-skills/:challengeId')
+    @HttpCode(201)
+    @Roles(UserRoles.Admin, UserRoles.Copilot, UserRoles.Manager, UserRoles.SelfServiceCustomer)
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.CREATE, envConfig.SCOPES.UPDATE)
+    async setChallengeSkills(
+        @Req() req: AuthenticatedRequest,
+        @AuthUserDecorator() _user: AuthUser,
+        @Param() params: ChallengeIdRequestParamDto,
+        @Body() body: WorkSkillsRequestBodyDto,
+    ) {
+        const userToken = req.userToken as string | undefined;
+        await createChallengeSkills(userToken, params.challengeId, body.skillIds);
+        return {};
+    }
 }

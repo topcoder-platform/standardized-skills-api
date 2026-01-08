@@ -20,7 +20,7 @@ async function replaceChallengeSkills(
         bind: [challengeId],
         transaction,
         // pg errors if Sequelize prepends SET search_path within prepared statements
-        ...( { supportsSearchPath: false } as any ),
+        ...({ supportsSearchPath: false } as any),
     });
 
     if (!skillIds.length) {
@@ -45,7 +45,7 @@ async function replaceChallengeSkills(
         {
             bind: bindValues,
             transaction,
-            ...( { supportsSearchPath: false } as any ),
+            ...({ supportsSearchPath: false } as any),
         },
     );
 }
@@ -59,7 +59,7 @@ async function touchChallengeRecord(
     await sequelize.query('UPDATE challenges."Challenge" SET "updatedAt" = NOW(), "updatedBy" = $1 WHERE "id" = $2', {
         bind: [actor, challengeId],
         transaction,
-        ...( { supportsSearchPath: false } as any ),
+        ...({ supportsSearchPath: false } as any),
     });
 }
 
