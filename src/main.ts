@@ -58,7 +58,7 @@ async function bootstrap() {
     await app.listen(port);
     const fullBase = normalizedBasePath ? `/${normalizedBasePath}` : '';
     logger.log(`Server is running on http://localhost:${port}${fullBase}`);
-    logger.log(`Swagger docs available at http://localhost:${port}${fullBase}/${docsPath ? docsPath : 'api-docs'}`);
+    logger.log(`Swagger docs available at http://localhost:${port}/${docsPath ? docsPath : 'api-docs'}`);
 }
 
 bootstrap().catch((error) => {
