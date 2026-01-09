@@ -43,7 +43,6 @@ import { SkillsService } from './skills.service';
 
 @Controller('skills')
 @ApiTags('Skills')
-@ApiBearerAuth()
 export class SkillsController {
     constructor(private readonly skillsService: SkillsService) {}
 
