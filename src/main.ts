@@ -1,6 +1,7 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 import { StandardizedSkillExceptionFilter } from './common/filters';
@@ -35,9 +36,29 @@ async function bootstrap() {
         app.setGlobalPrefix(normalizedBasePath);
     }
 
+    // Swagger docs (available in all envs for now; gate with NODE_ENV if needed)
+    const swaggerConfig = new DocumentBuilder()
+        .setTitle('Standardized Skills API')
+        .setDescription('API documentation for the Standardized Skills service.')
+        .setVersion('1.0.0')
+        .addBearerAuth({
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            name: 'JWT',
+            description: 'Enter JWT access token',
+            in: 'header',
+        })
+        .build();
+
+    const swaggerDocument = SwaggerModule.createDocument(app, swaggerConfig);
+    const docsPath = [normalizedBasePath, 'api-docs'].filter(Boolean).join('/');
+    SwaggerModule.setup(docsPath || 'api-docs', app, swaggerDocument);
+
     await app.listen(port);
     const fullBase = normalizedBasePath ? `/${normalizedBasePath}` : '';
     logger.log(`Server is running on http://localhost:${port}${fullBase}`);
+    logger.log(`Swagger docs available at http://localhost:${port}/${docsPath ? docsPath : 'api-docs'}`);
 }
 
 bootstrap().catch((error) => {

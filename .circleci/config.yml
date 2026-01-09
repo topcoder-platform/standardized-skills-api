@@ -65,7 +65,6 @@ workflows:
                       branches:
                           only:
                               - develop
-                              - security-updates
             - "build-prod":
                   context: org-global
                   filters:
