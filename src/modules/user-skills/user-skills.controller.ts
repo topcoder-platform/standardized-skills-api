@@ -32,6 +32,39 @@ import { UserSkillsService } from './user-skills.service';
 @ApiBearerAuth()
 export class UserSkillsController {
     constructor(private readonly userSkillsService: UserSkillsService) {}
+
+    @Get('display-modes')
+    @ApiOperation({ summary: 'List user skill display modes' })
+    @ApiQuery({ name: 'page', required: false, example: 1, type: Number })
+    @ApiQuery({ name: 'perPage', required: false, example: 20, type: Number })
+    @ApiQuery({ name: 'sortBy', required: false, enum: ['name'] })
+    @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'], example: 'ASC' })
+    @ApiQuery({ name: 'disablePagination', required: false, example: 'false' })
+    @ApiOkResponse({
+        description: 'Display modes list.',
+        type: UserSkillDisplayModeDto,
+        isArray: true,
+        headers: {
+            'X-Page': { description: 'Current page', schema: { type: 'integer', example: 1 } },
+            'X-Per-Page': { description: 'Page size', schema: { type: 'integer', example: 20 } },
+            'X-Total': { description: 'Total items', schema: { type: 'integer', example: 5 } },
+            'X-Total-Pages': { description: 'Total pages', schema: { type: 'integer', example: 1 } },
+        },
+    })
+    async getUserSkillsDisplayModes(
+        @Query() query: GetUserSkillsDisplayModesQueryDto,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        const { displayModes, ...paginationData } = await this.userSkillsService.getUserSkillsDisplayModes(query);
+        const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
+
+        if (!disablePagination) {
+            helper.setResHeaders(res, paginationData);
+        }
+
+        return displayModes;
+    }
+    
     // Constrain via DTO validation instead of path regex (path-to-regexp v8 incompatible)
     @ApiOperation({ summary: 'Get user skills', description: 'Returns skills associated with the given user, including display mode and levels.' })
     @ApiParam({ name: 'userId', description: 'User identifier', example: '123456' })
@@ -51,25 +84,6 @@ export class UserSkillsController {
             'X-Total-Pages': { description: 'Total pages', schema: { type: 'integer', example: 3 } },
         },
     })
-    @Get('display-modes')
-    @ApiOperation({ summary: 'List user skill display modes' })
-    @ApiQuery({ name: 'page', required: false, example: 1, type: Number })
-    @ApiQuery({ name: 'perPage', required: false, example: 20, type: Number })
-    @ApiQuery({ name: 'sortBy', required: false, enum: ['name'] })
-    @ApiQuery({ name: 'sortOrder', required: false, enum: ['ASC', 'DESC'], example: 'ASC' })
-    @ApiQuery({ name: 'disablePagination', required: false, example: 'false' })
-    @ApiOkResponse({
-        description: 'Display modes list.',
-        type: UserSkillDisplayModeDto,
-        isArray: true,
-        headers: {
-            'X-Page': { description: 'Current page', schema: { type: 'integer', example: 1 } },
-            'X-Per-Page': { description: 'Page size', schema: { type: 'integer', example: 20 } },
-            'X-Total': { description: 'Total items', schema: { type: 'integer', example: 5 } },
-            'X-Total-Pages': { description: 'Total pages', schema: { type: 'integer', example: 1 } },
-        },
-    })
-    
     @Get(':userId')
     async getUserSkills(
         @AuthUserDecorator() user: AuthUser,
@@ -85,20 +99,6 @@ export class UserSkillsController {
         }
 
         return result.skills;
-    }
-
-    async getUserSkillsDisplayModes(
-        @Query() query: GetUserSkillsDisplayModesQueryDto,
-        @Res({ passthrough: true }) res: Response,
-    ) {
-        const { displayModes, ...paginationData } = await this.userSkillsService.getUserSkillsDisplayModes(query);
-        const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
-
-        if (!disablePagination) {
-            helper.setResHeaders(res, paginationData);
-        }
-
-        return displayModes;
     }
 
     @Get('display-modes/:name')
