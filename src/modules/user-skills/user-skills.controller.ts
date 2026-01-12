@@ -51,7 +51,7 @@ export class UserSkillsController {
             'X-Total-Pages': { description: 'Total pages', schema: { type: 'integer', example: 3 } },
         },
     })
-    @Get(':userId')
+    @Get(':userId(\\d+)')
     async getUserSkills(
         @AuthUserDecorator() user: AuthUser,
         @Param() params: UserIdParamDto,
