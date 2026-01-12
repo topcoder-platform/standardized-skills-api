@@ -51,23 +51,6 @@ export class UserSkillsController {
             'X-Total-Pages': { description: 'Total pages', schema: { type: 'integer', example: 3 } },
         },
     })
-    @Get(':userId(\\d+)')
-    async getUserSkills(
-        @AuthUserDecorator() user: AuthUser,
-        @Param() params: UserIdParamDto,
-        @Query() query: GetUserSkillsQueryDto,
-        @Res({ passthrough: true }) res: Response,
-    ) {
-        const result = await this.userSkillsService.getUserSkills(user, Number(params.userId), query);
-        const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
-
-        if (!disablePagination) {
-            helper.setResHeaders(res, result);
-        }
-
-        return result.skills;
-    }
-
     @Get('display-modes')
     @ApiOperation({ summary: 'List user skill display modes' })
     @ApiQuery({ name: 'page', required: false, example: 1, type: Number })
@@ -86,6 +69,24 @@ export class UserSkillsController {
             'X-Total-Pages': { description: 'Total pages', schema: { type: 'integer', example: 1 } },
         },
     })
+    
+    @Get(':userId')
+    async getUserSkills(
+        @AuthUserDecorator() user: AuthUser,
+        @Param() params: UserIdParamDto,
+        @Query() query: GetUserSkillsQueryDto,
+        @Res({ passthrough: true }) res: Response,
+    ) {
+        const result = await this.userSkillsService.getUserSkills(user, Number(params.userId), query);
+        const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
+
+        if (!disablePagination) {
+            helper.setResHeaders(res, result);
+        }
+
+        return result.skills;
+    }
+
     async getUserSkillsDisplayModes(
         @Query() query: GetUserSkillsDisplayModesQueryDto,
         @Res({ passthrough: true }) res: Response,
