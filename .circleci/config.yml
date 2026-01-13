@@ -65,6 +65,7 @@ workflows:
                       branches:
                           only:
                               - develop
+                              - PM-3346
             - "build-prod":
                   context: org-global
                   filters:
