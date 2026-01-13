@@ -47,9 +47,9 @@ export const envConfig = {
     MEMBERS_ES: process.env.MEMBERS_ES,
     MEMBER_DB: {
         URL: process.env.MEMBER_DB_URL,
-        SCHEMA: process.env.MEMBER_DB_SCHEMA || 'member',
-        TABLE: process.env.MEMBER_DB_TABLE || 'member_profile',
-        ID_COLUMN: process.env.MEMBER_DB_ID_COLUMN || 'user_id',
+        SCHEMA: process.env.MEMBER_DB_SCHEMA || 'members',
+        TABLE: process.env.MEMBER_DB_TABLE || 'member',
+        ID_COLUMN: process.env.MEMBER_DB_ID_COLUMN || 'userId',
     },
     API_BASE: '/v5/standardized-skills',
 

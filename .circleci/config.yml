@@ -42,33 +42,31 @@ jobs:
     build-dev:
         <<: *defaults
         environment:
-            DEPLOY_ENV: 'DEV'
-            LOGICAL_ENV: 'dev'
-            APPNAME: 'standardized-skills-api'
+            DEPLOY_ENV: "DEV"
+            LOGICAL_ENV: "dev"
+            APPNAME: "standardized-skills-api"
         steps: *build_and_deploy_steps
 
     build-prod:
         <<: *defaults
         environment:
-            DEPLOY_ENV: 'PROD'
-            LOGICAL_ENV: 'prod'
-            APPNAME: 'standardized-skills-api'
+            DEPLOY_ENV: "PROD"
+            LOGICAL_ENV: "prod"
+            APPNAME: "standardized-skills-api"
         steps: *build_and_deploy_steps
 
 workflows:
     version: 2
     build:
         jobs:
-            - 'build-dev':
+            - "build-dev":
                   context: org-global
                   filters:
                       branches:
                           only:
                               - develop
-                              - ES6_fix
-                              - db_schema
-                              - v6
-            - 'build-prod':
+                              - PM-3346
+            - "build-prod":
                   context: org-global
                   filters:
                       branches:

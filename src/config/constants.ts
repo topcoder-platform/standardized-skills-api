@@ -46,7 +46,7 @@ export enum SkillEventTopic {
 }
 
 export enum SkillEventChallengeUpdateStatus {
-    completed = 'Completed',
+    completed = 'COMPLETED',
 }
 
 export const CHALLENGE_REVIEWER_ROLES = {

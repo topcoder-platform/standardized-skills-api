@@ -1,6 +1,7 @@
 import { Type } from 'class-transformer';
-import { IsArray, ValidateNested, ArrayNotEmpty, IsString, IsIn, IsUUID } from 'class-validator';
+import { IsArray, ValidateNested, ArrayNotEmpty, IsEnum, IsUUID } from 'class-validator';
 import { ChallengeWinnerDto } from './ChallengeWinner.dto';
+import { SkillEventChallengeUpdateStatus } from '../../config';
 
 export class UserSkillDto {
     @IsUUID('all')
@@ -19,8 +20,7 @@ export class SkillEventPayloadChallengeUpdate {
     @Type(() => ChallengeWinnerDto)
     winners: ChallengeWinnerDto[];
 
-    @IsString()
-    @IsIn(['Completed'])
+    @IsEnum(SkillEventChallengeUpdateStatus)
     status: string;
 
     @IsUUID('all')

@@ -15,7 +15,7 @@ function formatError(error: unknown): string {
 
     try {
         return JSON.stringify(error);
-    } catch (serializationError) {
+    } catch {
         return String(error);
     }
 }
@@ -51,6 +51,8 @@ export async function memberExists(memberId: string | number): Promise<boolean> 
         const qualifiedTable = buildQualifiedTable();
 
         validateIdentifier(idColumn, 'column');
+
+        logger.info(`Validating member ${memberId} using ${qualifiedTable}.${idColumn}`);
 
         const record = await sequelize.query<{ [key: string]: unknown }>(
             `SELECT "${idColumn}" FROM ${qualifiedTable} WHERE "${idColumn}" = $1 LIMIT 1`,
