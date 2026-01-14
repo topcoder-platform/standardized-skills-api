@@ -51,6 +51,9 @@ export const envConfig = {
         TABLE: process.env.MEMBER_DB_TABLE || 'member',
         ID_COLUMN: process.env.MEMBER_DB_ID_COLUMN || 'userId',
     },
+    CHALLENGE_DB: {
+        URL: process.env.CHALLENGE_DB_URL
+    },
     API_BASE: '/v5/standardized-skills',
 
     HASHING_SECRET: process.env.HASHING_SECRET || 'thisissecret',
