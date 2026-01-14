@@ -1,7 +1,7 @@
 import { QueryTypes } from 'sequelize';
 import { LoggerClient } from './LoggerClient';
 import { InternalServerError, NotFoundError } from './errors';
-import { getChallengeSequelize } from 'db/challenge-db';
+import { getChallengeSequelize } from '../db/challenge-db';
 
 const logger = new LoggerClient('ChallengeDbHelper');
 
