@@ -1,8 +1,7 @@
 import { QueryTypes } from 'sequelize';
-
-import db from '../db';
 import { LoggerClient } from './LoggerClient';
 import { InternalServerError, NotFoundError } from './errors';
+import { getChallengeSequelize } from 'db/challenge-db';
 
 const logger = new LoggerClient('ChallengeDbHelper');
 
@@ -22,7 +21,8 @@ function formatError(error: unknown): string {
 
 export async function challengeExists(challengeId: string): Promise<boolean> {
     try {
-        const record = await db.sequelize.query<{ id: string }>(
+        const sequelize = getChallengeSequelize();
+        const record = await sequelize.query<{ id: string }>(
             'SELECT "id" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
             {
                 bind: [challengeId],
