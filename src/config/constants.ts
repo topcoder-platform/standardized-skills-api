@@ -43,6 +43,7 @@ export enum WorkType {
 export enum SkillEventTopic {
     challengeUpdate = 'challenge.notification.update',
     tcaUpdate = 'tca.notification.update',
+    engagementMemberAssigned = 'engagement.member.assigned',
 }
 
 export enum SkillEventChallengeUpdateStatus {
@@ -61,6 +62,7 @@ export enum SkillEventTypes {
     challenge3rdPlace = 'challenge_3rd_place',
     challengeFinisher = 'challenge_finisher',
     challengeReview = 'challenge_review',
+    gigCompletion = 'gig_completion',
     tcaCertCompleted = 'tca_cert_completion',
     tcaCourseCompleted = 'tca_course_completion',
 }

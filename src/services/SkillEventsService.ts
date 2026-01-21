@@ -3,8 +3,9 @@ import { map } from 'lodash';
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, SkillEventTypes, WorkType } from '../config';
 import {
     SkillEventPayloadChallengeUpdate,
-    SkillEventRequestBodyDto,
+    SkillEventPayloadEngagementMemberAssigned,
     SkillEventPayloadTCAUpdate,
+    SkillEventRequestBodyDto,
     UserSkillDto,
 } from '../dto';
 import { AuthUser } from '../types';
@@ -133,6 +134,59 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
 }
 
 /**
+ * Processes engagement member assigned events
+ * Assigns engagement skills to the assigned member as verified
+ *
+ * @param eventId
+ * @param payload
+ */
+export async function processEngagementMemberAssignedSkillEvent(
+    eventId: string,
+    payload: SkillEventPayloadEngagementMemberAssigned,
+) {
+    logger.info(`Handling engagement member assigned skill event using payload ${JSON.stringify(payload)}`);
+
+    if (!Array.isArray(payload.skills) || payload.skills.length === 0) {
+        logger.info('Exiting engagement member assigned skill event because no skills were provided');
+        return;
+    }
+
+    // ensure passed skill ids are valid
+    await checkSkillIds(payload.skills);
+
+    // ensure member exists
+    await ensureMembersExist([payload.memberId]);
+
+    // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
+    const sourceType = await fetchSourceType(WorkType.gig);
+    const verifiedSkillLevel = await fetchVerifiedSkillLevel();
+    const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
+
+    return db.sequelize.transaction(async (tx) => {
+        const userSkills = prepareUserSkillsUpdate(
+            payload.skills,
+            Number(payload.memberId),
+            verifiedSkillLevel.id,
+            additionalSkillType.id,
+        );
+
+        await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
+
+        await createSkillEventsForUser(
+            { userId: payload.memberId },
+            payload.skills,
+            eventId,
+            payload.engagementId,
+            sourceType.id,
+            tx,
+            SkillEventTypes.gigCompletion,
+        );
+
+        logger.info('Successfully associated user skills via engagement member assigned skill event');
+    });
+}
+
+/**
  * Processes skill events incoming from the Skill Event API
  *
  * @param {AuthUser} currentUser - the currently authenticated user making this request
@@ -151,6 +205,8 @@ export async function processSkillEvent(currentUser: AuthUser, { topic, payload 
             return processChallengeCompletedSkillEvent(event.id, payload as SkillEventPayloadChallengeUpdate);
         case SkillEventTopic.tcaUpdate:
             return processTCACompletedSkillEvent(event.id, payload as SkillEventPayloadTCAUpdate);
+        case SkillEventTopic.engagementMemberAssigned:
+            return processEngagementMemberAssignedSkillEvent(event.id, payload as SkillEventPayloadEngagementMemberAssigned);
         default:
             logger.info(`Skill event with topic ${topic} not handled!`);
     }
