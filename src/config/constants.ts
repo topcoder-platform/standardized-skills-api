@@ -38,6 +38,7 @@ export enum WorkType {
     gig = 'gig',
     certification = 'certification',
     course = 'course',
+    engagement = 'engagement'
 }
 
 export enum SkillEventTopic {

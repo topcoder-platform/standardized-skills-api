@@ -29,7 +29,7 @@ export async function fetchSelfDeclaredSkillLevel() {
 export async function fetchSourceType(sourceTypeName: WorkType) {
     const sourceType = await SourceType.findOne({ where: { name: sourceTypeName } });
     if (!sourceType) {
-        throw new Error('SourceType with name \'challenge\' not found!');
+        throw new Error(`SourceType with name ${sourceTypeName} not found!`);
     }
     return sourceType;
 }
