@@ -4,8 +4,10 @@ import { IsArray, IsNumber, IsString, ValidateNested } from 'class-validator';
 import { UserSkillDto } from '.';
 
 export class SkillEventPayloadEngagementMemberAssigned {
+    @IsString()
     engagementId: string;
 
+    @IsString()
     assignmentId: string;
 
     @IsNumber()
