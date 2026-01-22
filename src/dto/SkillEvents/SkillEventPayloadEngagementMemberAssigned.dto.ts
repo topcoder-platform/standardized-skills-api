@@ -4,11 +4,9 @@ import { IsArray, IsNumber, IsOptional, IsString, IsUUID, ValidateNested } from 
 import { UserSkillDto } from '.';
 
 export class SkillEventPayloadEngagementMemberAssigned {
-    @IsUUID('all')
     engagementId: string;
 
     @IsOptional()
-    @IsUUID('all')
     assignmentId?: string;
 
     @IsNumber()
