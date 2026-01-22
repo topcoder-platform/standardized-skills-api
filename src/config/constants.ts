@@ -38,6 +38,7 @@ export enum WorkType {
     gig = 'gig',
     certification = 'certification',
     course = 'course',
+    engagement = 'engagement'
 }
 
 export enum SkillEventTopic {
@@ -68,6 +69,7 @@ export enum SkillEventTypes {
     gigCompletion = 'gig_completion',
     tcaCertCompleted = 'tca_cert_completion',
     tcaCourseCompleted = 'tca_course_completion',
+    engagementAssignment = 'engagement_assignment'
 }
 
 export const CHALLENGE_TYPE_BY_ID = new Map([
