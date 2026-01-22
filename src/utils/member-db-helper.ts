@@ -4,41 +4,13 @@ import { envConfig } from '../config';
 import { getMemberSequelize } from '../db/member-db';
 import { InternalServerError, NotFoundError } from './errors';
 import { LoggerClient } from './LoggerClient';
+import { buildQualifiedTable, disableSearchPath, formatError, validateIdentifier } from './sequelize-query.helpers';
 
 const logger = new LoggerClient('MemberDbHelper');
-const disableSearchPath = { supportsSearchPath: false } as any;
-
-function formatError(error: unknown): string {
-    if (error instanceof Error) {
-        return error.stack ?? `${error.name}: ${error.message}`;
-    }
-
-    try {
-        return JSON.stringify(error);
-    } catch {
-        return String(error);
-    }
-}
 
 function assertMemberDbConfig() {
     if (!envConfig.MEMBER_DB.URL) {
         throw new InternalServerError('MEMBER_DB_URL must be configured to validate member ids');
-    }
-}
-
-function buildQualifiedTable(): string {
-    const schema = envConfig.MEMBER_DB.SCHEMA;
-    const table = envConfig.MEMBER_DB.TABLE;
-
-    validateIdentifier(schema, 'schema');
-    validateIdentifier(table, 'table');
-
-    return `"${schema}"."${table}"`;
-}
-
-function validateIdentifier(value: string, kind: 'schema' | 'table' | 'column') {
-    if (!/^[A-Za-z0-9_]+$/.test(value)) {
-        throw new InternalServerError(`Invalid ${kind} name for member database access`);
     }
 }
 
@@ -48,7 +20,10 @@ export async function memberExists(memberId: string | number): Promise<boolean> 
     try {
         const sequelize = getMemberSequelize();
         const idColumn = envConfig.MEMBER_DB.ID_COLUMN;
-        const qualifiedTable = buildQualifiedTable();
+        const qualifiedTable = buildQualifiedTable(
+            envConfig.MEMBER_DB.SCHEMA,
+            envConfig.MEMBER_DB.TABLE,
+        );
 
         validateIdentifier(idColumn, 'column');
 

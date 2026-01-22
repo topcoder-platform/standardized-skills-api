@@ -22,9 +22,12 @@ import {
     ensureMembersExist,
     ensurePayloadWinnersAreValidUsers,
     REVIEWER_TYPE_KEY,
+    COPILOT_TYPE_KEY,
+    FINISHER_TYPE_KEY,
 } from '../utils/skill-events-helper';
 import { fetchAdditionalUserSkillDisplayMode } from '../utils/user-skills-helper';
-import { fetchChallengeReviewers } from '../utils/challenge-helper';
+import { fetchCopilotsForChallenge, fetchReviewersForChallenge } from '../utils/resource-db-helper';
+import { loadPassingSubmissions } from '../utils/reviews-db-helper';
 
 const logger = new LoggerClient('SkillEventsService');
 
@@ -60,17 +63,31 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
 
     // fetch challenge reviewers so we assign the challenge skills to them as well
-    const reviewers = await fetchChallengeReviewers(payload.id);
-
+    const reviewers = await fetchReviewersForChallenge(payload.id);
     await ensureMembersExist(reviewers.map((reviewer) => reviewer.memberId));
+    
+    const copilots = await fetchCopilotsForChallenge(payload.id);
+    await ensureMembersExist(copilots.map((copilot) => copilot.memberId));
+
+    const winnersIds = payload.winners.map(w => w.userId);
+    const passingSubmissions = await loadPassingSubmissions(payload.id, winnersIds);
+    await ensureMembersExist(passingSubmissions.map((s) => s.memberId));
 
     return db.sequelize.transaction(async (tx) => {
         const users = [
             ...payload.winners,
             ...reviewers.map((p) => ({
-                userId: p.memberId,
+                userId: Number(p.memberId),
                 type: REVIEWER_TYPE_KEY,
             })),
+            ...copilots.map((p) => ({
+                userId: Number(p.memberId),
+                type: COPILOT_TYPE_KEY,
+            })),
+            ...passingSubmissions.map((s) => ({
+                userId: Number(s.memberId),
+                type: FINISHER_TYPE_KEY,
+            }))
         ];
 
         // update each user with the skills data
