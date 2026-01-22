@@ -176,10 +176,10 @@ export async function processEngagementMemberAssignedSkillEvent(
             { userId: payload.memberId },
             payload.skills,
             eventId,
-            payload.engagementId,
+            payload.assignmentId,
             sourceType.id,
             tx,
-            SkillEventTypes.gigCompletion,
+            SkillEventTypes.engagementAssignment,
         );
 
         logger.info('Successfully associated user skills via engagement member assigned skill event');

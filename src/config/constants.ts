@@ -66,4 +66,5 @@ export enum SkillEventTypes {
     gigCompletion = 'gig_completion',
     tcaCertCompleted = 'tca_cert_completion',
     tcaCourseCompleted = 'tca_course_completion',
+    engagementAssignment = 'engagement_assignment'
 }
