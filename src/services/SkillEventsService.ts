@@ -175,7 +175,7 @@ export async function processEngagementMemberAssignedSkillEvent(
     await ensureMembersExist([payload.memberId]);
 
     // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
-    const sourceType = await fetchSourceType(WorkType.gig);
+    const sourceType = await fetchSourceType(WorkType.engagement);
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
     const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
 
@@ -188,15 +188,15 @@ export async function processEngagementMemberAssignedSkillEvent(
         );
 
         await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
-
+        logger.info(`Creating engagement skill event: ${sourceType.id}, ${payload.skills}`);
         await createSkillEventsForUser(
             { userId: payload.memberId },
             payload.skills,
             eventId,
-            payload.engagementId,
+            payload.assignmentId,
             sourceType.id,
             tx,
-            SkillEventTypes.gigCompletion,
+            SkillEventTypes.engagementAssignment,
         );
 
         logger.info('Successfully associated user skills via engagement member assigned skill event');

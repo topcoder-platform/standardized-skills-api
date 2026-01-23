@@ -94,7 +94,7 @@ export class skill_event
                     },
                 },
                 source_id: {
-                    type: DataTypes.UUID,
+                    type: DataTypes.TEXT,
                     allowNull: false,
                 },
                 source_type_id: {

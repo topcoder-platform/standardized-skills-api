@@ -75,7 +75,7 @@ model SkillEvent {
   userId          Int            @map("user_id")
   skillId         String         @map("skill_id")
   skillEventTypeId String        @map("skill_event_type_id")
-  sourceId        String         @map("source_id")
+  sourceId        String         @db.Text @map("source_id")
   sourceTypeId    String         @map("source_type_id")
   createdAt       DateTime       @default(now()) @map("created_at")
 
