@@ -7,7 +7,7 @@ import { buildQualifiedTable, disableSearchPath, formatError, validateIdentifier
 import { getReviewsSequelize } from '../db/reviews-db';
 import { getChallengeType } from './challenge-db-helper';
 
-const logger = new LoggerClient('MemberDbHelper');
+const logger = new LoggerClient('ReviewsDbHelper');
 
 const roundScore = (value: number) => Math.round(value * 100) / 100;
 
@@ -42,7 +42,7 @@ interface SubmissionResult {
     reviewScore: number;
 }
 
-export async function _getSubmissions(query: string, replacements: BindOrReplacements): Promise<SubmissionResult[]> {
+async function _getSubmissions(query: string, replacements: BindOrReplacements): Promise<SubmissionResult[]> {
     assertDbConfig();
 
     try {
@@ -59,9 +59,9 @@ export async function _getSubmissions(query: string, replacements: BindOrReplace
 
         return records || [];
     } catch (error) {
-        console.log(error);
+        logger.error('Unable to fetch submissions');
         logger.error(formatError(error));
-        throw new InternalServerError('Unable to validate member! Please retry.');
+        throw new InternalServerError('Unable to fetch submissions! Please retry.');
     }
 }
 
@@ -107,10 +107,9 @@ export async function loadScorecardMinScores(scorecardIds: string[]) {
             (rows || []).map((row) => [row.id, toNumber(row.minimumPassingScore as number) ?? 0])
         );
     } catch (error) {
-        console.log(error);
-        logger.error(`TODO`);
+        logger.error('Unable to load scorecard minimum scores');
         logger.error(formatError(error));
-        throw new InternalServerError('Unable to validate member! Please retry.');
+        throw new InternalServerError('Unable to load scorecard minimum scores! Please retry.');
     }
 }
 
