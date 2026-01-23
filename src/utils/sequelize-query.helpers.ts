@@ -1,4 +1,4 @@
-import { InternalServerError } from "./errors";
+import { InternalServerError } from './errors';
 
 
 export function validateIdentifier(value: string, kind: 'schema' | 'table' | 'column') {
