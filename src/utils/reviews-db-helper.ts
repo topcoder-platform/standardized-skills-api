@@ -5,7 +5,7 @@ import { InternalServerError } from './errors';
 import { LoggerClient } from './LoggerClient';
 import { buildQualifiedTable, disableSearchPath, formatError, validateIdentifier } from './sequelize-query.helpers';
 import { getReviewsSequelize } from '../db/reviews-db';
-import { getChallengeType } from './challenge-db-helper';
+import { checkIsMarathonMatch } from './challenge-db-helper';
 
 const logger = new LoggerClient('ReviewsDbHelper');
 
@@ -114,8 +114,7 @@ export async function loadScorecardMinScores(scorecardIds: string[]) {
 }
 
 export async function loadPassingSubmissions(challengeId: string, winnersIds: number[]) {
-    const challengeType = await getChallengeType(challengeId);
-    const isMarathonMatch = challengeType === "Marathon Match";
+    const isMarathonMatch = await checkIsMarathonMatch(challengeId);
 
     const submissions = await getSubmissionsForMMChallenge(challengeId);
     const minScoreByScorecard = await loadScorecardMinScores(

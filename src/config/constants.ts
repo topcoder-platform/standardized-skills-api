@@ -35,6 +35,7 @@ export const MAX_PRINICIPAL_USER_SKILLS_COUNT = 10;
 
 export enum WorkType {
     challenge = 'challenge',
+    marathonMatch = 'marathon match',
     gig = 'gig',
     certification = 'certification',
     course = 'course',

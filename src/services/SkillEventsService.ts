@@ -28,6 +28,7 @@ import {
 import { fetchAdditionalUserSkillDisplayMode } from '../utils/user-skills-helper';
 import { fetchCopilotsForChallenge, fetchReviewersForChallenge } from '../utils/resource-db-helper';
 import { loadPassingSubmissions } from '../utils/reviews-db-helper';
+import { checkIsMarathonMatch } from '../utils/challenge-db-helper';
 
 const logger = new LoggerClient('SkillEventsService');
 
@@ -58,7 +59,9 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     await ensurePayloadWinnersAreValidUsers(payload.winners);
 
     // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
-    const sourceType = await fetchSourceType(WorkType.challenge);
+    const isMarathonMatch = await checkIsMarathonMatch(payload.id);
+
+    const sourceType = await fetchSourceType(isMarathonMatch ? WorkType.marathonMatch : WorkType.challenge);
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
     const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
 

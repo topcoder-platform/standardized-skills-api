@@ -67,3 +67,8 @@ export async function getChallengeType(challengeId: string): Promise<string | un
         throw new InternalServerError('Unable to validate challenge! Please retry.');
     }
 }
+
+export async function checkIsMarathonMatch(challengeId: string): Promise<boolean> {
+    const challengeType = await getChallengeType(challengeId);
+    return challengeType === "Marathon Match";
+}
