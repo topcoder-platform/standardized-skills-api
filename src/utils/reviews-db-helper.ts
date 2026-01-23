@@ -3,7 +3,7 @@ import { BindOrReplacements, QueryTypes } from 'sequelize';
 import { CONTEST_SUBMISSION_TYPE, envConfig } from '../config';
 import { InternalServerError } from './errors';
 import { LoggerClient } from './LoggerClient';
-import { buildQualifiedTable, disableSearchPath, formatError, validateIdentifier } from './sequelize-query.helpers';
+import { buildQualifiedTable, disableSearchPath, formatError } from './sequelize-query.helpers';
 import { getReviewsSequelize } from '../db/reviews-db';
 import { checkIsMarathonMatch } from './challenge-db-helper';
 
@@ -15,7 +15,7 @@ const toNumber = (value?: number | string | null) => {
   if (value === null || value === undefined) {
     return null;
   }
-  const num = typeof value === "number" ? value : Number(value);
+  const num = typeof value === 'number' ? value : Number(value);
   return Number.isFinite(num) ? num : null;
 };
 
@@ -27,10 +27,10 @@ function assertDbConfig() {
 
 const buildQualifiedTables = () => {
     return {
-        review: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, "review" ),
-        reviewSummation: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, "reviewSummation" ),
-        submission: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, "submission" ),
-        scorecard: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, "scorecard" ),
+        review: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, 'review' ),
+        reviewSummation: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, 'reviewSummation' ),
+        submission: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, 'submission' ),
+        scorecard: buildQualifiedTable( envConfig.REVIEWS_DB.SCHEMA, 'scorecard' ),
     };
 };
 

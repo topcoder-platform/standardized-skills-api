@@ -70,5 +70,5 @@ export async function getChallengeType(challengeId: string): Promise<string | un
 
 export async function checkIsMarathonMatch(challengeId: string): Promise<boolean> {
     const challengeType = await getChallengeType(challengeId);
-    return challengeType === "Marathon Match";
+    return challengeType === 'Marathon Match';
 }
