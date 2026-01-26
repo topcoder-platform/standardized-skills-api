@@ -121,45 +121,12 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
   Serializable: 'Serializable'
 });
 
-exports.Prisma.SequelizeMetaScalarFieldEnum = {
-  name: 'name'
-};
-
 exports.Prisma.EventScalarFieldEnum = {
   id: 'id',
   topic: 'topic',
   payload: 'payload',
   payload_hash: 'payload_hash',
   created_at: 'created_at'
-};
-
-exports.Prisma.Legacy_skill_mapScalarFieldEnum = {
-  legacy_v5_id: 'legacy_v5_id',
-  skill_id: 'skill_id'
-};
-
-exports.Prisma.Prod_challenge_emsi_skillsScalarFieldEnum = {
-  emsi_skill_id: 'emsi_skill_id',
-  challenge_id: 'challenge_id'
-};
-
-exports.Prisma.Prod_job_emsi_skillsScalarFieldEnum = {
-  emsi_skill_id: 'emsi_skill_id',
-  job_id: 'job_id'
-};
-
-exports.Prisma.Prod_user_emsi_skillsScalarFieldEnum = {
-  user_id: 'user_id',
-  skill_id: 'skill_id',
-  skill_source_ids: 'skill_source_ids',
-  std_skill_id: 'std_skill_id',
-  emsi_id: 'emsi_id'
-};
-
-exports.Prisma.Prod_v5_skillsScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  std_skill_id: 'std_skill_id'
 };
 
 exports.Prisma.SkillScalarFieldEnum = {
@@ -169,8 +136,7 @@ exports.Prisma.SkillScalarFieldEnum = {
   category_id: 'category_id',
   created_at: 'created_at',
   updated_at: 'updated_at',
-  deleted_at: 'deleted_at',
-  dev_id: 'dev_id'
+  deleted_at: 'deleted_at'
 };
 
 exports.Prisma.Skill_categoryScalarFieldEnum = {
@@ -200,87 +166,12 @@ exports.Prisma.Skill_event_typeScalarFieldEnum = {
   updated_at: 'updated_at'
 };
 
-exports.Prisma.Skill_replacementScalarFieldEnum = {
-  skill_id: 'skill_id',
-  replacing_skill_id: 'replacing_skill_id',
-  category_id: 'category_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
-};
-
 exports.Prisma.Source_typeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
   created_at: 'created_at',
   updated_at: 'updated_at'
-};
-
-exports.Prisma.Temp_dev_emsi_skillScalarFieldEnum = {
-  id: 'id',
-  emsi_id: 'emsi_id',
-  name: 'name'
-};
-
-exports.Prisma.Temp_dev_user_emsi_skillsScalarFieldEnum = {
-  user_id: 'user_id',
-  skill_id: 'skill_id',
-  skill_source_ids: 'skill_source_ids',
-  std_skill_id: 'std_skill_id'
-};
-
-exports.Prisma.Temp_legacy_v5_skillScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  external_id: 'external_id',
-  taxonomy_id: 'taxonomy_id',
-  taxonomy_name: 'taxonomy_name'
-};
-
-exports.Prisma.Temp_prod_distinct_user_emsi_skillsScalarFieldEnum = {
-  emsi_id: 'emsi_id',
-  skill_id: 'skill_id'
-};
-
-exports.Prisma.Temp_prod_emsi_skillScalarFieldEnum = {
-  emsi_skill_id: 'emsi_skill_id',
-  emsi_id: 'emsi_id',
-  name: 'name'
-};
-
-exports.Prisma.Temp_prod_taas_job_v5_skillsScalarFieldEnum = {
-  v5_skill_id: 'v5_skill_id',
-  name: 'name'
-};
-
-exports.Prisma.Temp_raw_emsi_skillsScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  category_id: 'category_id',
-  category_name: 'category_name',
-  subcategory_id: 'subcategory_id',
-  subcategory_name: 'subcategory_name',
-  isSoftware: 'isSoftware',
-  type_id: 'type_id',
-  type_name: 'type_name'
-};
-
-exports.Prisma.Temp_taas_job_skill_mappingScalarFieldEnum = {
-  v5_skill_id: 'v5_skill_id',
-  name: 'name',
-  std_skill_name: 'std_skill_name',
-  std_skill_id: 'std_skill_id'
-};
-
-exports.Prisma.Temp_taas_job_skillsScalarFieldEnum = {
-  v5_skill_id: 'v5_skill_id'
-};
-
-exports.Prisma.Temp_taas_role_skill_mappingScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  skill_id: 'skill_id'
 };
 
 exports.Prisma.User_skillScalarFieldEnum = {
@@ -345,29 +236,12 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  SequelizeMeta: 'SequelizeMeta',
   event: 'event',
-  legacy_skill_map: 'legacy_skill_map',
-  prod_challenge_emsi_skills: 'prod_challenge_emsi_skills',
-  prod_job_emsi_skills: 'prod_job_emsi_skills',
-  prod_user_emsi_skills: 'prod_user_emsi_skills',
-  prod_v5_skills: 'prod_v5_skills',
   skill: 'skill',
   skill_category: 'skill_category',
   skill_event: 'skill_event',
   skill_event_type: 'skill_event_type',
-  skill_replacement: 'skill_replacement',
   source_type: 'source_type',
-  temp_dev_emsi_skill: 'temp_dev_emsi_skill',
-  temp_dev_user_emsi_skills: 'temp_dev_user_emsi_skills',
-  temp_legacy_v5_skill: 'temp_legacy_v5_skill',
-  temp_prod_distinct_user_emsi_skills: 'temp_prod_distinct_user_emsi_skills',
-  temp_prod_emsi_skill: 'temp_prod_emsi_skill',
-  temp_prod_taas_job_v5_skills: 'temp_prod_taas_job_v5_skills',
-  temp_raw_emsi_skills: 'temp_raw_emsi_skills',
-  temp_taas_job_skill_mapping: 'temp_taas_job_skill_mapping',
-  temp_taas_job_skills: 'temp_taas_job_skills',
-  temp_taas_role_skill_mapping: 'temp_taas_role_skill_mapping',
   user_skill: 'user_skill',
   user_skill_display_mode: 'user_skill_display_mode',
   user_skill_level: 'user_skill_level',
