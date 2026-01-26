@@ -125,88 +125,88 @@ exports.Prisma.EventScalarFieldEnum = {
   id: 'id',
   topic: 'topic',
   payload: 'payload',
-  payload_hash: 'payload_hash',
-  created_at: 'created_at'
+  payloadHash: 'payloadHash',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SkillCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SkillScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  category_id: 'category_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  deleted_at: 'deleted_at'
+  categoryId: 'categoryId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
 };
 
-exports.Prisma.Skill_categoryScalarFieldEnum = {
+exports.Prisma.SkillEventTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Skill_eventScalarFieldEnum = {
-  id: 'id',
-  event_id: 'event_id',
-  user_id: 'user_id',
-  skill_id: 'skill_id',
-  skill_event_type_id: 'skill_event_type_id',
-  source_id: 'source_id',
-  source_type_id: 'source_type_id',
-  created_at: 'created_at'
-};
-
-exports.Prisma.Skill_event_typeScalarFieldEnum = {
+exports.Prisma.SourceTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Source_typeScalarFieldEnum = {
+exports.Prisma.SkillEventScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  userId: 'userId',
+  skillId: 'skillId',
+  skillEventTypeId: 'skillEventTypeId',
+  sourceId: 'sourceId',
+  sourceTypeId: 'sourceTypeId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.UserSkillLevelScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.User_skillScalarFieldEnum = {
-  id: 'id',
-  user_id: 'user_id',
-  skill_id: 'skill_id',
-  user_skill_level_id: 'user_skill_level_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  user_skill_display_mode_id: 'user_skill_display_mode_id'
-};
-
-exports.Prisma.User_skill_display_modeScalarFieldEnum = {
+exports.Prisma.UserSkillDisplayModeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.User_skill_levelScalarFieldEnum = {
+exports.Prisma.UserSkillScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  userId: 'userId',
+  skillId: 'skillId',
+  userSkillLevelId: 'userSkillLevelId',
+  userSkillDisplayModeId: 'userSkillDisplayModeId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Work_skillScalarFieldEnum = {
+exports.Prisma.WorkSkillScalarFieldEnum = {
   id: 'id',
-  work_id: 'work_id',
-  work_type_id: 'work_type_id',
-  skill_id: 'skill_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  workId: 'workId',
+  workTypeId: 'workTypeId',
+  skillId: 'skillId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -236,16 +236,16 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  event: 'event',
-  skill: 'skill',
-  skill_category: 'skill_category',
-  skill_event: 'skill_event',
-  skill_event_type: 'skill_event_type',
-  source_type: 'source_type',
-  user_skill: 'user_skill',
-  user_skill_display_mode: 'user_skill_display_mode',
-  user_skill_level: 'user_skill_level',
-  work_skill: 'work_skill'
+  Event: 'Event',
+  SkillCategory: 'SkillCategory',
+  Skill: 'Skill',
+  SkillEventType: 'SkillEventType',
+  SourceType: 'SourceType',
+  SkillEvent: 'SkillEvent',
+  UserSkillLevel: 'UserSkillLevel',
+  UserSkillDisplayMode: 'UserSkillDisplayMode',
+  UserSkill: 'UserSkill',
+  WorkSkill: 'WorkSkill'
 };
 
 /**

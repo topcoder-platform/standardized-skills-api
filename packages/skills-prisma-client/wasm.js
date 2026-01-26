@@ -97,88 +97,88 @@ exports.Prisma.EventScalarFieldEnum = {
   id: 'id',
   topic: 'topic',
   payload: 'payload',
-  payload_hash: 'payload_hash',
-  created_at: 'created_at'
+  payloadHash: 'payloadHash',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.SkillCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SkillScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  category_id: 'category_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  deleted_at: 'deleted_at'
+  categoryId: 'categoryId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  deletedAt: 'deletedAt'
 };
 
-exports.Prisma.Skill_categoryScalarFieldEnum = {
+exports.Prisma.SkillEventTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Skill_eventScalarFieldEnum = {
-  id: 'id',
-  event_id: 'event_id',
-  user_id: 'user_id',
-  skill_id: 'skill_id',
-  skill_event_type_id: 'skill_event_type_id',
-  source_id: 'source_id',
-  source_type_id: 'source_type_id',
-  created_at: 'created_at'
-};
-
-exports.Prisma.Skill_event_typeScalarFieldEnum = {
+exports.Prisma.SourceTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Source_typeScalarFieldEnum = {
+exports.Prisma.SkillEventScalarFieldEnum = {
+  id: 'id',
+  eventId: 'eventId',
+  userId: 'userId',
+  skillId: 'skillId',
+  skillEventTypeId: 'skillEventTypeId',
+  sourceId: 'sourceId',
+  sourceTypeId: 'sourceTypeId',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.UserSkillLevelScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.User_skillScalarFieldEnum = {
-  id: 'id',
-  user_id: 'user_id',
-  skill_id: 'skill_id',
-  user_skill_level_id: 'user_skill_level_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at',
-  user_skill_display_mode_id: 'user_skill_display_mode_id'
-};
-
-exports.Prisma.User_skill_display_modeScalarFieldEnum = {
+exports.Prisma.UserSkillDisplayModeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.User_skill_levelScalarFieldEnum = {
+exports.Prisma.UserSkillScalarFieldEnum = {
   id: 'id',
-  name: 'name',
-  description: 'description',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  userId: 'userId',
+  skillId: 'skillId',
+  userSkillLevelId: 'userSkillLevelId',
+  userSkillDisplayModeId: 'userSkillDisplayModeId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Work_skillScalarFieldEnum = {
+exports.Prisma.WorkSkillScalarFieldEnum = {
   id: 'id',
-  work_id: 'work_id',
-  work_type_id: 'work_type_id',
-  skill_id: 'skill_id',
-  created_at: 'created_at',
-  updated_at: 'updated_at'
+  workId: 'workId',
+  workTypeId: 'workTypeId',
+  skillId: 'skillId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -208,16 +208,16 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  event: 'event',
-  skill: 'skill',
-  skill_category: 'skill_category',
-  skill_event: 'skill_event',
-  skill_event_type: 'skill_event_type',
-  source_type: 'source_type',
-  user_skill: 'user_skill',
-  user_skill_display_mode: 'user_skill_display_mode',
-  user_skill_level: 'user_skill_level',
-  work_skill: 'work_skill'
+  Event: 'Event',
+  SkillCategory: 'SkillCategory',
+  Skill: 'Skill',
+  SkillEventType: 'SkillEventType',
+  SourceType: 'SourceType',
+  SkillEvent: 'SkillEvent',
+  UserSkillLevel: 'UserSkillLevel',
+  UserSkillDisplayMode: 'UserSkillDisplayMode',
+  UserSkill: 'UserSkill',
+  WorkSkill: 'WorkSkill'
 };
 /**
  * Create the Client
@@ -266,18 +266,18 @@ const config = {
   "inlineDatasources": {
     "db": {
       "url": {
-        "fromEnvVar": "TC_SKILLS_DATABASE_URL",
+        "fromEnvVar": "DATABASE_URL",
         "value": null
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n}\n\ngenerator externalClient {\n  provider      = \"prisma-client-js\"\n  output        = \"../packages/skills-prisma-client\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"TC_SKILLS_DATABASE_URL\")\n}\n\nmodel event {\n  id           String        @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  topic        String        @db.VarChar(255)\n  payload      Json\n  payload_hash String?       @unique(map: \"uniq_payload_hash\")\n  created_at   DateTime      @default(now())\n  skill_event  skill_event[]\n}\n\nmodel skill {\n  id             String                 @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  name           String                 @unique(map: \"uniq_skill_name\") @db.VarChar(100)\n  description    String?\n  category_id    String?                @db.Uuid\n  created_at     DateTime               @default(now())\n  updated_at     DateTime               @default(now())\n  deleted_at     DateTime?\n  name_embedding Unsupported(\"vector\")?\n  skill_category skill_category?        @relation(fields: [category_id], references: [id], onUpdate: NoAction, map: \"fk_skill_category\")\n  skill_event    skill_event[]\n  user_skill     user_skill[]\n\n  @@index([category_id], map: \"fki_fk_skill_category\")\n}\n\nmodel skill_category {\n  id          String   @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  name        String   @unique(map: \"uniq_category_name\") @db.VarChar(100)\n  description String?\n  created_at  DateTime @default(now())\n  updated_at  DateTime @default(now())\n  skill       skill[]\n}\n\nmodel skill_event {\n  id                  String           @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  event_id            String           @db.Uuid\n  user_id             Int\n  skill_id            String           @db.Uuid\n  skill_event_type_id String           @db.Uuid\n  source_id           String\n  source_type_id      String           @db.Uuid\n  created_at          DateTime         @default(now())\n  event               event            @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_event\")\n  skill_event_type    skill_event_type @relation(fields: [skill_event_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_skill_event_type\")\n  skill               skill            @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_skill\")\n  source_type         source_type      @relation(fields: [source_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_source_type\")\n\n  @@unique([skill_id, source_id, skill_event_type_id, user_id], map: \"uniq_skill_source_id\")\n  @@index([event_id], map: \"fki_fk_event\")\n  @@index([skill_event_type_id], map: \"fki_fk_skill_event_type\")\n  @@index([source_type_id], map: \"fki_fk_source_type\")\n}\n\nmodel skill_event_type {\n  id          String        @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  name        String        @unique(map: \"uniq_event_type_name\") @db.VarChar(100)\n  description String?\n  created_at  DateTime      @default(now())\n  updated_at  DateTime      @default(now())\n  skill_event skill_event[]\n}\n\nmodel source_type {\n  id          String        @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  name        String        @unique(map: \"uniq_source_type_name\") @db.VarChar(100)\n  description String?\n  created_at  DateTime      @default(now())\n  updated_at  DateTime      @default(now())\n  skill_event skill_event[]\n}\n\nmodel user_skill {\n  id                         String                  @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  user_id                    Int\n  skill_id                   String                  @db.Uuid\n  user_skill_level_id        String                  @db.Uuid\n  created_at                 DateTime                @default(now())\n  updated_at                 DateTime                @default(now())\n  user_skill_display_mode_id String                  @default(dbgenerated(\"'1555aa05-a764-4f0b-b3e0-51b824382abb'::uuid\")) @db.Uuid\n  skill                      skill                   @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_skill\")\n  user_skill_display_mode    user_skill_display_mode @relation(fields: [user_skill_display_mode_id], references: [id], onDelete: NoAction, onUpdate: NoAction)\n  user_skill_level           user_skill_level        @relation(fields: [user_skill_level_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: \"fk_user_skill_level\")\n\n  @@unique([user_id, skill_id, user_skill_level_id], map: \"uniq_user_skill_type\")\n  @@index([skill_id], map: \"fki_fk_skill\")\n  @@index([user_skill_level_id], map: \"fki_fk_user_skill_level\")\n  @@index([user_skill_display_mode_id], map: \"fki_fk_user_skill_display_mode\")\n}\n\nmodel user_skill_display_mode {\n  id          String       @id @db.Uuid\n  name        String       @unique @db.VarChar(100)\n  description String?\n  created_at  DateTime     @default(now())\n  updated_at  DateTime     @default(now())\n  user_skill  user_skill[]\n}\n\nmodel user_skill_level {\n  id          String       @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  name        String       @unique(map: \"uniq_skill_level_name\") @db.VarChar(100)\n  description String?\n  created_at  DateTime     @default(now())\n  updated_at  DateTime     @default(now())\n  user_skill  user_skill[]\n}\n\nmodel work_skill {\n  id           String   @id @default(dbgenerated(\"gen_random_uuid()\")) @db.Uuid\n  work_id      String   @db.Uuid\n  work_type_id String   @db.Uuid\n  skill_id     String   @db.Uuid\n  created_at   DateTime @default(now())\n  updated_at   DateTime @default(now())\n\n  @@unique([work_id, work_type_id, skill_id], map: \"uniq_work_skill\")\n}\n",
-  "inlineSchemaHash": "c9856d58ece07eefb0090efa40f5c70c32f0a11d18aa7b99304ef0f70d81f2bf",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n}\n\ngenerator externalClient {\n  provider      = \"prisma-client-js\"\n  output        = \"../packages/skills-prisma-client\"\n  binaryTargets = [\"native\", \"debian-openssl-3.0.x\"]\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel Event {\n  id          String       @id @default(uuid())\n  topic       String       @db.VarChar(255)\n  payload     Json\n  payloadHash String?      @map(\"payload_hash\")\n  createdAt   DateTime     @default(now()) @map(\"created_at\")\n  skillEvents SkillEvent[]\n\n  @@unique([payloadHash], map: \"uniq_payload_hash\")\n  @@map(\"event\")\n}\n\nmodel SkillCategory {\n  id          String   @id @default(uuid())\n  name        String\n  description String?\n  createdAt   DateTime @default(now()) @map(\"created_at\")\n  updatedAt   DateTime @updatedAt @map(\"updated_at\")\n  skills      Skill[]\n\n  @@unique([name], map: \"uniq_category_name\")\n  @@map(\"skill_category\")\n}\n\nmodel Skill {\n  id             String                 @id @default(uuid())\n  name           String\n  description    String?\n  categoryId     String?                @map(\"category_id\")\n  createdAt      DateTime               @default(now()) @map(\"created_at\")\n  updatedAt      DateTime               @updatedAt @map(\"updated_at\")\n  deletedAt      DateTime?              @map(\"deleted_at\")\n  name_embedding Unsupported(\"vector\")?\n\n  category    SkillCategory? @relation(fields: [categoryId], references: [id])\n  skillEvents SkillEvent[]\n  userSkills  UserSkill[]\n\n  @@unique([name], map: \"uniq_skill_name\")\n  @@index([categoryId], map: \"fki_fk_skill_category\")\n  @@map(\"skill\")\n}\n\nmodel SkillEventType {\n  id          String       @id @default(uuid())\n  name        String\n  description String?\n  createdAt   DateTime     @default(now()) @map(\"created_at\")\n  updatedAt   DateTime     @updatedAt @map(\"updated_at\")\n  skillEvents SkillEvent[]\n\n  @@unique([name], map: \"uniq_event_type_name\")\n  @@map(\"skill_event_type\")\n}\n\nmodel SourceType {\n  id          String       @id @default(uuid())\n  name        String\n  description String?\n  createdAt   DateTime     @default(now()) @map(\"created_at\")\n  updatedAt   DateTime     @updatedAt @map(\"updated_at\")\n  skillEvents SkillEvent[]\n\n  @@unique([name], map: \"uniq_source_type_name\")\n  @@map(\"source_type\")\n}\n\nmodel SkillEvent {\n  id               String   @id @default(uuid())\n  eventId          String   @map(\"event_id\")\n  userId           Int      @map(\"user_id\")\n  skillId          String   @map(\"skill_id\")\n  skillEventTypeId String   @map(\"skill_event_type_id\")\n  sourceId         String   @map(\"source_id\") @db.Text\n  sourceTypeId     String   @map(\"source_type_id\")\n  createdAt        DateTime @default(now()) @map(\"created_at\")\n\n  event          Event          @relation(fields: [eventId], references: [id])\n  skill          Skill          @relation(fields: [skillId], references: [id])\n  skillEventType SkillEventType @relation(fields: [skillEventTypeId], references: [id])\n  sourceType     SourceType     @relation(fields: [sourceTypeId], references: [id])\n\n  @@unique([skillId, sourceId, skillEventTypeId, userId], map: \"uniq_skill_source_id\")\n  @@index([eventId], map: \"fki_fk_event\")\n  @@index([skillEventTypeId], map: \"fki_fk_skill_event_type\")\n  @@index([sourceTypeId], map: \"fki_fk_source_type\")\n  @@map(\"skill_event\")\n}\n\nmodel UserSkillLevel {\n  id          String      @id @default(uuid())\n  name        String\n  description String?\n  createdAt   DateTime    @default(now()) @map(\"created_at\")\n  updatedAt   DateTime    @updatedAt @map(\"updated_at\")\n  userSkills  UserSkill[]\n\n  @@unique([name], map: \"uniq_skill_level_name\")\n  @@map(\"user_skill_level\")\n}\n\nmodel UserSkillDisplayMode {\n  id          String      @id\n  name        String\n  description String?\n  createdAt   DateTime    @default(now()) @map(\"created_at\")\n  updatedAt   DateTime    @updatedAt @map(\"updated_at\")\n  userSkills  UserSkill[]\n\n  @@unique([name], map: \"user_skill_display_mode_name_key\")\n  @@map(\"user_skill_display_mode\")\n}\n\nmodel UserSkill {\n  id                     String   @id @default(uuid())\n  userId                 Int      @map(\"user_id\")\n  skillId                String   @map(\"skill_id\")\n  userSkillLevelId       String   @map(\"user_skill_level_id\")\n  userSkillDisplayModeId String   @map(\"user_skill_display_mode_id\")\n  createdAt              DateTime @default(now()) @map(\"created_at\")\n  updatedAt              DateTime @updatedAt @map(\"updated_at\")\n\n  skill                Skill                @relation(fields: [skillId], references: [id])\n  userSkillLevel       UserSkillLevel       @relation(fields: [userSkillLevelId], references: [id])\n  userSkillDisplayMode UserSkillDisplayMode @relation(fields: [userSkillDisplayModeId], references: [id])\n\n  @@unique([userId, skillId, userSkillLevelId], map: \"uniq_user_skill_type\")\n  @@index([skillId], map: \"fki_fk_skill\")\n  @@index([userSkillLevelId], map: \"fki_fk_user_skill_level\")\n  @@index([userSkillDisplayModeId], map: \"fki_fk_user_skill_display_mode\")\n  @@map(\"user_skill\")\n}\n\nmodel WorkSkill {\n  id         String   @id @default(uuid())\n  workId     String   @map(\"work_id\")\n  workTypeId String   @map(\"work_type_id\")\n  skillId    String   @map(\"skill_id\")\n  createdAt  DateTime @default(now()) @map(\"created_at\")\n  updatedAt  DateTime @updatedAt @map(\"updated_at\")\n\n  @@unique([workId, workTypeId, skillId], map: \"uniq_work_skill\")\n  @@map(\"work_skill\")\n}\n",
+  "inlineSchemaHash": "a655e61490a911d994365738482efa3f1045b1e047e0bbd113b8609813ed804b",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"payload_hash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"skill_event\",\"kind\":\"object\",\"type\":\"skill_event\",\"relationName\":\"eventToskill_event\"}],\"dbName\":null},\"skill\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"category_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"deleted_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"skill_category\",\"kind\":\"object\",\"type\":\"skill_category\",\"relationName\":\"skillToskill_category\"},{\"name\":\"skill_event\",\"kind\":\"object\",\"type\":\"skill_event\",\"relationName\":\"skillToskill_event\"},{\"name\":\"user_skill\",\"kind\":\"object\",\"type\":\"user_skill\",\"relationName\":\"skillTouser_skill\"}],\"dbName\":null},\"skill_category\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"skill\",\"kind\":\"object\",\"type\":\"skill\",\"relationName\":\"skillToskill_category\"}],\"dbName\":null},\"skill_event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"event_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"skill_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skill_event_type_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"source_type_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"event\",\"kind\":\"object\",\"type\":\"event\",\"relationName\":\"eventToskill_event\"},{\"name\":\"skill_event_type\",\"kind\":\"object\",\"type\":\"skill_event_type\",\"relationName\":\"skill_eventToskill_event_type\"},{\"name\":\"skill\",\"kind\":\"object\",\"type\":\"skill\",\"relationName\":\"skillToskill_event\"},{\"name\":\"source_type\",\"kind\":\"object\",\"type\":\"source_type\",\"relationName\":\"skill_eventTosource_type\"}],\"dbName\":null},\"skill_event_type\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"skill_event\",\"kind\":\"object\",\"type\":\"skill_event\",\"relationName\":\"skill_eventToskill_event_type\"}],\"dbName\":null},\"source_type\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"skill_event\",\"kind\":\"object\",\"type\":\"skill_event\",\"relationName\":\"skill_eventTosource_type\"}],\"dbName\":null},\"user_skill\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user_id\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"skill_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user_skill_level_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user_skill_display_mode_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skill\",\"kind\":\"object\",\"type\":\"skill\",\"relationName\":\"skillTouser_skill\"},{\"name\":\"user_skill_display_mode\",\"kind\":\"object\",\"type\":\"user_skill_display_mode\",\"relationName\":\"user_skillTouser_skill_display_mode\"},{\"name\":\"user_skill_level\",\"kind\":\"object\",\"type\":\"user_skill_level\",\"relationName\":\"user_skillTouser_skill_level\"}],\"dbName\":null},\"user_skill_display_mode\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user_skill\",\"kind\":\"object\",\"type\":\"user_skill\",\"relationName\":\"user_skillTouser_skill_display_mode\"}],\"dbName\":null},\"user_skill_level\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"user_skill\",\"kind\":\"object\",\"type\":\"user_skill\",\"relationName\":\"user_skillTouser_skill_level\"}],\"dbName\":null},\"work_skill\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"work_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"work_type_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"skill_id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"created_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updated_at\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"Event\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"payloadHash\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"payload_hash\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"skillEvents\",\"kind\":\"object\",\"type\":\"SkillEvent\",\"relationName\":\"EventToSkillEvent\"}],\"dbName\":\"event\"},\"SkillCategory\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"skills\",\"kind\":\"object\",\"type\":\"Skill\",\"relationName\":\"SkillToSkillCategory\"}],\"dbName\":\"skill_category\"},\"Skill\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"categoryId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"category_id\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"deletedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"deleted_at\"},{\"name\":\"category\",\"kind\":\"object\",\"type\":\"SkillCategory\",\"relationName\":\"SkillToSkillCategory\"},{\"name\":\"skillEvents\",\"kind\":\"object\",\"type\":\"SkillEvent\",\"relationName\":\"SkillToSkillEvent\"},{\"name\":\"userSkills\",\"kind\":\"object\",\"type\":\"UserSkill\",\"relationName\":\"SkillToUserSkill\"}],\"dbName\":\"skill\"},\"SkillEventType\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"skillEvents\",\"kind\":\"object\",\"type\":\"SkillEvent\",\"relationName\":\"SkillEventToSkillEventType\"}],\"dbName\":\"skill_event_type\"},\"SourceType\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"skillEvents\",\"kind\":\"object\",\"type\":\"SkillEvent\",\"relationName\":\"SkillEventToSourceType\"}],\"dbName\":\"source_type\"},\"SkillEvent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"eventId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"event_id\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"user_id\"},{\"name\":\"skillId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"skill_id\"},{\"name\":\"skillEventTypeId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"skill_event_type_id\"},{\"name\":\"sourceId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"source_id\"},{\"name\":\"sourceTypeId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"source_type_id\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"event\",\"kind\":\"object\",\"type\":\"Event\",\"relationName\":\"EventToSkillEvent\"},{\"name\":\"skill\",\"kind\":\"object\",\"type\":\"Skill\",\"relationName\":\"SkillToSkillEvent\"},{\"name\":\"skillEventType\",\"kind\":\"object\",\"type\":\"SkillEventType\",\"relationName\":\"SkillEventToSkillEventType\"},{\"name\":\"sourceType\",\"kind\":\"object\",\"type\":\"SourceType\",\"relationName\":\"SkillEventToSourceType\"}],\"dbName\":\"skill_event\"},\"UserSkillLevel\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"userSkills\",\"kind\":\"object\",\"type\":\"UserSkill\",\"relationName\":\"UserSkillToUserSkillLevel\"}],\"dbName\":\"user_skill_level\"},\"UserSkillDisplayMode\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"description\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"userSkills\",\"kind\":\"object\",\"type\":\"UserSkill\",\"relationName\":\"UserSkillToUserSkillDisplayMode\"}],\"dbName\":\"user_skill_display_mode\"},\"UserSkill\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"Int\",\"dbName\":\"user_id\"},{\"name\":\"skillId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"skill_id\"},{\"name\":\"userSkillLevelId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_skill_level_id\"},{\"name\":\"userSkillDisplayModeId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"user_skill_display_mode_id\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"},{\"name\":\"skill\",\"kind\":\"object\",\"type\":\"Skill\",\"relationName\":\"SkillToUserSkill\"},{\"name\":\"userSkillLevel\",\"kind\":\"object\",\"type\":\"UserSkillLevel\",\"relationName\":\"UserSkillToUserSkillLevel\"},{\"name\":\"userSkillDisplayMode\",\"kind\":\"object\",\"type\":\"UserSkillDisplayMode\",\"relationName\":\"UserSkillToUserSkillDisplayMode\"}],\"dbName\":\"user_skill\"},\"WorkSkill\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"workId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"work_id\"},{\"name\":\"workTypeId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"work_type_id\"},{\"name\":\"skillId\",\"kind\":\"scalar\",\"type\":\"String\",\"dbName\":\"skill_id\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"created_at\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\",\"dbName\":\"updated_at\"}],\"dbName\":\"work_skill\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),
@@ -291,7 +291,7 @@ config.compilerWasm = undefined
 
 config.injectableEdgeEnv = () => ({
   parsed: {
-    TC_SKILLS_DATABASE_URL: typeof globalThis !== 'undefined' && globalThis['TC_SKILLS_DATABASE_URL'] || typeof process !== 'undefined' && process.env && process.env.TC_SKILLS_DATABASE_URL || undefined
+    DATABASE_URL: typeof globalThis !== 'undefined' && globalThis['DATABASE_URL'] || typeof process !== 'undefined' && process.env && process.env.DATABASE_URL || undefined
   }
 })
 
