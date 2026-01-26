@@ -37,6 +37,8 @@ import {
     SkillAutocompleteResponseDto,
     SkillFuzzyMatchResponseDto,
     SkillResponseDto,
+    SemanticSearchRequestQueryDto,
+    SemanticSkillMatchResponseDto,
 } from '../../dto';
 import * as helper from '../../utils/helpers';
 import { SkillsService } from './skills.service';
@@ -94,6 +96,14 @@ export class SkillsController {
     @Get('fuzzymatch')
     getFuzzyMatch(@Query() query: GetAutocompleteRequestQueryDto) {
         return this.skillsService.fuzzyMatch(query);
+    }
+
+    @Post('semantic-search')
+    @ApiOperation({ summary: 'Search text for semantic skill matches' })
+    @ApiBearerAuth()
+    @ApiOkResponse({ description: 'Semantically matched skills.', type: SemanticSkillMatchResponseDto, isArray: true })
+    semanticSearch(@Body() body: SemanticSearchRequestQueryDto) {
+        return this.skillsService.semanticSearch(body);
     }
 
     @ApiOperation({ summary: 'Get skill by id' })

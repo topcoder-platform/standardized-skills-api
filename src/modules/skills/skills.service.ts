@@ -6,12 +6,14 @@ import { AuthUser } from '../../common/interfaces/auth-user.interface';
 import {
     GetAutocompleteRequestQueryDto,
     GetSkillsQueryRequestDto,
+    SemanticSearchRequestQueryDto,
     SkillCreationRequestBodyDto,
     SkillUpdatePatchRequestBodyDto,
     SkillUpdatePutRequestBodyDto,
 } from '../../dto';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../../utils/errors';
 import { DEFAULT_SUGGESTIONS_SIZE, MAX_SUGGESTIONS_SIZE } from '../../config';
+import { fetchOllamaEmbedding, toVectorLiteral } from '../../utils/embeddings-service';
 
 type SkillWithCategory = Prisma.SkillGetPayload<{
     include: { category: true };
@@ -41,6 +43,44 @@ export class SkillsService {
                   }
                 : null,
         };
+    }
+
+    /**
+     * Performs a semantic search over skills using pgvector distance.
+     *
+     * Workflow:
+     * 1) Generate an embedding for the input text.
+     * 2) Compute distance against `name_embedding` .
+     *
+     * Returns a list of skills ordered by increasing distance, including `weighted_distance`.
+     */
+    async semanticSearch(payload: SemanticSearchRequestQueryDto) {
+        this.logger.log(`Semantic skills search based on request ${JSON.stringify(payload)}`);
+
+        const embeddingQuery = await fetchOllamaEmbedding(payload.text);
+        
+        if (!embeddingQuery || !embeddingQuery.length) {
+            return [];
+        }
+
+        this.logger.log('Succesfully generated embeddings from the search text.');
+
+        const vectorLiteral = toVectorLiteral(embeddingQuery);
+
+        const results = await this.prisma.$queryRaw<
+            { id: string; name: string; description: string | null; weighted_distance: number }[]
+        >(Prisma.sql`
+            SELECT id,
+                   name,
+                   description,
+                   "name_embedding" OPERATOR(public.<->) ${vectorLiteral}::public.vector AS weighted_distance
+            FROM "skill"
+            WHERE "deleted_at" IS NULL
+            ORDER BY weighted_distance ASC
+            LIMIT 10
+        `);
+
+        return results;
     }
 
     async getAllSkills(query: GetSkillsQueryRequestDto) {

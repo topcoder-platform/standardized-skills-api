@@ -10,149 +10,262 @@ generator externalClient {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("TC_SKILLS_DATABASE_URL")
 }
 
-model Event {
-  id          String       @id @default(uuid())
-  topic       String       @db.VarChar(255)
-  payload     Json
-  payloadHash String?      @map("payload_hash")
-  createdAt   DateTime     @default(now()) @map("created_at")
-  skillEvents SkillEvent[]
-
-  @@unique([payloadHash], map: "uniq_payload_hash")
-  @@map("event")
+model SequelizeMeta {
+  name String @id @db.VarChar(255)
 }
 
-model SkillCategory {
-  id          String   @id @default(uuid())
-  name        String
+model event {
+  id           String        @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  topic        String        @db.VarChar(255)
+  payload      Json
+  payload_hash String?       @unique(map: "uniq_payload_hash")
+  created_at   DateTime      @db.Timestamptz(6)
+  skill_event  skill_event[]
+}
+
+model legacy_skill_map {
+  legacy_v5_id String @db.Uuid
+  skill_id     String @db.Uuid
+  skill        skill  @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "skill_fkey")
+
+  @@id([legacy_v5_id, skill_id], map: "pkey")
+}
+
+model prod_challenge_emsi_skills {
+  emsi_skill_id String @db.Uuid
+  challenge_id  String @db.Uuid
+
+  @@id([emsi_skill_id, challenge_id], map: "challenge_emsi_skills_pkey")
+}
+
+model prod_job_emsi_skills {
+  emsi_skill_id String @db.Uuid
+  job_id        String @db.Uuid
+
+  @@id([emsi_skill_id, job_id], map: "job_emsi_skills_pkey")
+}
+
+model prod_user_emsi_skills {
+  user_id          Int
+  skill_id         String   @db.Uuid
+  skill_source_ids String[] @db.Uuid
+  std_skill_id     String?  @db.Uuid
+  emsi_id          String?
+
+  @@id([skill_id, user_id])
+}
+
+model prod_v5_skills {
+  id           String  @id(map: "temp_prod_v5_skills_pkey") @db.Uuid
+  name         String? @db.VarChar(255)
+  std_skill_id String? @db.Uuid
+}
+
+model skill {
+  id               String             @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name             String             @unique(map: "uniq_skill_name") @db.VarChar(100)
+  description      String?
+  category_id      String?            @db.Uuid
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  deleted_at       DateTime?          @db.Timestamptz(6)
+  dev_id           String?            @db.Uuid
+  legacy_skill_map legacy_skill_map[]
+  skill_category   skill_category?    @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_skill_category")
+  skill_event      skill_event[]
+  user_skill       user_skill[]
+
+  @@index([category_id], map: "fki_fk_skill_category")
+}
+
+model skill_category {
+  id          String   @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name        String   @unique(map: "uniq_category_name") @db.VarChar(100)
   description String?
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
-  skills      Skill[]
-
-  @@unique([name], map: "uniq_category_name")
-  @@map("skill_category")
+  created_at  DateTime @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime @default(now()) @db.Timestamptz(6)
+  skill       skill[]
 }
 
-model Skill {
-  id          String    @id @default(uuid())
-  name        String
+model skill_event {
+  id                  String           @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  event_id            String           @db.Uuid
+  user_id             Int
+  skill_id            String           @db.Uuid
+  skill_event_type_id String           @db.Uuid
+  source_id           String
+  source_type_id      String           @db.Uuid
+  created_at          DateTime         @db.Timestamptz(6)
+  event               event            @relation(fields: [event_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_event")
+  skill               skill            @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_skill")
+  skill_event_type    skill_event_type @relation(fields: [skill_event_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_skill_event_type")
+  source_type         source_type      @relation(fields: [source_type_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_source_type")
+
+  @@unique([skill_id, skill_event_type_id, source_id, user_id], map: "uniq_skill_source_id")
+  @@index([event_id], map: "fki_fk_event")
+  @@index([skill_event_type_id], map: "fki_fk_skill_event_type")
+  @@index([source_type_id], map: "fki_fk_source_type")
+}
+
+model skill_event_type {
+  id          String        @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name        String        @unique(map: "uniq_event_type_name") @db.VarChar(100)
   description String?
-  categoryId  String?   @map("category_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
-
-  category    SkillCategory? @relation(fields: [categoryId], references: [id])
-  skillEvents SkillEvent[]
-  userSkills  UserSkill[]
-
-  @@unique([name], map: "uniq_skill_name")
-  @@index([categoryId], map: "fki_fk_skill_category")
-  @@map("skill")
+  created_at  DateTime      @db.Timestamptz(6)
+  updated_at  DateTime      @db.Timestamptz(6)
+  skill_event skill_event[]
 }
 
-model SkillEventType {
-  id          String       @id @default(uuid())
-  name        String
+model skill_replacement {
+  skill_id           String    @id @db.Uuid
+  replacing_skill_id String    @db.Uuid
+  category_id        String    @db.Uuid
+  created_at         DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model skill_to_emsi_skill_map {
+  skill_id      String  @db.Uuid
+  emsi_skill_id String? @db.Uuid
+  emsi_id       String?
+
+  @@ignore
+}
+
+model source_type {
+  id          String        @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name        String        @unique(map: "uniq_source_type_name") @db.VarChar(100)
   description String?
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-  skillEvents SkillEvent[]
-
-  @@unique([name], map: "uniq_event_type_name")
-  @@map("skill_event_type")
+  created_at  DateTime      @db.Timestamptz(6)
+  updated_at  DateTime      @db.Timestamptz(6)
+  skill_event skill_event[]
 }
 
-model SourceType {
-  id          String       @id @default(uuid())
-  name        String
+model temp_dev_emsi_skill {
+  id      String  @id(map: "dev_emsi_skill_pkey") @db.Uuid
+  emsi_id String? @db.VarChar(50)
+  name    String?
+}
+
+model temp_dev_user_emsi_skills {
+  user_id          Int
+  skill_id         String   @db.Uuid
+  skill_source_ids String[] @db.Uuid
+  std_skill_id     String?  @db.Uuid
+
+  @@id([skill_id, user_id])
+}
+
+model temp_legacy_v5_skill {
+  id            String  @id(map: "legacy_skill_map_pkey") @db.Uuid
+  name          String? @db.VarChar
+  external_id   String? @db.VarChar
+  taxonomy_id   String? @db.Uuid
+  taxonomy_name String? @db.VarChar
+}
+
+model temp_prod_distinct_user_emsi_skills {
+  emsi_id  String
+  skill_id String @db.Uuid
+
+  @@id([emsi_id, skill_id])
+}
+
+model temp_prod_emsi_skill {
+  emsi_skill_id String  @id @db.Uuid
+  emsi_id       String?
+  name          String?
+}
+
+model temp_prod_taas_job_v5_skills {
+  v5_skill_id String  @id(map: "temp_PROD_taas_job_v5_skills_pkey") @db.Uuid
+  name        String? @db.VarChar(100)
+}
+
+model temp_raw_emsi_skills {
+  id               String   @id(map: "raw_emsi_skills_pkey")
+  name             String?
+  description      String?
+  category_id      Int?
+  category_name    String?
+  subcategory_id   Int?
+  subcategory_name String?
+  isSoftware       Boolean?
+  type_id          String?
+  type_name        String?
+}
+
+model temp_taas_job_skill_mapping {
+  v5_skill_id    String  @id @db.Uuid
+  name           String?
+  std_skill_name String?
+  std_skill_id   String? @db.Uuid
+}
+
+model temp_taas_job_skills {
+  v5_skill_id String @id @db.Uuid
+}
+
+model temp_taas_role_skill_mapping {
+  id       String  @id(map: "temp_taas_role_skills_pkey") @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name     String? @db.VarChar(100)
+  skill_id String? @db.Uuid
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model temp_taas_skill {
+  id   String? @db.Uuid
+  name String? @db.VarChar
+
+  @@ignore
+}
+
+model user_skill {
+  id                         String                  @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  user_id                    Int
+  skill_id                   String                  @db.Uuid
+  user_skill_level_id        String                  @db.Uuid
+  created_at                 DateTime                @default(now()) @db.Timestamptz(6)
+  updated_at                 DateTime                @default(now()) @db.Timestamptz(6)
+  user_skill_display_mode_id String                  @default(dbgenerated("'1555aa05-a764-4f0b-b3e0-51b824382abb'::uuid")) @db.Uuid
+  skill                      skill                   @relation(fields: [skill_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_skill")
+  user_skill_level           user_skill_level        @relation(fields: [user_skill_level_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_user_skill_level")
+  user_skill_display_mode    user_skill_display_mode @relation(fields: [user_skill_display_mode_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([user_id, skill_id, user_skill_level_id], map: "uniq_user_skill_type")
+  @@index([skill_id], map: "fki_fk_skill")
+  @@index([user_skill_level_id], map: "fki_fk_user_skill_level")
+}
+
+model user_skill_display_mode {
+  id          String       @id @db.Uuid
+  name        String       @unique @db.VarChar(100)
   description String?
-  createdAt   DateTime     @default(now()) @map("created_at")
-  updatedAt   DateTime     @updatedAt @map("updated_at")
-  skillEvents SkillEvent[]
-
-  @@unique([name], map: "uniq_source_type_name")
-  @@map("source_type")
+  created_at  DateTime     @db.Timestamptz(6)
+  updated_at  DateTime     @db.Timestamptz(6)
+  user_skill  user_skill[]
 }
 
-model SkillEvent {
-  id               String   @id @default(uuid())
-  eventId          String   @map("event_id")
-  userId           Int      @map("user_id")
-  skillId          String   @map("skill_id")
-  skillEventTypeId String   @map("skill_event_type_id")
-  sourceId         String   @map("source_id") @db.Text
-  sourceTypeId     String   @map("source_type_id")
-  createdAt        DateTime @default(now()) @map("created_at")
-
-  event          Event          @relation(fields: [eventId], references: [id])
-  skill          Skill          @relation(fields: [skillId], references: [id])
-  skillEventType SkillEventType @relation(fields: [skillEventTypeId], references: [id])
-  sourceType     SourceType     @relation(fields: [sourceTypeId], references: [id])
-
-  @@unique([skillId, sourceId, skillEventTypeId, userId], map: "uniq_skill_source_id")
-  @@index([eventId], map: "fki_fk_event")
-  @@index([skillEventTypeId], map: "fki_fk_skill_event_type")
-  @@index([sourceTypeId], map: "fki_fk_source_type")
-  @@map("skill_event")
-}
-
-model UserSkillLevel {
-  id          String      @id @default(uuid())
-  name        String
+model user_skill_level {
+  id          String       @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  name        String       @unique(map: "uniq_skill_level_name") @db.VarChar(100)
   description String?
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  userSkills  UserSkill[]
-
-  @@unique([name], map: "uniq_skill_level_name")
-  @@map("user_skill_level")
+  created_at  DateTime     @db.Timestamptz(6)
+  updated_at  DateTime     @db.Timestamptz(6)
+  user_skill  user_skill[]
 }
 
-model UserSkillDisplayMode {
-  id          String      @id
-  name        String
-  description String?
-  createdAt   DateTime    @default(now()) @map("created_at")
-  updatedAt   DateTime    @updatedAt @map("updated_at")
-  userSkills  UserSkill[]
+model work_skill {
+  id           String    @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
+  work_id      String    @db.Uuid
+  work_type_id String    @db.Uuid
+  skill_id     String    @db.Uuid
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
 
-  @@unique([name], map: "user_skill_display_mode_name_key")
-  @@map("user_skill_display_mode")
-}
-
-model UserSkill {
-  id                     String   @id @default(uuid())
-  userId                 Int      @map("user_id")
-  skillId                String   @map("skill_id")
-  userSkillLevelId       String   @map("user_skill_level_id")
-  userSkillDisplayModeId String   @map("user_skill_display_mode_id")
-  createdAt              DateTime @default(now()) @map("created_at")
-  updatedAt              DateTime @updatedAt @map("updated_at")
-
-  skill                Skill                @relation(fields: [skillId], references: [id])
-  userSkillLevel       UserSkillLevel       @relation(fields: [userSkillLevelId], references: [id])
-  userSkillDisplayMode UserSkillDisplayMode @relation(fields: [userSkillDisplayModeId], references: [id])
-
-  @@unique([userId, skillId, userSkillLevelId], map: "uniq_user_skill_type")
-  @@index([skillId], map: "fki_fk_skill")
-  @@index([userSkillLevelId], map: "fki_fk_user_skill_level")
-  @@index([userSkillDisplayModeId], map: "fki_fk_user_skill_display_mode")
-  @@map("user_skill")
-}
-
-model WorkSkill {
-  id         String   @id @default(uuid())
-  workId     String   @map("work_id")
-  workTypeId String   @map("work_type_id")
-  skillId    String   @map("skill_id")
-  createdAt  DateTime @default(now()) @map("created_at")
-  updatedAt  DateTime @updatedAt @map("updated_at")
-
-  @@unique([workId, workTypeId, skillId], map: "uniq_work_skill")
-  @@map("work_skill")
+  @@unique([work_id, work_type_id, skill_id], map: "uniq_work_skill")
 }

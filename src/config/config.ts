@@ -65,4 +65,12 @@ export const envConfig = {
     API_BASE: '/v5/standardized-skills',
 
     HASHING_SECRET: process.env.HASHING_SECRET || 'thisissecret',
+
+    SEMANTIC_SEARCH_MAX_DISTANCE: Number(process.env.SEMANTIC_SEARCH_MAX_DISTANCE ?? 0.4),
+
+    OLLAMA: {
+        API_URL: process.env.OLLAMA_API_URL || 'http://ollama.tc.internal:11434',
+        EMBEDDING_MODEL: process.env.OLLAMA_EMBEDDING_MODEL || 'qwen3-embedding:latest',
+        EMBEDDINGS_PATH: process.env.OLLAMA_EMBEDDINGS_PATH || '/api/embed',
+    }
 };
