@@ -181,6 +181,9 @@ export class SkillsService {
                 throw new BadRequestError(`The category with id ${newSkill.categoryId} does not exist!`);
             }
 
+            const nameEmbedding = await fetchOllamaEmbedding(newSkill.name);
+            const nameEmbeddingLiteral = toVectorLiteral(nameEmbedding);
+
             const skill = await tx.skill.create({
                 data: {
                     name: newSkill.name,
@@ -191,6 +194,14 @@ export class SkillsService {
                     category: true,
                 },
             });
+
+            if (nameEmbeddingLiteral) {
+                await tx.$executeRaw(Prisma.sql`
+                    UPDATE "skill"
+                    SET "name_embedding" = ${nameEmbeddingLiteral}::public.vector
+                    WHERE id = ${skill.id}::uuid
+                `);
+            }
 
             if (!skill.category) {
                 throw new InternalServerError('Unable to load category information for created skill');
@@ -226,6 +237,9 @@ export class SkillsService {
                 throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
             }
 
+            const nameEmbedding = await fetchOllamaEmbedding(body.name);
+            const nameEmbeddingLiteral = toVectorLiteral(nameEmbedding);
+
             const updatedSkill = await tx.skill.update({
                 where: { id },
                 data: {
@@ -235,6 +249,14 @@ export class SkillsService {
                 },
                 include: { category: true },
             });
+
+            if (nameEmbeddingLiteral) {
+                await tx.$executeRaw(Prisma.sql`
+                    UPDATE "skill"
+                    SET "name_embedding" = ${nameEmbeddingLiteral}::public.vector
+                    WHERE id = ${updatedSkill.id}::uuid
+                `);
+            }
 
             if (!updatedSkill.category) {
                 throw new InternalServerError('Unable to load category information for updated skill');
@@ -276,6 +298,9 @@ export class SkillsService {
                 }
             }
 
+            const nameEmbedding = body.name ? await fetchOllamaEmbedding(body.name) : null;
+            const nameEmbeddingLiteral = body.name ? toVectorLiteral(nameEmbedding) : null;
+
             const updatedSkill = await tx.skill.update({
                 where: { id },
                 data: {
@@ -285,6 +310,14 @@ export class SkillsService {
                 },
                 include: { category: true },
             });
+
+            if (nameEmbeddingLiteral) {
+                await tx.$executeRaw(Prisma.sql`
+                    UPDATE "skill"
+                    SET "name_embedding" = ${nameEmbeddingLiteral}::public.vector
+                    WHERE id = ${updatedSkill.id}::uuid
+                `);
+            }
 
             if (!updatedSkill.category) {
                 throw new InternalServerError('Unable to load category information for updated skill');
