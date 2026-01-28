@@ -68,9 +68,11 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     // fetch challenge reviewers so we assign the challenge skills to them as well
     const reviewers = await fetchReviewersForChallenge(payload.id);
     await ensureMembersExist(reviewers.map((reviewer) => reviewer.memberId));
+    logger.info(`Found ${reviewers.length} reviewers [${reviewers.join(',')}] associated for challenge ${payload.id}.`);
     
     const copilots = await fetchCopilotsForChallenge(payload.id);
     await ensureMembersExist(copilots.map((copilot) => copilot.memberId));
+    logger.info(`Found ${copilots.length} copilots [${copilots.join(',')}] associated for challenge ${payload.id}.`);
 
     const winnersIds = payload.winners.map(w => w.userId);
     const passingSubmissions = await loadPassingSubmissions(payload.id, winnersIds);

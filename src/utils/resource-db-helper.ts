@@ -62,5 +62,5 @@ export async function fetchReviewersForChallenge(challengeId: string) {
  * @returns Promise<{memberId: string|number, memberHandle: string, roleId: string}[]>
  */
 export async function fetchCopilotsForChallenge(challengeId: string) {
-    return fetchResourcesForChallenge(challengeId, ...Object.values(CHALLENGE_COPILOT_ROLE));
+    return fetchResourcesForChallenge(challengeId, CHALLENGE_COPILOT_ROLE);
 }
