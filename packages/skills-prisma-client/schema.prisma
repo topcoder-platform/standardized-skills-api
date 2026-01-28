@@ -38,13 +38,14 @@ model SkillCategory {
 }
 
 model Skill {
-  id          String    @id @default(uuid())
-  name        String
-  description String?
-  categoryId  String?   @map("category_id")
-  createdAt   DateTime  @default(now()) @map("created_at")
-  updatedAt   DateTime  @updatedAt @map("updated_at")
-  deletedAt   DateTime? @map("deleted_at")
+  id             String                 @id @default(uuid())
+  name           String
+  description    String?
+  categoryId     String?                @map("category_id")
+  createdAt      DateTime               @default(now()) @map("created_at")
+  updatedAt      DateTime               @updatedAt @map("updated_at")
+  deletedAt      DateTime?              @map("deleted_at")
+  name_embedding Unsupported("vector")?
 
   category    SkillCategory? @relation(fields: [categoryId], references: [id])
   skillEvents SkillEvent[]

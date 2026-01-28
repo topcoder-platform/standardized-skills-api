@@ -65,7 +65,7 @@ workflows:
                       branches:
                           only:
                               - develop
-                              - PM-3346
+                              - semantic-search
             - "build-prod":
                   context: org-global
                   filters:
