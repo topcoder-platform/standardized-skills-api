@@ -2,7 +2,7 @@ import { QueryTypes } from 'sequelize';
 import { LoggerClient } from './LoggerClient';
 import { InternalServerError, NotFoundError } from './errors';
 import { getChallengeSequelize } from '../db/challenge-db';
-import { CHALLENGE_TYPE_BY_ID } from '../config';
+import { CHALLENGE_TYPE_BY_ID, CHALLENGE_TYPE_VALUES } from '../config';
 
 const logger = new LoggerClient('ChallengeDbHelper');
 
@@ -47,7 +47,7 @@ export async function ensureChallengeExists(challengeId: string): Promise<void> 
     }
 }
 
-export async function getChallengeType(challengeId: string): Promise<string | undefined> {
+export async function getChallengeType(challengeId: string): Promise<CHALLENGE_TYPE_VALUES | undefined> {
     try {
         const sequelize = getChallengeSequelize();
         const record = await sequelize.query<{ id: string; typeId: string }>(
@@ -70,5 +70,10 @@ export async function getChallengeType(challengeId: string): Promise<string | un
 
 export async function checkIsMarathonMatch(challengeId: string): Promise<boolean> {
     const challengeType = await getChallengeType(challengeId);
-    return challengeType === 'Marathon Match';
+    return challengeType === CHALLENGE_TYPE_VALUES.marathonMatch;
+}
+
+export async function checkIsTask(challengeId: string): Promise<boolean> {
+    const challengeType = await getChallengeType(challengeId);
+    return challengeType === CHALLENGE_TYPE_VALUES.task;
 }
