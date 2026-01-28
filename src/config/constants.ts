@@ -73,12 +73,20 @@ export enum SkillEventTypes {
     engagementAssignment = 'engagement_assignment'
 }
 
-export const CHALLENGE_TYPE_BY_ID = new Map([
-  ['ecd58c69-238f-43a4-a4bb-d172719b9f31', 'Task'],
-  ['929bc408-9cf2-4b3e-ba71-adfbf693046c', 'Marathon Match'],
-  ['927abff4-7af9-4145-8ba1-577c16e64e2e', 'Challenge'],
-  ['dc876fa4-ef2d-4eee-b701-b555fcc6544c', 'First2Finish'],
-  ['e76afccb-b6c6-488d-950e-76bddfea5df9', 'Topgear Task'],
+export enum CHALLENGE_TYPE_VALUES {
+    task = 'Task',
+    marathonMatch = 'Marathon Match',
+    challenge = 'Challenge',
+    first2Finish = 'First2Finish',
+    topgearTask = 'Topgear Task',
+}
+
+export const CHALLENGE_TYPE_BY_ID: Map<string, CHALLENGE_TYPE_VALUES> = new Map([
+    ['ecd58c69-238f-43a4-a4bb-d172719b9f31', CHALLENGE_TYPE_VALUES.task],
+    ['929bc408-9cf2-4b3e-ba71-adfbf693046c', CHALLENGE_TYPE_VALUES.marathonMatch],
+    ['927abff4-7af9-4145-8ba1-577c16e64e2e', CHALLENGE_TYPE_VALUES.challenge],
+    ['dc876fa4-ef2d-4eee-b701-b555fcc6544c', CHALLENGE_TYPE_VALUES.first2Finish],
+    ['e76afccb-b6c6-488d-950e-76bddfea5df9', CHALLENGE_TYPE_VALUES.topgearTask],
 ]);
 
 export const CONTEST_SUBMISSION_TYPE = 'CONTEST_SUBMISSION';

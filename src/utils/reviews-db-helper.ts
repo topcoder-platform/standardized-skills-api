@@ -1,11 +1,11 @@
 import { BindOrReplacements, QueryTypes } from 'sequelize';
 
-import { CONTEST_SUBMISSION_TYPE, envConfig } from '../config';
+import { CHALLENGE_TYPE_VALUES, CONTEST_SUBMISSION_TYPE, envConfig } from '../config';
 import { InternalServerError } from './errors';
 import { LoggerClient } from './LoggerClient';
 import { buildQualifiedTable, disableSearchPath, formatError } from './sequelize-query.helpers';
 import { getReviewsSequelize } from '../db/reviews-db';
-import { checkIsMarathonMatch } from './challenge-db-helper';
+import { checkIsMarathonMatch, getChallengeType } from './challenge-db-helper';
 
 const logger = new LoggerClient('ReviewsDbHelper');
 
@@ -65,7 +65,7 @@ async function _getSubmissions(query: string, replacements: BindOrReplacements):
     }
 }
 
-export async function getSubmissionsForMMChallenge(challengeId: string): Promise<SubmissionResult[]> {
+export async function getSubmissionsForChallenge(challengeId: string): Promise<SubmissionResult[]> {
     const tables = buildQualifiedTables();
 
     return _getSubmissions(`
@@ -114,17 +114,19 @@ export async function loadScorecardMinScores(scorecardIds: string[]) {
 }
 
 export async function loadPassingSubmissions(challengeId: string, winnersIds: number[]) {
-    const isMarathonMatch = await checkIsMarathonMatch(challengeId);
+    const challengeType = await getChallengeType(challengeId);
+    const isMarathonMatch = challengeType === CHALLENGE_TYPE_VALUES.marathonMatch;
+    const isTask = challengeType === CHALLENGE_TYPE_VALUES.task;
 
-    const submissions = await getSubmissionsForMMChallenge(challengeId);
-    const minScoreByScorecard = await loadScorecardMinScores(
+    const submissions = await getSubmissionsForChallenge(challengeId);
+    const minScoreByScorecard = isTask || isMarathonMatch ? new Map<unknown, number>() : await loadScorecardMinScores(
       submissions.map(s => s.scorecardId),
     );
 
     return submissions.map((row) => {
       const reviewScoreValue = toNumber(row.reviewScore);
       const reviewScore = reviewScoreValue === null ? null : roundScore(reviewScoreValue);
-      const scorecardScore = isMarathonMatch
+      const scorecardScore = (isMarathonMatch || isTask)
         ? 0
         : toNumber(minScoreByScorecard.get(row.scorecardId)) ?? 0;
       const isPassing = reviewScore !== null && (isMarathonMatch ? reviewScore > 0 : reviewScore >= scorecardScore);
