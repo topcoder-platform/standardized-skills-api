@@ -5,7 +5,7 @@ import { InternalServerError } from './errors';
 import { LoggerClient } from './LoggerClient';
 import { buildQualifiedTable, disableSearchPath, formatError } from './sequelize-query.helpers';
 import { getReviewsSequelize } from '../db/reviews-db';
-import { checkIsMarathonMatch, getChallengeType } from './challenge-db-helper';
+import { getChallengeType } from './challenge-db-helper';
 
 const logger = new LoggerClient('ReviewsDbHelper');
 
