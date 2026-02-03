@@ -120,7 +120,7 @@ async function createEventIfNotProcessed(
             topic,
             payload,
             payload_hash: payloadHash,
-            ...(eventDate ? { created_at: eventDate } : {}),
+            ...(eventDate ? { createdAt: eventDate } : {}),
         },
             { transaction });
     } catch (error) {
@@ -210,7 +210,7 @@ function buildUserSkills(
         skill_id: skill.id,
         user_skill_level_id: levelId,
         user_skill_display_mode_id: displayModeId,
-        ...(eventDate ? { created_at: eventDate, updated_at: eventDate } : {}),
+        ...(eventDate ? { createdAt: eventDate, updatedAt: eventDate } : {}),
     }));
 }
 
@@ -230,7 +230,7 @@ function buildSkillEvents(
         source_id: sourceId,
         source_type_id: sourceTypeId,
         skill_event_type_id: skillEventTypeId,
-        ...(eventDate ? { created_at: eventDate } : {})
+        ...(eventDate ? { createdAt: eventDate } : {})
     }));
 }
 
@@ -562,11 +562,11 @@ async function run() {
             } else {
                 let event = null;
                 await db.sequelize.transaction(async (tx) => {
-                    await cleanupSkillEventsForChallenge(
-                        group.challengeId,
-                        [challengeSourceType.id, mmSourceType.id],
-                        tx,
-                    );
+                    // await cleanupSkillEventsForChallenge(
+                    //     group.challengeId,
+                    //     [challengeSourceType.id, mmSourceType.id],
+                    //     tx,
+                    // );
 
                     event = await createEventIfNotProcessed(
                         SkillEventTopic.challengeUpdate,
@@ -629,7 +629,7 @@ async function run() {
                     }
 
                     if (skillEventRows.length > 0) {
-                        await db.models.SkillEvent.bulkCreate(skillEventRows, { transaction: tx });
+                        await db.models.SkillEvent.bulkCreate(skillEventRows, { ignoreDuplicates: true, transaction: tx });
                     }
                 });
 
