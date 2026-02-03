@@ -116,13 +116,36 @@ async function createEventIfNotProcessed(
 ) {
     const payloadHash = hashData(payload);
     try {
-        return await db.models.Event.create({
-            topic,
-            payload,
-            payload_hash: payloadHash,
-            ...(eventDate ? { createdAt: eventDate } : {}),
-        },
-            { transaction });
+        const eventTable = envConfig.DB_SCHEMA ? buildQualifiedTable(envConfig.DB_SCHEMA, 'event') : '"event"';
+        const payloadJson = JSON.stringify(payload ?? null);
+
+        const sql = eventDate
+            ? `
+                INSERT INTO ${eventTable} ("topic", "payload", "payload_hash", "created_at")
+                VALUES (:topic, :payload::jsonb, :payloadHash, :createdAt)
+                ON CONFLICT ("payload_hash") DO NOTHING
+                RETURNING *
+            `
+            : `
+                INSERT INTO ${eventTable} ("topic", "payload", "payload_hash")
+                VALUES (:topic, :payload::jsonb, :payloadHash)
+                ON CONFLICT ("payload_hash") DO NOTHING
+                RETURNING *
+            `;
+
+        const rows = await db.sequelize.query(sql, {
+            replacements: {
+                topic,
+                payload: payloadJson,
+                payloadHash,
+                createdAt: eventDate,
+            },
+            type: QueryTypes.SELECT,
+            plain: false,
+            transaction,
+        });
+
+        return rows?.[0] ?? null;
     } catch (error) {
         if (error instanceof UniqueConstraintError) {
             return null;
@@ -354,15 +377,31 @@ async function loadChallengeIdBatch(batchOffset: number, batchLimit: number): Pr
     return (rows ?? []).map((row) => row.challengeId).filter(Boolean);
 }
 
-async function loadChallengeInfo(challengeIds: string[]): Promise<Map<string, { type?: string; endDate?: string }>> {
+async function loadChallengeInfo(
+    challengeIds: string[],
+): Promise<Map<string, { type?: string; endDate?: string }>> {
     if (challengeIds.length === 0) {
         return new Map();
     }
 
     const challengeSequelize = getChallengeSequelize();
-    const rows = await challengeSequelize.query<{ id: string; typeId: string; endDate: string | null }>(
+    const rows = await challengeSequelize.query<{
+        id: string;
+        typeId: string;
+        endDate: string | null;
+        submissionEndDate: string | null;
+        registrationEndDate: string | null;
+        updatedAt: string | null;
+        createdAt: string | null;
+    }>(
         `
-        SELECT c."id", c."typeId", c."endDate"
+        SELECT c."id",
+               c."typeId",
+               c."endDate",
+               c."submissionEndDate",
+               c."registrationEndDate",
+               c."updatedAt",
+               c."createdAt"
         FROM challenges."Challenge" as c
         WHERE c."id" IN (:challengeIds)
         `,
@@ -377,7 +416,14 @@ async function loadChallengeInfo(challengeIds: string[]): Promise<Map<string, { 
     const results = new Map<string, { type?: string; endDate?: string }>();
     for (const row of rows ?? []) {
         const typeValue = row.typeId ? CHALLENGE_TYPE_BY_ID.get(row.typeId) : undefined;
-        results.set(row.id, { type: typeValue, endDate: row.endDate ?? undefined });
+        const resolvedEndDate =
+            row.endDate ??
+            row.submissionEndDate ??
+            row.registrationEndDate ??
+            row.updatedAt ??
+            row.createdAt ??
+            undefined;
+        results.set(row.id, { type: typeValue, endDate: resolvedEndDate });
     }
     return results;
 }
@@ -576,6 +622,7 @@ async function run() {
                     );
 
                     if (!event) {
+                        console.log(`Skipping challenge ${group.challengeId}: event already processed (payload hash exists).`);
                         return;
                     }
 
@@ -634,7 +681,6 @@ async function run() {
                 });
 
                 if (!event) {
-                    console.log(`Skipping challenge ${group.challengeId}: event already processed.`);
                     skipped += 1;
                     skippedChallengeIds.push(group.challengeId);
                     continue;
