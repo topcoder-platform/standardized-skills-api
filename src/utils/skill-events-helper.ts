@@ -10,6 +10,8 @@ import { ChallengeWinnerDto, UserSkillDto } from '../dto';
 
 let localSkillEventTypes: Promise<SkillEventType[]>;
 export const REVIEWER_TYPE_KEY = 'reviewer';
+export const COPILOT_TYPE_KEY = 'copilot';
+export const FINISHER_TYPE_KEY = 'finisher';
 
 /**
  * Create a hash string for the passed in data
@@ -82,6 +84,10 @@ async function getSkillEventTypesMap() {
     return {
         // reviewer type
         [REVIEWER_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeReview }),
+        // copilot type
+        [COPILOT_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeCopilot }),
+        // finisher type
+        [FINISHER_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeFinisher }),
         // winners placements types
         '1': find(allSkillEventTypes, { name: SkillEventTypes.challengeWin }),
         '2': find(allSkillEventTypes, { name: SkillEventTypes.challenge2ndPlace }),
@@ -89,6 +95,8 @@ async function getSkillEventTypesMap() {
         // tca
         [SkillEventTypes.tcaCertCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCertCompleted }),
         [SkillEventTypes.tcaCourseCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCourseCompleted }),
+        // gig
+        [SkillEventTypes.gigCompletion]: find(allSkillEventTypes, { name: SkillEventTypes.gigCompletion }),
         // TODO: add more types here as needed
         // fallback type
         default: find(allSkillEventTypes, { name: SkillEventTypes.challengeFinisher }),

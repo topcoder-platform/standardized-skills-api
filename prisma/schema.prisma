@@ -2,6 +2,12 @@ generator client {
   provider = "prisma-client-js"
 }
 
+generator externalClient {
+  provider = "prisma-client-js"
+  output   = "../packages/skills-prisma-client"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
@@ -38,6 +44,7 @@ model Skill {
   createdAt   DateTime    @default(now()) @map("created_at")
   updatedAt   DateTime    @updatedAt @map("updated_at")
   deletedAt   DateTime?   @map("deleted_at")
+  name_embedding Unsupported("vector")?
 
   category    SkillCategory? @relation(fields: [categoryId], references: [id])
   skillEvents SkillEvent[]
@@ -75,7 +82,7 @@ model SkillEvent {
   userId          Int            @map("user_id")
   skillId         String         @map("skill_id")
   skillEventTypeId String        @map("skill_event_type_id")
-  sourceId        String         @map("source_id")
+  sourceId        String         @db.Text @map("source_id")
   sourceTypeId    String         @map("source_type_id")
   createdAt       DateTime       @default(now()) @map("created_at")
 

@@ -3,8 +3,9 @@ import { map } from 'lodash';
 import { SkillEventChallengeUpdateStatus, SkillEventTopic, SkillEventTypes, WorkType } from '../config';
 import {
     SkillEventPayloadChallengeUpdate,
-    SkillEventRequestBodyDto,
+    SkillEventPayloadEngagementMemberAssigned,
     SkillEventPayloadTCAUpdate,
+    SkillEventRequestBodyDto,
     UserSkillDto,
 } from '../dto';
 import { AuthUser } from '../types';
@@ -21,9 +22,13 @@ import {
     ensureMembersExist,
     ensurePayloadWinnersAreValidUsers,
     REVIEWER_TYPE_KEY,
+    COPILOT_TYPE_KEY,
+    FINISHER_TYPE_KEY,
 } from '../utils/skill-events-helper';
 import { fetchAdditionalUserSkillDisplayMode } from '../utils/user-skills-helper';
-import { fetchChallengeReviewers } from '../utils/challenge-helper';
+import { fetchCopilotsForChallenge, fetchReviewersForChallenge } from '../utils/resource-db-helper';
+import { loadPassingSubmissions } from '../utils/reviews-db-helper';
+import { checkIsMarathonMatch } from '../utils/challenge-db-helper';
 
 const logger = new LoggerClient('SkillEventsService');
 
@@ -54,22 +59,40 @@ export async function processChallengeCompletedSkillEvent(eventId: string, paylo
     await ensurePayloadWinnersAreValidUsers(payload.winners);
 
     // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
-    const sourceType = await fetchSourceType(WorkType.challenge);
+    const isMarathonMatch = await checkIsMarathonMatch(payload.id);
+
+    const sourceType = await fetchSourceType(isMarathonMatch ? WorkType.marathonMatch : WorkType.challenge);
     const verifiedSkillLevel = await fetchVerifiedSkillLevel();
     const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
 
     // fetch challenge reviewers so we assign the challenge skills to them as well
-    const reviewers = await fetchChallengeReviewers(payload.id);
-
+    const reviewers = await fetchReviewersForChallenge(payload.id);
     await ensureMembersExist(reviewers.map((reviewer) => reviewer.memberId));
+    logger.info(`Found ${reviewers.length} reviewers [${reviewers.join(',')}] associated for challenge ${payload.id}.`);
+    
+    const copilots = await fetchCopilotsForChallenge(payload.id);
+    await ensureMembersExist(copilots.map((copilot) => copilot.memberId));
+    logger.info(`Found ${copilots.length} copilots [${copilots.join(',')}] associated for challenge ${payload.id}.`);
+
+    const winnersIds = payload.winners.map(w => w.userId);
+    const passingSubmissions = await loadPassingSubmissions(payload.id, winnersIds);
+    await ensureMembersExist(passingSubmissions.map((s) => s.memberId));
 
     return db.sequelize.transaction(async (tx) => {
         const users = [
             ...payload.winners,
             ...reviewers.map((p) => ({
-                userId: p.memberId,
+                userId: Number(p.memberId),
                 type: REVIEWER_TYPE_KEY,
             })),
+            ...copilots.map((p) => ({
+                userId: Number(p.memberId),
+                type: COPILOT_TYPE_KEY,
+            })),
+            ...passingSubmissions.map((s) => ({
+                userId: Number(s.memberId),
+                type: FINISHER_TYPE_KEY,
+            }))
         ];
 
         // update each user with the skills data
@@ -133,6 +156,59 @@ export async function processTCACompletedSkillEvent(eventId: string, payload: Sk
 }
 
 /**
+ * Processes engagement member assigned events
+ * Assigns engagement skills to the assigned member as verified
+ *
+ * @param eventId
+ * @param payload
+ */
+export async function processEngagementMemberAssignedSkillEvent(
+    eventId: string,
+    payload: SkillEventPayloadEngagementMemberAssigned,
+) {
+    logger.info(`Handling engagement member assigned skill event using payload ${JSON.stringify(payload)}`);
+
+    if (!Array.isArray(payload.skills) || payload.skills.length === 0) {
+        logger.info('Exiting engagement member assigned skill event because no skills were provided');
+        return;
+    }
+
+    // ensure passed skill ids are valid
+    await checkSkillIds(payload.skills);
+
+    // ensure member exists
+    await ensureMembersExist([payload.memberId]);
+
+    // fetch sourceType & verifiedSkillLevel entries necessary later on for SkillEvent creation
+    const sourceType = await fetchSourceType(WorkType.engagement);
+    const verifiedSkillLevel = await fetchVerifiedSkillLevel();
+    const additionalSkillType = await fetchAdditionalUserSkillDisplayMode();
+
+    return db.sequelize.transaction(async (tx) => {
+        const userSkills = prepareUserSkillsUpdate(
+            payload.skills,
+            Number(payload.memberId),
+            verifiedSkillLevel.id,
+            additionalSkillType.id,
+        );
+
+        await UserSkill.bulkCreate(userSkills, { ignoreDuplicates: true });
+        logger.info(`Creating engagement skill event: ${sourceType.id}, ${payload.skills}`);
+        await createSkillEventsForUser(
+            { userId: payload.memberId },
+            payload.skills,
+            eventId,
+            payload.assignmentId,
+            sourceType.id,
+            tx,
+            SkillEventTypes.engagementAssignment,
+        );
+
+        logger.info('Successfully associated user skills via engagement member assigned skill event');
+    });
+}
+
+/**
  * Processes skill events incoming from the Skill Event API
  *
  * @param {AuthUser} currentUser - the currently authenticated user making this request
@@ -151,6 +227,8 @@ export async function processSkillEvent(currentUser: AuthUser, { topic, payload 
             return processChallengeCompletedSkillEvent(event.id, payload as SkillEventPayloadChallengeUpdate);
         case SkillEventTopic.tcaUpdate:
             return processTCACompletedSkillEvent(event.id, payload as SkillEventPayloadTCAUpdate);
+        case SkillEventTopic.engagementMemberAssigned:
+            return processEngagementMemberAssignedSkillEvent(event.id, payload as SkillEventPayloadEngagementMemberAssigned);
         default:
             logger.info(`Skill event with topic ${topic} not handled!`);
     }

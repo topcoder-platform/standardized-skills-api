@@ -2,6 +2,7 @@ import { QueryTypes } from 'sequelize';
 import { LoggerClient } from './LoggerClient';
 import { InternalServerError, NotFoundError } from './errors';
 import { getChallengeSequelize } from '../db/challenge-db';
+import { CHALLENGE_TYPE_BY_ID, CHALLENGE_TYPE_VALUES } from '../config';
 
 const logger = new LoggerClient('ChallengeDbHelper');
 
@@ -44,4 +45,35 @@ export async function ensureChallengeExists(challengeId: string): Promise<void> 
     if (!(await challengeExists(challengeId))) {
         throw new NotFoundError(`challenge with id='${challengeId}' does not exist!`);
     }
+}
+
+export async function getChallengeType(challengeId: string): Promise<CHALLENGE_TYPE_VALUES | undefined> {
+    try {
+        const sequelize = getChallengeSequelize();
+        const record = await sequelize.query<{ id: string; typeId: string }>(
+            'SELECT "id", "typeId" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
+            {
+                bind: [challengeId],
+                type: QueryTypes.SELECT,
+                plain: true,
+                ...disableSearchPath,
+            },
+        );
+
+        return record?.typeId ? CHALLENGE_TYPE_BY_ID.get(record?.typeId) : undefined;
+    } catch (error) {
+        logger.error(`Error verifying challenge ${challengeId} via challenge database`);
+        logger.error(formatError(error));
+        throw new InternalServerError('Unable to validate challenge! Please retry.');
+    }
+}
+
+export async function checkIsMarathonMatch(challengeId: string): Promise<boolean> {
+    const challengeType = await getChallengeType(challengeId);
+    return challengeType === CHALLENGE_TYPE_VALUES.marathonMatch;
+}
+
+export async function checkIsTask(challengeId: string): Promise<boolean> {
+    const challengeType = await getChallengeType(challengeId);
+    return challengeType === CHALLENGE_TYPE_VALUES.task;
 }

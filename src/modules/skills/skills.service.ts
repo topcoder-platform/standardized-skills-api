@@ -6,12 +6,14 @@ import { AuthUser } from '../../common/interfaces/auth-user.interface';
 import {
     GetAutocompleteRequestQueryDto,
     GetSkillsQueryRequestDto,
+    SemanticSearchRequestQueryDto,
     SkillCreationRequestBodyDto,
     SkillUpdatePatchRequestBodyDto,
     SkillUpdatePutRequestBodyDto,
 } from '../../dto';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../../utils/errors';
 import { DEFAULT_SUGGESTIONS_SIZE, MAX_SUGGESTIONS_SIZE } from '../../config';
+import { fetchOllamaEmbedding, toVectorLiteral } from '../../utils/embeddings-service';
 
 type SkillWithCategory = Prisma.SkillGetPayload<{
     include: { category: true };
@@ -41,6 +43,44 @@ export class SkillsService {
                   }
                 : null,
         };
+    }
+
+    /**
+     * Performs a semantic search over skills using pgvector distance.
+     *
+     * Workflow:
+     * 1) Generate an embedding for the input text.
+     * 2) Compute distance against `name_embedding` .
+     *
+     * Returns a list of skills ordered by increasing distance, including `weighted_distance`.
+     */
+    async semanticSearch(payload: SemanticSearchRequestQueryDto) {
+        this.logger.log(`Semantic skills search based on request ${JSON.stringify(payload)}`);
+
+        const embeddingQuery = await fetchOllamaEmbedding(payload.text);
+        
+        if (!embeddingQuery || !embeddingQuery.length) {
+            return [];
+        }
+
+        this.logger.log('Succesfully generated embeddings from the search text.');
+
+        const vectorLiteral = toVectorLiteral(embeddingQuery);
+
+        const results = await this.prisma.$queryRaw<
+            { id: string; name: string; description: string | null; weighted_distance: number }[]
+        >(Prisma.sql`
+            SELECT id,
+                   name,
+                   description,
+                   "name_embedding" OPERATOR(public.<->) ${vectorLiteral}::public.vector AS weighted_distance
+            FROM "skill"
+            WHERE "deleted_at" IS NULL
+            ORDER BY weighted_distance ASC
+            LIMIT 10
+        `);
+
+        return results;
     }
 
     async getAllSkills(query: GetSkillsQueryRequestDto) {
@@ -141,6 +181,9 @@ export class SkillsService {
                 throw new BadRequestError(`The category with id ${newSkill.categoryId} does not exist!`);
             }
 
+            const nameEmbedding = await fetchOllamaEmbedding(newSkill.name);
+            const nameEmbeddingLiteral = toVectorLiteral(nameEmbedding);
+
             const skill = await tx.skill.create({
                 data: {
                     name: newSkill.name,
@@ -151,6 +194,14 @@ export class SkillsService {
                     category: true,
                 },
             });
+
+            if (nameEmbeddingLiteral) {
+                await tx.$executeRaw(Prisma.sql`
+                    UPDATE "skill"
+                    SET "name_embedding" = ${nameEmbeddingLiteral}::public.vector
+                    WHERE id = ${skill.id}::uuid
+                `);
+            }
 
             if (!skill.category) {
                 throw new InternalServerError('Unable to load category information for created skill');
@@ -186,6 +237,9 @@ export class SkillsService {
                 throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
             }
 
+            const nameEmbedding = await fetchOllamaEmbedding(body.name);
+            const nameEmbeddingLiteral = toVectorLiteral(nameEmbedding);
+
             const updatedSkill = await tx.skill.update({
                 where: { id },
                 data: {
@@ -195,6 +249,14 @@ export class SkillsService {
                 },
                 include: { category: true },
             });
+
+            if (nameEmbeddingLiteral) {
+                await tx.$executeRaw(Prisma.sql`
+                    UPDATE "skill"
+                    SET "name_embedding" = ${nameEmbeddingLiteral}::public.vector
+                    WHERE id = ${updatedSkill.id}::uuid
+                `);
+            }
 
             if (!updatedSkill.category) {
                 throw new InternalServerError('Unable to load category information for updated skill');
@@ -236,6 +298,9 @@ export class SkillsService {
                 }
             }
 
+            const nameEmbedding = body.name ? await fetchOllamaEmbedding(body.name) : null;
+            const nameEmbeddingLiteral = body.name ? toVectorLiteral(nameEmbedding) : null;
+
             const updatedSkill = await tx.skill.update({
                 where: { id },
                 data: {
@@ -245,6 +310,14 @@ export class SkillsService {
                 },
                 include: { category: true },
             });
+
+            if (nameEmbeddingLiteral) {
+                await tx.$executeRaw(Prisma.sql`
+                    UPDATE "skill"
+                    SET "name_embedding" = ${nameEmbeddingLiteral}::public.vector
+                    WHERE id = ${updatedSkill.id}::uuid
+                `);
+            }
 
             if (!updatedSkill.category) {
                 throw new InternalServerError('Unable to load category information for updated skill');

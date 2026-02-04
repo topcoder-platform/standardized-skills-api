@@ -2,6 +2,7 @@ import { Type, TypeHelpOptions } from 'class-transformer';
 import { IsArray, ArrayNotEmpty, IsNumber, IsEnum, ValidateNested, IsUUID } from 'class-validator';
 
 import { SkillEventChallengeUpdateStatus, SkillEventTopic } from '../config';
+import { SkillEventPayloadEngagementMemberAssigned, SkillEventPayloadTCAUpdate } from './SkillEvents';
 
 export class UserSkillDto {
     @IsUUID('all')
@@ -35,11 +36,15 @@ export class ChallengeUpdateSkillEventPayload {
     id: string;
 }
 
-export type SkillEventPayloadType = ChallengeUpdateSkillEventPayload;
+export type SkillEventPayloadType =
+    | ChallengeUpdateSkillEventPayload
+    | SkillEventPayloadTCAUpdate
+    | SkillEventPayloadEngagementMemberAssigned;
 
 const topicToPayloadMap = {
     [SkillEventTopic.challengeUpdate]: ChallengeUpdateSkillEventPayload,
-    [SkillEventTopic.tcaUpdate]: ChallengeUpdateSkillEventPayload,
+    [SkillEventTopic.tcaUpdate]: SkillEventPayloadTCAUpdate,
+    [SkillEventTopic.engagementMemberAssigned]: SkillEventPayloadEngagementMemberAssigned,
 };
 
 export class SkillEventRequestBodyDto {

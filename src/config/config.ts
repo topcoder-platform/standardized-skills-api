@@ -34,7 +34,7 @@ export const envConfig = {
         process.env.VALID_ISSUERS ||
         '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/", "https://auth.topcoder-dev.com/"]',
     M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'tcwebservice',
-    TC_API: process.env.TC_API || 'https://api.topcoder-dev.com/v5',
+    TC_API: process.env.TC_API || 'https://api.topcoder-dev.com/v6',
     SCOPES: {
         READ: process.env.SCOPE_STANDARDIZED_SKILLS_READ || 'read:standardized-skills',
         CREATE: process.env.SCOPE_STANDARDIZED_SKILLS_CREATE || 'create:standardized-skills',
@@ -54,7 +54,23 @@ export const envConfig = {
     CHALLENGE_DB: {
         URL: process.env.CHALLENGE_DB_URL
     },
+    RESOURCES_DB: {
+        URL: process.env.RESOURCES_DB_URL,
+        SCHEMA: process.env.RESOURCES_DB_SCHEMA || 'resources',
+    },
+    REVIEWS_DB: {
+        URL: process.env.REVIEWS_DB_URL,
+        SCHEMA: process.env.REVIEWS_DB_SCHEMA || 'reviews',
+    },
     API_BASE: '/v5/standardized-skills',
 
     HASHING_SECRET: process.env.HASHING_SECRET || 'thisissecret',
+
+    SEMANTIC_SEARCH_MAX_DISTANCE: Number(process.env.SEMANTIC_SEARCH_MAX_DISTANCE ?? 0.4),
+
+    OLLAMA: {
+        API_URL: process.env.OLLAMA_API_URL || 'http://ollama.topcoder-dev.com:11434',
+        EMBEDDING_MODEL: process.env.OLLAMA_EMBEDDING_MODEL || 'qwen3-embedding:latest',
+        EMBEDDINGS_PATH: process.env.OLLAMA_EMBEDDINGS_PATH || '/api/embed',
+    }
 };

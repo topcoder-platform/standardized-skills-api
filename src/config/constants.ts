@@ -35,14 +35,17 @@ export const MAX_PRINICIPAL_USER_SKILLS_COUNT = 10;
 
 export enum WorkType {
     challenge = 'challenge',
+    marathonMatch = 'marathon match',
     gig = 'gig',
     certification = 'certification',
     course = 'course',
+    engagement = 'engagement'
 }
 
 export enum SkillEventTopic {
     challengeUpdate = 'challenge.notification.update',
     tcaUpdate = 'tca.notification.update',
+    engagementMemberAssigned = 'engagement.member.assigned',
 }
 
 export enum SkillEventChallengeUpdateStatus {
@@ -55,12 +58,35 @@ export const CHALLENGE_REVIEWER_ROLES = {
     checkpointReviewer: '3970272b-85b4-48d8-8439-672b4f6031bd',
 };
 
+export const CHALLENGE_COPILOT_ROLE = 'cfe12b3f-2a24-4639-9d8b-ec86726f76bd';
+
 export enum SkillEventTypes {
     challengeWin = 'challenge_win',
     challenge2ndPlace = 'challenge_2nd_place',
     challenge3rdPlace = 'challenge_3rd_place',
     challengeFinisher = 'challenge_finisher',
     challengeReview = 'challenge_review',
+    challengeCopilot = 'challenge_copilot',
+    gigCompletion = 'gig_completion',
     tcaCertCompleted = 'tca_cert_completion',
     tcaCourseCompleted = 'tca_course_completion',
+    engagementAssignment = 'engagement_assignment'
 }
+
+export enum CHALLENGE_TYPE_VALUES {
+    task = 'Task',
+    marathonMatch = 'Marathon Match',
+    challenge = 'Challenge',
+    first2Finish = 'First2Finish',
+    topgearTask = 'Topgear Task',
+}
+
+export const CHALLENGE_TYPE_BY_ID: Map<string, CHALLENGE_TYPE_VALUES> = new Map([
+    ['ecd58c69-238f-43a4-a4bb-d172719b9f31', CHALLENGE_TYPE_VALUES.task],
+    ['929bc408-9cf2-4b3e-ba71-adfbf693046c', CHALLENGE_TYPE_VALUES.marathonMatch],
+    ['927abff4-7af9-4145-8ba1-577c16e64e2e', CHALLENGE_TYPE_VALUES.challenge],
+    ['dc876fa4-ef2d-4eee-b701-b555fcc6544c', CHALLENGE_TYPE_VALUES.first2Finish],
+    ['e76afccb-b6c6-488d-950e-76bddfea5df9', CHALLENGE_TYPE_VALUES.topgearTask],
+]);
+
+export const CONTEST_SUBMISSION_TYPE = 'CONTEST_SUBMISSION';
