@@ -20,6 +20,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
                     url: resolvedUrl,
                 },
             },
+            transactionOptions: {
+                timeout: 10000
+            }
         });
     }
 
