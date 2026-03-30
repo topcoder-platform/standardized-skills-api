@@ -134,6 +134,7 @@ model UserSkill {
   userSkillDisplayMode  UserSkillDisplayMode @relation(fields: [userSkillDisplayModeId], references: [id])
 
   @@map("user_skill")
+  @@index([userId], map: "user_skill_user_id_idx")
   @@index([skillId], map: "fki_fk_skill")
   @@index([userSkillLevelId], map: "fki_fk_user_skill_level")
   @@index([userSkillDisplayModeId], map: "fki_fk_user_skill_display_mode")
