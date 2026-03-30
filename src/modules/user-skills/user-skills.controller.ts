@@ -33,6 +33,7 @@ import { UserSkillsService } from './user-skills.service';
 export class UserSkillsController {
     constructor(private readonly userSkillsService: UserSkillsService) {}
 
+    @Roles(UserRoles.Admin, UserRoles.User, UserRoles.TalentManager)
     @Get('display-modes')
     @ApiOperation({ summary: 'List user skill display modes' })
     @ApiQuery({ name: 'page', required: false, example: 1, type: Number })
@@ -66,6 +67,7 @@ export class UserSkillsController {
     }
     
     // Constrain via DTO validation instead of path regex (path-to-regexp v8 incompatible)
+    @Roles(UserRoles.Admin, UserRoles.User, UserRoles.TalentManager)
     @ApiOperation({ summary: 'Get user skills', description: 'Returns skills associated with the given user, including display mode and levels.' })
     @ApiParam({ name: 'userId', description: 'User identifier', example: '123456' })
     @ApiQuery({ name: 'page', required: false, example: 1, type: Number })
@@ -101,6 +103,7 @@ export class UserSkillsController {
         return result.skills;
     }
 
+    @Roles(UserRoles.Admin, UserRoles.User, UserRoles.TalentManager)
     @Get('display-modes/:name')
     @ApiOperation({ summary: 'Get display mode by name' })
     @ApiParam({ name: 'name', description: 'Display mode name', example: 'public' })

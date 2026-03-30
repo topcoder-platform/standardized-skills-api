@@ -17,6 +17,22 @@ export const hasAdminRole = (currentUser: AuthUser) => {
     return false;
 };
 
+export const hasTMRole = (currentUser: AuthUser) => {
+    for (const userRole of currentUser.roles) {
+        if (userRole.toLowerCase() === UserRoles.TalentManager.toLowerCase()) {
+            return true;
+        }
+    }
+    return false;
+};
+
+export const ensureUserCanFetchMemberSkills = (currentUser: AuthUser, memberId: number) => {
+    // throws error if user is not an m2m or an admin or user themselves
+    if (!currentUser.isMachine && !hasAdminRole(currentUser) && !hasTMRole(currentUser) && Number(currentUser.userId) !== memberId) {
+        throw new ForbiddenError('You are not allowed to perform this action');
+    }
+};
+
 export const ensureUserCanManageMemberSkills = (currentUser: AuthUser, memberId: number) => {
     // throws error if user is not an m2m or an admin or user themselves
     if (!currentUser.isMachine && !hasAdminRole(currentUser) && Number(currentUser.userId) !== memberId) {

@@ -66,6 +66,7 @@ workflows:
                           only:
                               - develop
                               - semantic-search
+                              - PM-4198_allow-TM-to-fetch-user-skills
             - "build-prod":
                   context: org-global
                   filters:

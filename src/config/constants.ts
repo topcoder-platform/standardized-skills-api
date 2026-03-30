@@ -5,6 +5,7 @@ export enum UserRoles {
     User = 'Topcoder User',
     SelfServiceCustomer = 'Self-Service Customer',
     Talent = 'Topcoder Talent',
+    TalentManager = 'Talent Manager',
 }
 
 export const MAX_SUGGESTIONS_SIZE = 1500;
