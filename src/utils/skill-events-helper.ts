@@ -95,9 +95,8 @@ async function getSkillEventTypesMap() {
         // tca
         [SkillEventTypes.tcaCertCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCertCompleted }),
         [SkillEventTypes.tcaCourseCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCourseCompleted }),
-        // gig
-        [SkillEventTypes.gigCompletion]: find(allSkillEventTypes, { name: SkillEventTypes.gigCompletion }),
-        // TODO: add more types here as needed
+        // engagement
+        [SkillEventTypes.engagementAssignment]: find(allSkillEventTypes, { name: SkillEventTypes.engagementAssignment }),
         // fallback type
         default: find(allSkillEventTypes, { name: SkillEventTypes.challengeFinisher }),
     };
