@@ -5,8 +5,7 @@ import { AuthUserDecorator, JwtAuthGuard, Roles, RolesGuard, Scopes, ScopesGuard
 import { AuthUser } from '../../common/interfaces/auth-user.interface';
 import { UserRoles, envConfig } from '../../config';
 import { EmptyResponseDto, SkillEventRequestBodyDto } from '../../dto';
-import * as skillEventsService from '../../services/SkillEventsService';
-import { AuthUser as LegacyAuthUser } from '../../types';
+import { SkillEventsService } from './skill-events.service';
 
 @Controller('skill-events')
 @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
@@ -14,6 +13,8 @@ import { AuthUser as LegacyAuthUser } from '../../types';
 @ApiTags('Skill Events')
 @ApiBearerAuth()
 export class SkillEventsController {
+  constructor(private readonly skillEventsService: SkillEventsService) {}
+
   private readonly validationPipe = new ValidationPipe({
     transform: true,
     whitelist: true,
@@ -35,7 +36,7 @@ export class SkillEventsController {
       metatype: SkillEventRequestBodyDto,
     })) as SkillEventRequestBodyDto;
 
-    await skillEventsService.processSkillEvent(user as LegacyAuthUser, body);
+    await this.skillEventsService.processSkillEvent(user, body);
     return {};
   }
 }

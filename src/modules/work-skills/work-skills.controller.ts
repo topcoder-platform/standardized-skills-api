@@ -12,15 +12,15 @@ import { AuthUserDecorator, JwtAuthGuard, Roles, RolesGuard, Scopes, ScopesGuard
 import { AuthUser, AuthenticatedRequest } from '../../common/interfaces/auth-user.interface';
 import { UserRoles, envConfig } from '../../config';
 import { ChallengeIdRequestParamDto, EmptyResponseDto, JobIdRequestParamDto, WorkSkillsRequestBodyDto } from '../../dto';
-
-// Reuse existing service logic implemented with Sequelize and legacy flows
-import { createChallengeSkills, createJobSkills } from '../../services/WorkSkillsService';
+import { WorkSkillsService } from './work-skills.service';
 
 @Controller()
 @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
 @ApiTags('Work Skills')
 @ApiBearerAuth()
 export class WorkSkillsController {
+    constructor(private readonly workSkillsService: WorkSkillsService) {}
+
     // POST /v5/standardized-skills/job-skills/:jobId
     @Post('job-skills/:jobId')
     @HttpCode(201)
@@ -30,7 +30,7 @@ export class WorkSkillsController {
     @ApiBody({ type: WorkSkillsRequestBodyDto })
     @ApiCreatedResponse({ description: 'Skills associated.', type: EmptyResponseDto })
     async setJobSkills(@Param() params: JobIdRequestParamDto, @Body() body: WorkSkillsRequestBodyDto) {
-        await createJobSkills(params.jobId, body.skillIds);
+        await this.workSkillsService.createJobSkills(params.jobId, body.skillIds);
         return {};
     }
 
@@ -50,7 +50,7 @@ export class WorkSkillsController {
         @Body() body: WorkSkillsRequestBodyDto,
     ) {
         const userToken = req.userToken as string | undefined;
-        await createChallengeSkills(userToken, params.challengeId, body.skillIds);
+        await this.workSkillsService.createChallengeSkills(userToken, params.challengeId, body.skillIds);
         return {};
     }
 }

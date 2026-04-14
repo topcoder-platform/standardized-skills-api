@@ -1,12 +1,9 @@
-import { QueryTypes } from 'sequelize';
 import { LoggerClient } from './LoggerClient';
 import { InternalServerError, NotFoundError } from './errors';
-import { getChallengeSequelize } from '../db/challenge-db';
+import { getChallengePool } from '../db/challenge-db';
 import { CHALLENGE_TYPE_BY_ID, CHALLENGE_TYPE_VALUES } from '../config';
 
 const logger = new LoggerClient('ChallengeDbHelper');
-
-const disableSearchPath = { supportsSearchPath: false } as any;
 
 function formatError(error: unknown): string {
     if (error instanceof Error) {
@@ -22,18 +19,13 @@ function formatError(error: unknown): string {
 
 export async function challengeExists(challengeId: string): Promise<boolean> {
     try {
-        const sequelize = getChallengeSequelize();
-        const record = await sequelize.query<{ id: string }>(
+        const challengesDb = getChallengePool();
+        const result = await challengesDb.query<{ id: string }>(
             'SELECT "id" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
-            {
-                bind: [challengeId],
-                type: QueryTypes.SELECT,
-                plain: true,
-                ...disableSearchPath,
-            },
+            [challengeId],
         );
 
-        return Boolean(record);
+        return Boolean(result.rows[0]);
     } catch (error) {
         logger.error(`Error verifying challenge ${challengeId} via challenge database`);
         logger.error(formatError(error));
@@ -49,18 +41,15 @@ export async function ensureChallengeExists(challengeId: string): Promise<void> 
 
 export async function getChallengeType(challengeId: string): Promise<CHALLENGE_TYPE_VALUES | undefined> {
     try {
-        const sequelize = getChallengeSequelize();
-        const record = await sequelize.query<{ id: string; typeId: string }>(
+        const challengesDb = getChallengePool();
+        const result = await challengesDb.query<{ id: string; typeId: string }>(
             'SELECT "id", "typeId" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
-            {
-                bind: [challengeId],
-                type: QueryTypes.SELECT,
-                plain: true,
-                ...disableSearchPath,
-            },
+            [challengeId],
         );
 
-        return record?.typeId ? CHALLENGE_TYPE_BY_ID.get(record?.typeId) : undefined;
+        const record = result.rows[0];
+
+        return record?.typeId ? CHALLENGE_TYPE_BY_ID.get(record.typeId) : undefined;
     } catch (error) {
         logger.error(`Error verifying challenge ${challengeId} via challenge database`);
         logger.error(formatError(error));

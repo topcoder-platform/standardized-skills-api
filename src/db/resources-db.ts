@@ -1,24 +1,17 @@
-import { Sequelize } from 'sequelize';
+import { Pool } from 'pg';
 import { envConfig } from '../config';
+import { getOrCreatePool } from './pg';
 
-let resourcesSequelize: Sequelize | null = null;
+let resourcesPool: Pool | null = null;
 
-export function getResourcesSequelize(): Sequelize {
+export function getResourcesPool(): Pool {
     if (!envConfig.RESOURCES_DB.URL) {
         throw new Error('RESOURCES_DB_URL is not configured');
     }
 
-    if (!resourcesSequelize) {
-        resourcesSequelize = new Sequelize(envConfig.RESOURCES_DB.URL, {
-            logging: false,
-            define: {
-                underscored: true,
-            },
-            dialectOptions: {
-                prependSearchPath: true,
-            },
-        });
+    if (!resourcesPool) {
+        resourcesPool = getOrCreatePool(envConfig.RESOURCES_DB.URL);
     }
 
-    return resourcesSequelize;
+    return resourcesPool;
 }

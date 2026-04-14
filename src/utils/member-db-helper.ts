@@ -1,10 +1,8 @@
-import { QueryTypes } from 'sequelize';
-
 import { envConfig } from '../config';
-import { getMemberSequelize } from '../db/member-db';
+import { getMemberPool } from '../db/member-db';
 import { InternalServerError, NotFoundError } from './errors';
 import { LoggerClient } from './LoggerClient';
-import { buildQualifiedTable, disableSearchPath, formatError, validateIdentifier } from './sequelize-query.helpers';
+import { buildQualifiedTable, formatError, validateIdentifier } from './sequelize-query.helpers';
 
 const logger = new LoggerClient('MemberDbHelper');
 
@@ -18,7 +16,7 @@ export async function memberExists(memberId: string | number): Promise<boolean> 
     assertMemberDbConfig();
 
     try {
-        const sequelize = getMemberSequelize();
+        const pool = getMemberPool();
         const idColumn = envConfig.MEMBER_DB.ID_COLUMN;
         const qualifiedTable = buildQualifiedTable(
             envConfig.MEMBER_DB.SCHEMA,
@@ -29,17 +27,12 @@ export async function memberExists(memberId: string | number): Promise<boolean> 
 
         logger.info(`Validating member ${memberId} using ${qualifiedTable}.${idColumn}`);
 
-        const record = await sequelize.query<{ [key: string]: unknown }>(
+        const result = await pool.query<{ [key: string]: unknown }>(
             `SELECT "${idColumn}" FROM ${qualifiedTable} WHERE "${idColumn}" = $1 LIMIT 1`,
-            {
-                bind: [memberId],
-                type: QueryTypes.SELECT,
-                plain: true,
-                ...disableSearchPath,
-            },
+            [memberId],
         );
 
-        return Boolean(record);
+        return Boolean(result.rows[0]);
     } catch (error) {
         logger.error(`Error verifying member ${memberId} via member database`);
         logger.error(formatError(error));

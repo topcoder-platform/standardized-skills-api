@@ -1,17 +1,30 @@
 import crypto, { BinaryToTextEncoding } from 'crypto';
+import { Prisma } from '@prisma/client';
 import { SkillEventTypes, envConfig } from '../config';
-import { Event, SkillEvent, SkillEventType } from '../db';
-import { Transaction, UniqueConstraintError } from 'sequelize';
 import { ConflictError } from './errors';
 import { find, get, toNumber } from 'lodash';
 import { ensureChallengeExists } from './challenge-db-helper';
 import { ensureMemberExists } from './member-db-helper';
 import { ChallengeWinnerDto, UserSkillDto } from '../dto';
+import { PrismaService } from '../prisma/prisma.service';
 
-let localSkillEventTypes: Promise<SkillEventType[]>;
+type SkillEventTypeRecord = { id: string; name: string };
+type PrismaSkillEventsClient = Prisma.TransactionClient | PrismaService;
+
+let localSkillEventTypes: Promise<SkillEventTypeRecord[]>;
 export const REVIEWER_TYPE_KEY = 'reviewer';
 export const COPILOT_TYPE_KEY = 'copilot';
 export const FINISHER_TYPE_KEY = 'finisher';
+
+function isPrismaSkillEventsClient(client: unknown): client is PrismaSkillEventsClient {
+    return Boolean(
+        client &&
+            typeof client === 'object' &&
+            'event' in client &&
+            'skillEvent' in client &&
+            'skillEventType' in client,
+    );
+}
 
 /**
  * Create a hash string for the passed in data
@@ -27,13 +40,23 @@ export const hashData = (data: any, digest: BinaryToTextEncoding = 'base64', sec
  * @param payload
  * @returns
  */
-export async function createAndEnsureEventNotProcessedAlready(topic: string, payload: any) {
+export async function createAndEnsureEventNotProcessedAlready(
+    topic: string,
+    payload: any,
+    client: PrismaSkillEventsClient,
+) {
     const payloadHash = hashData(payload);
 
     try {
-        return await Event.create({ topic, payload, payload_hash: payloadHash });
+        return await client.event.create({
+            data: {
+                topic,
+                payload: payload as Prisma.InputJsonValue,
+                payloadHash,
+            },
+        });
     } catch (error) {
-        if (error instanceof UniqueConstraintError) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
             throw new ConflictError('Event has already been processed!');
         }
         throw error;
@@ -65,12 +88,14 @@ export async function ensurePayloadWinnersAreValidUsers(winners: { userId: numbe
 /**
  * Fetch all SkillEventTypes and cache locally
  */
-export async function fetchAllSkillEventTypes(freshFetch = false) {
+export async function fetchAllSkillEventTypes(client: PrismaSkillEventsClient, freshFetch = false) {
     if (localSkillEventTypes && !freshFetch) {
         return localSkillEventTypes;
     }
 
-    return (localSkillEventTypes = SkillEventType.findAll());
+    return (localSkillEventTypes = client.skillEventType.findMany({
+        select: { id: true, name: true },
+    }));
 }
 
 /**
@@ -78,8 +103,13 @@ export async function fetchAllSkillEventTypes(freshFetch = false) {
  * - all possible places a user can receive if they win a challenge
  * - if they're reviewers or not
  */
-async function getSkillEventTypesMap() {
-    const allSkillEventTypes = await fetchAllSkillEventTypes();
+async function getSkillEventTypesMapForClient(client: PrismaSkillEventsClient) {
+    const allSkillEventTypes = await fetchAllSkillEventTypes(client, false);
+
+    return buildSkillEventTypesMap(allSkillEventTypes);
+}
+
+function buildSkillEventTypesMap(allSkillEventTypes: SkillEventTypeRecord[]) {
 
     return {
         // reviewer type
@@ -108,10 +138,10 @@ async function getSkillEventTypesMap() {
  * then we return the "challenge finisher" type as a fallback
  */
 export function getSkillEventType(
-    eventTypesMap: { [key: string]: SkillEventType | undefined },
+    eventTypesMap: { [key: string]: SkillEventTypeRecord | undefined },
     eventTypeSelector: number | string,
 ) {
-    return get(eventTypesMap, `[${eventTypeSelector}]`, eventTypesMap.default) as SkillEventType;
+    return get(eventTypesMap, `[${eventTypeSelector}]`, eventTypesMap.default) as SkillEventTypeRecord;
 }
 
 /**
@@ -132,10 +162,10 @@ export async function createSkillEventsForUser(
     eventId: string,
     sourceId: string,
     sourceTypeId: string,
-    tx: Transaction,
+    tx: Prisma.TransactionClient,
     skillEventType?: SkillEventTypes,
 ) {
-    const eventTypesMap = await getSkillEventTypesMap();
+    const eventTypesMap = await getSkillEventTypesMapForClient(tx);
     const skillEvents = [];
 
     for (const skill of payloadSkills) {
@@ -150,5 +180,14 @@ export async function createSkillEventsForUser(
         });
     }
 
-    return SkillEvent.bulkCreate(skillEvents, { transaction: tx });
+    return tx.skillEvent.createMany({
+        data: skillEvents.map((skillEvent) => ({
+            eventId: skillEvent.event_id,
+            userId: skillEvent.user_id,
+            skillId: skillEvent.skill_id,
+            sourceId: skillEvent.source_id,
+            sourceTypeId: skillEvent.source_type_id,
+            skillEventTypeId: skillEvent.skill_event_type_id,
+        })),
+    });
 }
