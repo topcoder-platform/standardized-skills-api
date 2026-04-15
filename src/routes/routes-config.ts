@@ -155,7 +155,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'UserSkillsController',
         method: 'getUserSkillsDisplayModes',
         auth: true,
-        access: [config.UserRoles.Admin, config.UserRoles.User],
+        access: [config.UserRoles.Admin, config.UserRoles.TalentManager, config.UserRoles.User],
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             query: {
@@ -169,7 +169,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'UserSkillsController',
         method: 'getUserSkillsDisplayModeByName',
         auth: true,
-        access: [config.UserRoles.Admin, config.UserRoles.User],
+        access: [config.UserRoles.Admin, config.UserRoles.TalentManager, config.UserRoles.User],
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             params: {
@@ -183,7 +183,7 @@ const RouteDefinitions: RouteDefinition[] = [
         controller: 'UserSkillsController',
         method: 'getUserSkills',
         auth: true,
-        access: [config.UserRoles.Admin, config.UserRoles.User],
+        access: [config.UserRoles.Admin, config.UserRoles.TalentManager, config.UserRoles.User],
         scopes: [config.envConfig.SCOPES.ALL, config.envConfig.SCOPES.READ],
         validation: {
             params: {

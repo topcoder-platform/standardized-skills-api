@@ -5,7 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../common/interfaces/auth-user.interface';
 import { GetUserSkillsDisplayModesQueryDto, GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../../dto';
 import { BadRequestError, NotFoundError } from '../../utils/errors';
-import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../../utils/helpers';
+import { ensureUserCanFetchMemberSkills, ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../../utils/helpers';
 import { UserSkillLevels } from '../../config';
 
 @Injectable()
@@ -33,7 +33,7 @@ export class UserSkillsService {
     async getUserSkills(user: AuthUser, userId: number, query: GetUserSkillsQueryDto) {
         this.logger.log(`Fetching user skills for userId=${userId} query=${JSON.stringify(query)}`);
 
-        ensureUserCanManageMemberSkills(user, userId);
+        ensureUserCanFetchMemberSkills(user, userId);
 
         const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
 
