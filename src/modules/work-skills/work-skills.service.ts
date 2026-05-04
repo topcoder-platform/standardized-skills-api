@@ -11,17 +11,6 @@ import { ensureChallengeExists } from '../../utils/challenge-db-helper';
 
 type WorkTypeName = 'gig' | 'challenge';
 
-type SkillWithCategory = Prisma.skillGetPayload<{
-    include: {
-        category: {
-            select: {
-                id: true;
-                name: true;
-            };
-        };
-    };
-}>;
-
 @Injectable()
 export class WorkSkillsService {
     private readonly logger = new Logger(WorkSkillsService.name);

@@ -16,16 +16,6 @@ export const REVIEWER_TYPE_KEY = 'reviewer';
 export const COPILOT_TYPE_KEY = 'copilot';
 export const FINISHER_TYPE_KEY = 'finisher';
 
-function isPrismaSkillEventsClient(client: unknown): client is PrismaSkillEventsClient {
-    return Boolean(
-        client &&
-            typeof client === 'object' &&
-            'event' in client &&
-            'skillEvent' in client &&
-            'skillEventType' in client,
-    );
-}
-
 /**
  * Create a hash string for the passed in data
  */
