@@ -131,9 +131,6 @@ export class SkillCategoriesService {
                     ...commonArgs,
                     skip,
                     take: query.perPage,
-                    omit: {
-                        nameEmbedding: true,
-                    },
                 }),
                 this.prisma.skill.count({ where }),
             ]);
