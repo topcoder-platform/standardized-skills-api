@@ -1,18 +1,16 @@
-import { Pool } from 'pg';
-
 import { envConfig } from '../config';
-import { getOrCreatePool } from './pg';
+import { ExternalPrismaClient } from './external-prisma-client';
 
-let challengePool: Pool | null = null;
+let challengePrisma: ExternalPrismaClient | null = null;
 
-export function getChallengePool(): Pool {
+export function getChallengePrisma(): ExternalPrismaClient {
     if (!envConfig.CHALLENGE_DB.URL) {
         throw new Error('CHALLENGE_DB_URL is not configured');
     }
 
-    if (!challengePool) {
-        challengePool = getOrCreatePool(envConfig.CHALLENGE_DB.URL);
+    if (!challengePrisma) {
+        challengePrisma = new ExternalPrismaClient('ChallengeExternalDb', envConfig.CHALLENGE_DB.URL);
     }
 
-    return challengePool;
+    return challengePrisma;
 }

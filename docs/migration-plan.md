@@ -7,10 +7,9 @@ Complete the transition from the legacy Express + Sequelize implementation to a 
 ## Current State
 
 - Active runtime: NestJS only
-- Fully migrated modules: `health`, `skill-categories`, `skills`, `user-skills`
-- Partially migrated modules: `skill-events`, `work-skills`
-- Dead code already present in the repo: `src/controllers/`, `src/routes/`, `src/middlewares/`, most of `src/services/`
-- Still blocking Sequelize removal: legacy `SkillEventsService`, legacy `WorkSkillsService`, and the Sequelize-backed helpers they depend on
+- Fully migrated modules: `health`, `skill-categories`, `skills`, `user-skills`, `skill-events`, `work-skills`
+- Removed so far: legacy `src/services/`, `src/controllers/`, `src/routes/`, `src/middlewares/` files
+- Still blocking Sequelize removal: the old `src/db/` Sequelize model layer and external DB wrappers used by integration helpers
 
 ## Migration Phases
 
@@ -61,6 +60,8 @@ Notes:
 
 Objective: delete legacy business logic once all endpoints are served by Nest modules using Prisma.
 
+Status: completed on April 14, 2026.
+
 - Delete `src/services/SkillsService.ts`
 - Delete `src/services/SkillCategoryService.ts`
 - Delete `src/services/UserSkillsService.ts`
@@ -68,9 +69,16 @@ Objective: delete legacy business logic once all endpoints are served by Nest mo
 - Delete `src/services/SkillEventsService.ts` after Phase 2 is complete
 - Delete `src/services/` if it becomes empty
 
+Notes:
+
+- The legacy service files were removed once all active endpoints were served by NestJS module services
+- Deleting the service layer required deleting the dead Express stack in the same change, because those unused controllers and routes still imported the old services and were part of the TypeScript build
+
 ### Phase 4: Remove dead Express layer
 
 Objective: remove the unused Express application structure that is no longer part of runtime startup.
+
+Status: completed on April 14, 2026.
 
 - Delete all files under `src/controllers/`
 - Delete all files under `src/routes/`
@@ -82,6 +90,8 @@ These files are already dead code because `src/main.ts` boots NestJS directly an
 
 Objective: remove the old main-database ORM layer after all remaining services stop importing it.
 
+Status: completed on April 14, 2026.
+
 - Delete `src/db/models/`
 - Delete `src/db/index.ts`
 - Audit and then remove Sequelize-based external DB wrappers if no longer needed:
@@ -92,9 +102,16 @@ Objective: remove the old main-database ORM layer after all remaining services s
 - Delete `src/db/` when nothing depends on it
 - Delete `sequelize/` after confirming nothing still depends on Sequelize CLI config or migrations
 
+Notes:
+
+- `src/db/index.ts` and Sequelize-generated model access are no longer part of the code path
+- External DB wrappers under `src/db/` were migrated from Sequelize clients to Prisma-based external clients and retained as integration adapters
+
 ### Phase 6: Remove Sequelize-only helpers and scripts
 
 Objective: clean up utility code that only exists to support the legacy implementation.
+
+Status: completed on April 14, 2026.
 
 - Delete or rewrite `src/utils/sequelize-query.helpers.ts`
 - Delete or rewrite `src/utils/user-skills-helper.ts`
@@ -102,9 +119,17 @@ Objective: clean up utility code that only exists to support the legacy implemen
 - Keep `src/utils/skill-events-helper.ts` only if retained as a Prisma-backed helper after Phase 2
 - Delete or rewrite `src/scripts/sync-db.ts` because it imports the old Sequelize db layer
 
+Notes:
+
+- `src/utils/sequelize-query.helpers.ts` was replaced with `src/utils/db-query.helpers.ts`
+- `src/utils/user-skills-helper.ts`, `src/utils/skills-helper.ts`, and `src/utils/skill-events-helper.ts` were retained as Prisma-backed utilities
+- `src/scripts/sync-db.ts` is no longer part of the source tree
+
 ### Phase 7: Remove Sequelize dependencies
 
 Objective: remove obsolete packages after code cleanup is complete.
+
+Status: completed on April 14, 2026.
 
 - Remove `sequelize` from `package.json`
 - Remove `sequelize-typescript` if present
@@ -114,14 +139,28 @@ Objective: remove obsolete packages after code cleanup is complete.
 - Run install to refresh lockfile
 - Build and verify the application still compiles cleanly
 
+Notes:
+
+- Removed `sequelize`, `cls-hooked`, `sequelize-cli`, `@types/sequelize`, and `@types/cls-hooked`
+- Removed `SEQUELIZE_CLS_NAMESPACE` from `src/config/constants.ts`
+- Lockfile refreshed and `pnpm build` passes
+
 ### Phase 8: Final config cleanup
 
 Objective: remove temporary bridging code introduced during the migration.
+
+Status: completed on April 15, 2026.
 
 - Audit `src/config/config.ts` vs `src/config/configuration.ts`
 - Move all remaining consumers to `ConfigService`
 - Delete old dotenv-style bridging code if no longer needed
 - Audit `src/types.ts` and remove legacy request/auth types replaced by Nest interfaces
+
+Notes:
+
+- Removed `legacyEnv` from `src/config/configuration.ts`
+- Updated `src/common/guards/jwt-auth.guard.ts` to read `auth.secret` and `auth.validIssuers` from `ConfigService`
+- Kept `envConfig` exports for non-DI utility modules and external-db adapters; these can be migrated incrementally to injected config where practical
 
 ## Todo Checklist
 
@@ -139,23 +178,31 @@ Objective: remove temporary bridging code introduced during the migration.
 - [x] Update `skill-events.controller.ts` to use dependency injection
 - [x] Register `SkillEventsService` in `skill-events.module.ts`
 - [x] Import `PrismaModule` in `skill-events.module.ts`
-- [ ] Delete `src/services/SkillsService.ts`
-- [ ] Delete `src/services/SkillCategoryService.ts`
-- [ ] Delete `src/services/UserSkillsService.ts`
-- [ ] Delete `src/services/WorkSkillsService.ts`
-- [ ] Delete `src/services/SkillEventsService.ts`
-- [ ] Delete `src/controllers/`
-- [ ] Delete `src/routes/`
-- [ ] Delete `src/middlewares/`
-- [ ] Delete `src/db/models/`
-- [ ] Delete `src/db/index.ts`
-- [ ] Audit and remove external Sequelize DB wrappers in `src/db/`
-- [ ] Delete `sequelize/`
-- [ ] Remove Sequelize-only helpers and scripts
-- [ ] Remove Sequelize packages from `package.json`
-- [ ] Refresh dependencies and lockfile
-- [ ] Run build and fix migration regressions
-- [ ] Remove legacy config bridge code
+- [x] Delete `src/services/SkillsService.ts`
+- [x] Delete `src/services/SkillCategoryService.ts`
+- [x] Delete `src/services/UserSkillsService.ts`
+- [x] Delete `src/services/WorkSkillsService.ts`
+- [x] Delete `src/services/SkillEventsService.ts`
+- [x] Delete `src/controllers/`
+- [x] Delete `src/routes/`
+- [x] Delete `src/middlewares/`
+- [x] Delete `src/db/models/`
+- [x] Delete `src/db/index.ts`
+- [x] Audit and remove external Sequelize DB wrappers in `src/db/`
+- [x] Delete `sequelize/`
+- [x] Remove Sequelize-only helpers and scripts
+- [x] Remove Sequelize packages from `package.json`
+- [x] Refresh dependencies and lockfile
+- [x] Run build and fix migration regressions
+- [x] Remove legacy config bridge code
+
+Additional cleanup completed on April 15, 2026:
+
+- Archived legacy Sequelize scripts to `scripts/archive/`:
+  - `scripts/archive/fix-copilot-skill-events.ts`
+  - `scripts/archive/process-challenge-winners.ts`
+- Removed obsolete `.sequelizerc`
+- Updated README to remove Sequelize model-generation and deprecated `db:*` setup instructions
 
 ## Suggested Execution Order
 

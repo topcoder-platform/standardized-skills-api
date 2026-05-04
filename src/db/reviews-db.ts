@@ -1,17 +1,16 @@
-import { Pool } from 'pg';
 import { envConfig } from '../config';
-import { getOrCreatePool } from './pg';
+import { ExternalPrismaClient } from './external-prisma-client';
 
-let reviewsPool: Pool | null = null;
+let reviewsPrisma: ExternalPrismaClient | null = null;
 
-export function getReviewsPool(): Pool {
+export function getReviewsPrisma(): ExternalPrismaClient {
     if (!envConfig.REVIEWS_DB.URL || !envConfig.REVIEWS_DB.SCHEMA) {
         throw new Error('REVIEWS_DB_URL is not configured');
     }
 
-    if (!reviewsPool) {
-        reviewsPool = getOrCreatePool(envConfig.REVIEWS_DB.URL);
+    if (!reviewsPrisma) {
+        reviewsPrisma = new ExternalPrismaClient('ReviewsExternalDb', envConfig.REVIEWS_DB.URL);
     }
 
-    return reviewsPool;
+    return reviewsPrisma;
 }

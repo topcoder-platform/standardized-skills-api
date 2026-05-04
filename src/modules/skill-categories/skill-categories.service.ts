@@ -12,7 +12,7 @@ import {
 } from '../../dto';
 import { BadRequestError, ConflictError, NotFoundError } from '../../utils/errors';
 
-type SkillWithCategory = Prisma.SkillGetPayload<{
+type SkillWithCategory = Prisma.skillGetPayload<{
     include: { category: true };
 }>;
 
@@ -41,7 +41,7 @@ export class SkillCategoriesService {
 
         const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
 
-        const where: Prisma.SkillCategoryWhereInput = {};
+        const where: Prisma.skillCategoryWhereInput = {};
         if (query.name) {
             where.name = {
                 contains: query.name,
@@ -51,7 +51,7 @@ export class SkillCategoriesService {
 
         const orderBy = this.buildOrderBy(query.sortBy, query.sortOrder);
 
-        const commonArgs: Prisma.SkillCategoryFindManyArgs = {
+        const commonArgs: Prisma.skillCategoryFindManyArgs = {
             where,
             orderBy,
         };
@@ -105,7 +105,7 @@ export class SkillCategoriesService {
 
         const orderBy = this.buildSkillOrderBy(query.sortBy, query.sortOrder);
 
-        const where: Prisma.SkillWhereInput = {
+        const where: Prisma.skillWhereInput = {
             categoryId,
             deletedAt: null,
         };
@@ -131,6 +131,9 @@ export class SkillCategoriesService {
                     ...commonArgs,
                     skip,
                     take: query.perPage,
+                    omit: {
+                        nameEmbedding: true,
+                    },
                 }),
                 this.prisma.skill.count({ where }),
             ]);
@@ -326,7 +329,7 @@ export class SkillCategoriesService {
             return undefined;
         }
 
-        const mapping: Record<string, keyof Prisma.SkillCategoryOrderByWithRelationInput> = {
+        const mapping: Record<string, keyof Prisma.skillCategoryOrderByWithRelationInput> = {
             name: 'name',
             description: 'description',
             created_at: 'createdAt',
@@ -339,14 +342,14 @@ export class SkillCategoriesService {
         }
 
         const direction = sortOrder === 'DESC' ? 'desc' : 'asc';
-        return [{ [field]: direction } as Prisma.SkillCategoryOrderByWithRelationInput];
+        return [{ [field]: direction } as Prisma.skillCategoryOrderByWithRelationInput];
     }
 
     private buildSkillOrderBy(sortBy?: string, sortOrder?: 'ASC' | 'DESC') {
         if (!sortBy) {
             return undefined;
         }
-        const mapping: Record<string, keyof Prisma.SkillOrderByWithRelationInput> = {
+        const mapping: Record<string, keyof Prisma.skillOrderByWithRelationInput> = {
             name: 'name',
             description: 'description',
             created_at: 'createdAt',
@@ -357,7 +360,7 @@ export class SkillCategoriesService {
             return undefined;
         }
         const direction = sortOrder === 'DESC' ? 'desc' : 'asc';
-        return [{ [field]: direction } as Prisma.SkillOrderByWithRelationInput];
+        return [{ [field]: direction } as Prisma.skillOrderByWithRelationInput];
     }
 
     private serializeCategory(category: { id: string; name: string; description: string | null }) {

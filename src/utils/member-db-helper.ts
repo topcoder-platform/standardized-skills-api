@@ -1,8 +1,8 @@
 import { envConfig } from '../config';
-import { getMemberPool } from '../db/member-db';
+import { getMemberPrisma } from '../db/member-db';
 import { InternalServerError, NotFoundError } from './errors';
 import { LoggerClient } from './LoggerClient';
-import { buildQualifiedTable, formatError, validateIdentifier } from './sequelize-query.helpers';
+import { buildQualifiedTable, formatError, validateIdentifier } from './db-query.helpers';
 
 const logger = new LoggerClient('MemberDbHelper');
 
@@ -16,7 +16,7 @@ export async function memberExists(memberId: string | number): Promise<boolean> 
     assertMemberDbConfig();
 
     try {
-        const pool = getMemberPool();
+        const memberDb = getMemberPrisma();
         const idColumn = envConfig.MEMBER_DB.ID_COLUMN;
         const qualifiedTable = buildQualifiedTable(
             envConfig.MEMBER_DB.SCHEMA,
@@ -27,12 +27,12 @@ export async function memberExists(memberId: string | number): Promise<boolean> 
 
         logger.info(`Validating member ${memberId} using ${qualifiedTable}.${idColumn}`);
 
-        const result = await pool.query<{ [key: string]: unknown }>(
+        const result = await memberDb.$queryRawUnsafe<{ [key: string]: unknown }[]>(
             `SELECT "${idColumn}" FROM ${qualifiedTable} WHERE "${idColumn}" = $1 LIMIT 1`,
-            [memberId],
+            memberId,
         );
 
-        return Boolean(result.rows[0]);
+        return Boolean(result[0]);
     } catch (error) {
         logger.error(`Error verifying member ${memberId} via member database`);
         logger.error(formatError(error));

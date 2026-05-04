@@ -1,17 +1,16 @@
-import { Pool } from 'pg';
 import { envConfig } from '../config';
-import { getOrCreatePool } from './pg';
+import { ExternalPrismaClient } from './external-prisma-client';
 
-let resourcesPool: Pool | null = null;
+let resourcesPrisma: ExternalPrismaClient | null = null;
 
-export function getResourcesPool(): Pool {
+export function getResourcesPrisma(): ExternalPrismaClient {
     if (!envConfig.RESOURCES_DB.URL) {
         throw new Error('RESOURCES_DB_URL is not configured');
     }
 
-    if (!resourcesPool) {
-        resourcesPool = getOrCreatePool(envConfig.RESOURCES_DB.URL);
+    if (!resourcesPrisma) {
+        resourcesPrisma = new ExternalPrismaClient('ResourcesExternalDb', envConfig.RESOURCES_DB.URL);
     }
 
-    return resourcesPool;
+    return resourcesPrisma;
 }

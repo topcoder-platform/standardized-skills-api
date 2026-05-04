@@ -1,6 +1,6 @@
 import { LoggerClient } from './LoggerClient';
 import { InternalServerError, NotFoundError } from './errors';
-import { getChallengePool } from '../db/challenge-db';
+import { getChallengePrisma } from '../db/challenge-db';
 import { CHALLENGE_TYPE_BY_ID, CHALLENGE_TYPE_VALUES } from '../config';
 
 const logger = new LoggerClient('ChallengeDbHelper');
@@ -19,13 +19,13 @@ function formatError(error: unknown): string {
 
 export async function challengeExists(challengeId: string): Promise<boolean> {
     try {
-        const challengesDb = getChallengePool();
-        const result = await challengesDb.query<{ id: string }>(
+        const challengesDb = getChallengePrisma();
+        const result = await challengesDb.$queryRawUnsafe<{ id: string }[]>(
             'SELECT "id" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
-            [challengeId],
+            challengeId,
         );
 
-        return Boolean(result.rows[0]);
+        return Boolean(result[0]);
     } catch (error) {
         logger.error(`Error verifying challenge ${challengeId} via challenge database`);
         logger.error(formatError(error));
@@ -41,13 +41,13 @@ export async function ensureChallengeExists(challengeId: string): Promise<void> 
 
 export async function getChallengeType(challengeId: string): Promise<CHALLENGE_TYPE_VALUES | undefined> {
     try {
-        const challengesDb = getChallengePool();
-        const result = await challengesDb.query<{ id: string; typeId: string }>(
+        const challengesDb = getChallengePrisma();
+        const result = await challengesDb.$queryRawUnsafe<{ id: string; typeId: string }[]>(
             'SELECT "id", "typeId" FROM challenges."Challenge" WHERE "id" = $1 LIMIT 1',
-            [challengeId],
+            challengeId,
         );
 
-        const record = result.rows[0];
+        const record = result[0];
 
         return record?.typeId ? CHALLENGE_TYPE_BY_ID.get(record.typeId) : undefined;
     } catch (error) {

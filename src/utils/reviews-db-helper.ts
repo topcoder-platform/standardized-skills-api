@@ -1,8 +1,8 @@
 import { CHALLENGE_TYPE_VALUES, CONTEST_SUBMISSION_TYPE, envConfig } from '../config';
 import { InternalServerError } from './errors';
 import { LoggerClient } from './LoggerClient';
-import { buildQualifiedTable, formatError } from './sequelize-query.helpers';
-import { getReviewsPool } from '../db/reviews-db';
+import { buildQualifiedTable, formatError } from './db-query.helpers';
+import { getReviewsPrisma } from '../db/reviews-db';
 import { getChallengeType } from './challenge-db-helper';
 
 const logger = new LoggerClient('ReviewsDbHelper');
@@ -44,13 +44,13 @@ async function _getSubmissions(query: string, values: unknown[]): Promise<Submis
     assertDbConfig();
 
     try {
-        const pool = getReviewsPool();
-        const result = await pool.query<SubmissionResult>(
+        const reviewsDb = getReviewsPrisma();
+        const result = await reviewsDb.$queryRawUnsafe<SubmissionResult[]>(
             query,
-            values,
+            ...values,
         );
 
-        return result.rows || [];
+        return result || [];
     } catch (error) {
         logger.error('Unable to fetch submissions');
         logger.error(formatError(error));
@@ -81,18 +81,18 @@ export async function loadScorecardMinScores(scorecardIds: string[]) {
     const tables = buildQualifiedTables();
 
     try {
-        const pool = getReviewsPool();
-        const result = await pool.query<{ id: string; minimumPassingScore: number | null }>(
+        const reviewsDb = getReviewsPrisma();
+        const result = await reviewsDb.$queryRawUnsafe<{ id: string; minimumPassingScore: number | null }[]>(
             `
                 SELECT id, "minimumPassingScore"
                 FROM ${tables.scorecard}
                 WHERE id = ANY($1::uuid[])
             `,
-            [scorecardIds],
+            scorecardIds,
         );
 
         return new Map<string, number>(
-            result.rows.map((row: { id: string; minimumPassingScore: number | null }) => [
+            result.map((row: { id: string; minimumPassingScore: number | null }) => [
                 row.id,
                 toNumber(row.minimumPassingScore) ?? 0,
             ]),

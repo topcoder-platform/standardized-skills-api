@@ -1,18 +1,16 @@
-import { Pool } from 'pg';
-
 import { envConfig } from '../config';
-import { getOrCreatePool } from './pg';
+import { ExternalPrismaClient } from './external-prisma-client';
 
-let memberPool: Pool | null = null;
+let memberPrisma: ExternalPrismaClient | null = null;
 
-export function getMemberPool(): Pool {
+export function getMemberPrisma(): ExternalPrismaClient {
     if (!envConfig.MEMBER_DB.URL) {
         throw new Error('MEMBER_DB_URL is not configured');
     }
 
-    if (!memberPool) {
-        memberPool = getOrCreatePool(envConfig.MEMBER_DB.URL);
+    if (!memberPrisma) {
+        memberPrisma = new ExternalPrismaClient('MemberExternalDb', envConfig.MEMBER_DB.URL);
     }
 
-    return memberPool;
+    return memberPrisma;
 }

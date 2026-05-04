@@ -1,6 +1,5 @@
 import { InternalServerError } from './errors';
 
-
 export function validateIdentifier(value: string, kind: 'schema' | 'table' | 'column') {
     if (!/^[A-Za-z0-9_]+$/.test(value)) {
         throw new InternalServerError(`Invalid ${kind} name for database access`);
@@ -25,4 +24,3 @@ export function formatError(error: unknown): string {
         return String(error);
     }
 }
-

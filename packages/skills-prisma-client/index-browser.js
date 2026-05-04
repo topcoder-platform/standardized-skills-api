@@ -129,14 +129,6 @@ exports.Prisma.EventScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.SkillCategoryScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.SkillScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -144,18 +136,11 @@ exports.Prisma.SkillScalarFieldEnum = {
   categoryId: 'categoryId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
+  deletedAt: 'deletedAt',
+  devId: 'devId'
 };
 
-exports.Prisma.SkillEventTypeScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
-exports.Prisma.SourceTypeScalarFieldEnum = {
+exports.Prisma.SkillCategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
@@ -174,7 +159,7 @@ exports.Prisma.SkillEventScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
-exports.Prisma.UserSkillLevelScalarFieldEnum = {
+exports.Prisma.SkillEventTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
@@ -182,7 +167,15 @@ exports.Prisma.UserSkillLevelScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.UserSkillDisplayModeScalarFieldEnum = {
+exports.Prisma.SkillReplacementScalarFieldEnum = {
+  skillId: 'skillId',
+  replacingSkillId: 'replacingSkillId',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SourceTypeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
@@ -195,7 +188,23 @@ exports.Prisma.UserSkillScalarFieldEnum = {
   userId: 'userId',
   skillId: 'skillId',
   userSkillLevelId: 'userSkillLevelId',
-  userSkillDisplayModeId: 'userSkillDisplayModeId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userSkillDisplayModeId: 'userSkillDisplayModeId'
+};
+
+exports.Prisma.UserSkillDisplayModeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserSkillLevelScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -236,16 +245,17 @@ exports.Prisma.NullsOrder = {
 
 
 exports.Prisma.ModelName = {
-  Event: 'Event',
-  SkillCategory: 'SkillCategory',
-  Skill: 'Skill',
-  SkillEventType: 'SkillEventType',
-  SourceType: 'SourceType',
-  SkillEvent: 'SkillEvent',
-  UserSkillLevel: 'UserSkillLevel',
-  UserSkillDisplayMode: 'UserSkillDisplayMode',
-  UserSkill: 'UserSkill',
-  WorkSkill: 'WorkSkill'
+  event: 'event',
+  skill: 'skill',
+  skillCategory: 'skillCategory',
+  skillEvent: 'skillEvent',
+  skillEventType: 'skillEventType',
+  skillReplacement: 'skillReplacement',
+  sourceType: 'sourceType',
+  userSkill: 'userSkill',
+  userSkillDisplayMode: 'userSkillDisplayMode',
+  userSkillLevel: 'userSkillLevel',
+  workSkill: 'workSkill'
 };
 
 /**

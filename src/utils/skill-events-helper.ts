@@ -53,6 +53,7 @@ export async function createAndEnsureEventNotProcessedAlready(
                 topic,
                 payload: payload as Prisma.InputJsonValue,
                 payloadHash,
+                createdAt: new Date(),
             },
         });
     } catch (error) {
@@ -166,28 +167,19 @@ export async function createSkillEventsForUser(
     skillEventType?: SkillEventTypes,
 ) {
     const eventTypesMap = await getSkillEventTypesMapForClient(tx);
-    const skillEvents = [];
-
-    for (const skill of payloadSkills) {
-        skillEvents.push({
-            event_id: eventId,
-            user_id: toNumber(user.userId),
-            skill_id: skill.id,
-            source_id: sourceId,
-            source_type_id: sourceTypeId,
-            skill_event_type_id: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '')
-                .id,
-        });
-    }
+    const now = new Date();
+    const skillEvents = payloadSkills.map((skill) => ({
+        eventId,
+        userId: toNumber(user.userId),
+        skillId: skill.id,
+        sourceId,
+        sourceTypeId,
+        skillEventTypeId: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '')
+            .id,
+        createdAt: now,
+    }));
 
     return tx.skillEvent.createMany({
-        data: skillEvents.map((skillEvent) => ({
-            eventId: skillEvent.event_id,
-            userId: skillEvent.user_id,
-            skillId: skillEvent.skill_id,
-            sourceId: skillEvent.source_id,
-            sourceTypeId: skillEvent.source_type_id,
-            skillEventTypeId: skillEvent.skill_event_type_id,
-        })),
+        data: skillEvents,
     });
 }

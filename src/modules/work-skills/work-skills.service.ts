@@ -11,7 +11,7 @@ import { ensureChallengeExists } from '../../utils/challenge-db-helper';
 
 type WorkTypeName = 'gig' | 'challenge';
 
-type SkillWithCategory = Prisma.SkillGetPayload<{
+type SkillWithCategory = Prisma.skillGetPayload<{
     include: {
         category: {
             select: {
