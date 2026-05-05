@@ -28,7 +28,7 @@ export async function memberExists(memberId: string | number): Promise<boolean> 
         logger.info(`Validating member ${memberId} using ${qualifiedTable}.${idColumn}`);
 
         const result = await memberDb.$queryRawUnsafe<{ [key: string]: unknown }[]>(
-            `SELECT "${idColumn}" FROM ${qualifiedTable} WHERE "${idColumn}" = $1 LIMIT 1`,
+            `SELECT "${idColumn}" FROM ${qualifiedTable} WHERE "${idColumn}" = $1::bigint LIMIT 1`,
             memberId,
         );
 
