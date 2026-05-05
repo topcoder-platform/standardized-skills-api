@@ -15094,7 +15094,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     skillEvents?: skillEventCreateNestedManyWithoutSkillEventTypeInput
   }
 
@@ -15103,7 +15103,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     skillEvents?: skillEventUncheckedCreateNestedManyWithoutSkillEventTypeInput
   }
 
@@ -15130,7 +15130,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type skillEventTypeUpdateManyMutationInput = {
@@ -15210,7 +15210,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     skillEvents?: skillEventCreateNestedManyWithoutSourceTypeInput
   }
 
@@ -15219,7 +15219,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     skillEvents?: skillEventUncheckedCreateNestedManyWithoutSourceTypeInput
   }
 
@@ -15246,7 +15246,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type sourceTypeUpdateManyMutationInput = {
@@ -15337,7 +15337,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     userSkills?: userSkillCreateNestedManyWithoutDisplayModeInput
   }
 
@@ -15346,7 +15346,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     userSkills?: userSkillUncheckedCreateNestedManyWithoutDisplayModeInput
   }
 
@@ -15373,7 +15373,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type userSkillDisplayModeUpdateManyMutationInput = {
@@ -15397,7 +15397,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     userSkills?: userSkillCreateNestedManyWithoutLevelInput
   }
 
@@ -15406,7 +15406,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
     userSkills?: userSkillUncheckedCreateNestedManyWithoutLevelInput
   }
 
@@ -15433,7 +15433,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type userSkillLevelUpdateManyMutationInput = {
@@ -17193,7 +17193,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type skillEventTypeUncheckedCreateWithoutSkillEventsInput = {
@@ -17201,7 +17201,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type skillEventTypeCreateOrConnectWithoutSkillEventsInput = {
@@ -17214,7 +17214,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type sourceTypeUncheckedCreateWithoutSkillEventsInput = {
@@ -17222,7 +17222,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type sourceTypeCreateOrConnectWithoutSkillEventsInput = {
@@ -17472,7 +17472,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type userSkillLevelUncheckedCreateWithoutUserSkillsInput = {
@@ -17480,7 +17480,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type userSkillLevelCreateOrConnectWithoutUserSkillsInput = {
@@ -17493,7 +17493,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type userSkillDisplayModeUncheckedCreateWithoutUserSkillsInput = {
@@ -17501,7 +17501,7 @@ export namespace Prisma {
     name: string
     description?: string | null
     createdAt: Date | string
-    updatedAt: Date | string
+    updatedAt?: Date | string
   }
 
   export type userSkillDisplayModeCreateOrConnectWithoutUserSkillsInput = {
