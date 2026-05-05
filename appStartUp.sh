@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eo pipefail
 
-export DATABASE_URL=$(echo -e ${DATABASE_URL})
+export TC_SKILLS_DATABASE_URL=$(echo -e ${TC_SKILLS_DATABASE_URL})
 
 echo "Database - running migrations."
 pnpm prisma:migrate:deploy

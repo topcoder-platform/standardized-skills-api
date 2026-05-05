@@ -10,7 +10,7 @@ generator externalClient {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+  url      = env("TC_SKILLS_DATABASE_URL")
 }
 
 model SequelizeMeta {
