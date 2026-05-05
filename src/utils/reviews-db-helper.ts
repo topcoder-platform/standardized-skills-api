@@ -86,7 +86,7 @@ export async function loadScorecardMinScores(scorecardIds: string[]) {
             `
                 SELECT id, "minimumPassingScore"
                 FROM ${tables.scorecard}
-                WHERE id = $1::text
+                WHERE id = ANY($1::text[])
             `,
             scorecardIds,
         );
