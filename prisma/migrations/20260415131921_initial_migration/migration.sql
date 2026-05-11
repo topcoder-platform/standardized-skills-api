@@ -144,109 +144,6 @@ CREATE TABLE "source_type" (
 );
 
 -- CreateTable
-CREATE TABLE "temp_dev_emsi_skill" (
-    "id" UUID NOT NULL,
-    "emsi_id" VARCHAR(50),
-    "name" TEXT,
-
-    CONSTRAINT "dev_emsi_skill_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "temp_dev_user_emsi_skills" (
-    "user_id" INTEGER NOT NULL,
-    "skill_id" UUID NOT NULL,
-    "skill_source_ids" UUID[],
-    "std_skill_id" UUID,
-
-    CONSTRAINT "temp_dev_user_emsi_skills_pkey" PRIMARY KEY ("skill_id","user_id")
-);
-
--- CreateTable
-CREATE TABLE "temp_legacy_v5_skill" (
-    "id" UUID NOT NULL,
-    "name" VARCHAR,
-    "external_id" VARCHAR,
-    "taxonomy_id" UUID,
-    "taxonomy_name" VARCHAR,
-
-    CONSTRAINT "legacy_skill_map_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "temp_prod_distinct_user_emsi_skills" (
-    "emsi_id" TEXT NOT NULL,
-    "skill_id" UUID NOT NULL,
-
-    CONSTRAINT "temp_prod_distinct_user_emsi_skills_pkey" PRIMARY KEY ("emsi_id","skill_id")
-);
-
--- CreateTable
-CREATE TABLE "temp_prod_emsi_skill" (
-    "emsi_skill_id" UUID NOT NULL,
-    "emsi_id" TEXT,
-    "name" TEXT,
-
-    CONSTRAINT "temp_prod_emsi_skill_pkey" PRIMARY KEY ("emsi_skill_id")
-);
-
--- CreateTable
-CREATE TABLE "temp_prod_taas_job_v5_skills" (
-    "v5_skill_id" UUID NOT NULL,
-    "name" VARCHAR(100),
-
-    CONSTRAINT "temp_PROD_taas_job_v5_skills_pkey" PRIMARY KEY ("v5_skill_id")
-);
-
--- CreateTable
-CREATE TABLE "temp_raw_emsi_skills" (
-    "id" TEXT NOT NULL,
-    "name" TEXT,
-    "description" TEXT,
-    "category_id" INTEGER,
-    "category_name" TEXT,
-    "subcategory_id" INTEGER,
-    "subcategory_name" TEXT,
-    "isSoftware" BOOLEAN,
-    "type_id" TEXT,
-    "type_name" TEXT,
-
-    CONSTRAINT "raw_emsi_skills_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "temp_taas_job_skill_mapping" (
-    "v5_skill_id" UUID NOT NULL,
-    "name" TEXT,
-    "std_skill_name" TEXT,
-    "std_skill_id" UUID,
-
-    CONSTRAINT "temp_taas_job_skill_mapping_pkey" PRIMARY KEY ("v5_skill_id")
-);
-
--- CreateTable
-CREATE TABLE "temp_taas_job_skills" (
-    "v5_skill_id" UUID NOT NULL,
-
-    CONSTRAINT "temp_taas_job_skills_pkey" PRIMARY KEY ("v5_skill_id")
-);
-
--- CreateTable
-CREATE TABLE "temp_taas_role_skill_mapping" (
-    "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
-    "name" VARCHAR(100),
-    "skill_id" UUID,
-
-    CONSTRAINT "temp_taas_role_skills_pkey" PRIMARY KEY ("id")
-);
-
--- CreateTable
-CREATE TABLE "temp_taas_skill" (
-    "id" UUID,
-    "name" VARCHAR
-);
-
--- CreateTable
 CREATE TABLE "user_skill" (
     "id" UUID NOT NULL DEFAULT public.uuid_generate_v4(),
     "user_id" INTEGER NOT NULL,
@@ -315,9 +212,6 @@ CREATE INDEX "fki_fk_skill_event_type" ON "skill_event"("skill_event_type_id");
 CREATE INDEX "fki_fk_source_type" ON "skill_event"("source_type_id");
 
 -- CreateIndex
-CREATE INDEX "idx_talent_skill_event_skill_user" ON "skill_event"("skill_id", "user_id", "skill_event_type_id");
-
--- CreateIndex
 CREATE UNIQUE INDEX "uniq_skill_source_id" ON "skill_event"("skill_id", "skill_event_type_id", "source_id", "user_id");
 
 -- CreateIndex
@@ -331,12 +225,6 @@ CREATE INDEX "fki_fk_skill" ON "user_skill"("skill_id");
 
 -- CreateIndex
 CREATE INDEX "fki_fk_user_skill_level" ON "user_skill"("user_skill_level_id");
-
--- CreateIndex
-CREATE INDEX "idx_talent_user_skill_skill_user" ON "user_skill"("skill_id", "user_id");
-
--- CreateIndex
-CREATE INDEX "user_skill_user_id_idx" ON "user_skill"("user_id");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "uniq_user_skill_type" ON "user_skill"("user_id", "skill_id", "user_skill_level_id");

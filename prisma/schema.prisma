@@ -123,7 +123,6 @@ model skillEvent {
   @@index([eventId], map: "fki_fk_event")
   @@index([skillEventTypeId], map: "fki_fk_skill_event_type")
   @@index([sourceTypeId], map: "fki_fk_source_type")
-  @@index([skillId, userId, skillEventTypeId], map: "idx_talent_skill_event_skill_user")
   @@map("skill_event")
 }
 
@@ -168,103 +167,6 @@ model sourceType {
   @@map("source_type")
 }
 
-model temp_dev_emsi_skill {
-  id      String  @id(map: "dev_emsi_skill_pkey") @db.Uuid
-  emsi_id String? @db.VarChar(50)
-  name    String?
-
-  @@ignore
-}
-
-model temp_dev_user_emsi_skills {
-  user_id          Int
-  skill_id         String   @db.Uuid
-  skill_source_ids String[] @db.Uuid
-  std_skill_id     String?  @db.Uuid
-
-  @@id([skill_id, user_id])
-  @@ignore
-}
-
-model temp_legacy_v5_skill {
-  id            String  @id(map: "legacy_skill_map_pkey") @db.Uuid
-  name          String? @db.VarChar
-  external_id   String? @db.VarChar
-  taxonomy_id   String? @db.Uuid
-  taxonomy_name String? @db.VarChar
-
-  @@ignore
-}
-
-model temp_prod_distinct_user_emsi_skills {
-  emsi_id  String
-  skill_id String @db.Uuid
-
-  @@id([emsi_id, skill_id])
-  @@ignore
-}
-
-model temp_prod_emsi_skill {
-  emsi_skill_id String  @id @db.Uuid
-  emsi_id       String?
-  name          String?
-
-  @@ignore
-}
-
-model temp_prod_taas_job_v5_skills {
-  v5_skill_id String  @id(map: "temp_PROD_taas_job_v5_skills_pkey") @db.Uuid
-  name        String? @db.VarChar(100)
-
-  @@ignore
-}
-
-model temp_raw_emsi_skills {
-  id               String   @id(map: "raw_emsi_skills_pkey")
-  name             String?
-  description      String?
-  category_id      Int?
-  category_name    String?
-  subcategory_id   Int?
-  subcategory_name String?
-  isSoftware       Boolean?
-  type_id          String?
-  type_name        String?
-
-  @@ignore
-}
-
-model temp_taas_job_skill_mapping {
-  v5_skill_id    String  @id @db.Uuid
-  name           String?
-  std_skill_name String?
-  std_skill_id   String? @db.Uuid
-
-  @@ignore
-}
-
-model temp_taas_job_skills {
-  v5_skill_id String @id @db.Uuid
-
-  @@ignore
-}
-
-model temp_taas_role_skill_mapping {
-  id       String  @id(map: "temp_taas_role_skills_pkey") @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
-  name     String? @db.VarChar(100)
-  skill_id String? @db.Uuid
-
-  @@ignore
-}
-
-/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
-model temp_taas_skill {
-  id   String? @db.Uuid
-  name String? @db.VarChar
-
-  @@ignore
-}
-
 model userSkill {
   id                      String              @id @default(dbgenerated("public.uuid_generate_v4()")) @db.Uuid
   userId                  Int                 @map("user_id")
@@ -280,8 +182,6 @@ model userSkill {
   @@unique([userId, skillId, userSkillLevelId], map: "uniq_user_skill_type")
   @@index([skillId], map: "fki_fk_skill")
   @@index([userSkillLevelId], map: "fki_fk_user_skill_level")
-  @@index([skillId, userId], map: "idx_talent_user_skill_skill_user")
-  @@index([userId])
   @@map("user_skill")
 }
 
