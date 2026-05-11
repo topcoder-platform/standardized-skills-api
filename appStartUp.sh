@@ -7,4 +7,4 @@ echo "Database - running migrations."
 npx prisma migrate deploy
 
 echo "Starting standardized-skills-api."
-pnpm start
+npm start
