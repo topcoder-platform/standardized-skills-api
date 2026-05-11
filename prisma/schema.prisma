@@ -124,6 +124,7 @@ model skillEvent {
   @@index([skillEventTypeId], map: "fki_fk_skill_event_type")
   @@index([sourceTypeId], map: "fki_fk_source_type")
   @@index([skillId, userId, skillEventTypeId], map: "idx_talent_skill_event_skill_user")
+  @@index([skillId, userId, sourceTypeId, skillEventTypeId], map: "idx_skill_event_member_search")
   @@map("skill_event")
 }
 
@@ -281,6 +282,7 @@ model userSkill {
   @@index([skillId], map: "fki_fk_skill")
   @@index([userSkillLevelId], map: "fki_fk_user_skill_level")
   @@index([skillId, userId], map: "idx_talent_user_skill_skill_user")
+  @@index([userId, userSkillDisplayModeId], map: "idx_user_skill_user_display_mode")
   @@index([userId])
   @@map("user_skill")
 }
