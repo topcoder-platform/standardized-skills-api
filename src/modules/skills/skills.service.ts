@@ -15,7 +15,7 @@ import { BadRequestError, ConflictError, InternalServerError, NotFoundError } fr
 import { DEFAULT_SUGGESTIONS_SIZE, MAX_SUGGESTIONS_SIZE } from '../../config';
 import { fetchOllamaEmbedding, toVectorLiteral } from '../../utils/embeddings-service';
 
-type SkillWithCategory = Prisma.SkillGetPayload<{
+type SkillWithCategory = Prisma.skillGetPayload<{
     include: { category: true };
 }>;
 
@@ -89,7 +89,7 @@ export class SkillsService {
         const showArchived = query.showArchived !== undefined && `${query.showArchived}` !== 'false';
         const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
 
-        const where: Prisma.SkillWhereInput = {};
+        const where: Prisma.skillWhereInput = {};
 
         if (!showArchived) {
             where.deletedAt = null;
@@ -483,7 +483,7 @@ export class SkillsService {
             return undefined;
         }
 
-        const mapping: Record<string, keyof Prisma.SkillOrderByWithRelationInput> = {
+        const mapping: Record<string, keyof Prisma.skillOrderByWithRelationInput> = {
             name: 'name',
             description: 'description',
             created_at: 'createdAt',
@@ -498,7 +498,7 @@ export class SkillsService {
 
         const direction = sortOrder === 'DESC' ? 'desc' : 'asc';
 
-        return [{ [field]: direction } as Prisma.SkillOrderByWithRelationInput];
+        return [{ [field]: direction } as Prisma.skillOrderByWithRelationInput];
     }
 
     private serializeSkill(skill: SkillWithCategory, includeDeleted = false) {

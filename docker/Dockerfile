@@ -18,9 +18,10 @@ RUN pnpm install
 # Lint and build
 RUN pnpm run lint
 RUN pnpm run build
+RUN chmod +x appStartUp.sh
 
 # Expose API port
 EXPOSE 3000
 
 # Start the application
-CMD [ "node", "dist/main.js" ]
+CMD [ "./appStartUp.sh" ]

@@ -16,7 +16,6 @@
     "src/interfaces",
     "src/middlewares",
     "src/routes",
-    "src/scripts/sync-db.ts",
     "src/services",
     "src/types.ts",
     "src/utils/challenge-skill-sync.ts",

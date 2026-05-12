@@ -1,10 +1,8 @@
-import { BindOrReplacements, QueryTypes } from 'sequelize';
-
 import { CHALLENGE_TYPE_VALUES, CONTEST_SUBMISSION_TYPE, envConfig } from '../config';
 import { InternalServerError } from './errors';
 import { LoggerClient } from './LoggerClient';
-import { buildQualifiedTable, disableSearchPath, formatError } from './sequelize-query.helpers';
-import { getReviewsSequelize } from '../db/reviews-db';
+import { buildQualifiedTable, formatError } from './db-query.helpers';
+import { getReviewsPrisma } from '../db/reviews-db';
 import { getChallengeType } from './challenge-db-helper';
 
 const logger = new LoggerClient('ReviewsDbHelper');
@@ -42,22 +40,17 @@ interface SubmissionResult {
     reviewScore: number;
 }
 
-async function _getSubmissions(query: string, replacements: BindOrReplacements): Promise<SubmissionResult[]> {
+async function _getSubmissions(query: string, values: unknown[]): Promise<SubmissionResult[]> {
     assertDbConfig();
 
     try {
-        const sequelize = getReviewsSequelize();
-        const records = await sequelize.query<SubmissionResult[]>(
+        const reviewsDb = getReviewsPrisma();
+        const result = await reviewsDb.$queryRawUnsafe<SubmissionResult[]>(
             query,
-            {
-                replacements,
-                type: QueryTypes.SELECT,
-                plain: false,
-                ...disableSearchPath,
-            },
+            ...values,
         );
 
-        return records || [];
+        return result || [];
     } catch (error) {
         logger.error('Unable to fetch submissions');
         logger.error(formatError(error));
@@ -77,10 +70,10 @@ export async function getSubmissionsForChallenge(challengeId: string): Promise<S
             AVG(rs."aggregateScore") AS "reviewScore"
         FROM ${tables.submission} s
         INNER JOIN ${tables.reviewSummation} rs ON rs."submissionId" = s.id
-        WHERE s."challengeId" = :challengeId
+        WHERE s."challengeId" = $1
             AND s."type" = '${CONTEST_SUBMISSION_TYPE}'::reviews."SubmissionType"
         GROUP BY s.id, s."challengeId", s."memberId", s."submittedDate", s."createdAt"
-    `, { challengeId });
+    `, [challengeId]);
 }
 
 export async function loadScorecardMinScores(scorecardIds: string[]) {
@@ -88,23 +81,21 @@ export async function loadScorecardMinScores(scorecardIds: string[]) {
     const tables = buildQualifiedTables();
 
     try {
-        const sequelize = getReviewsSequelize();
-        const rows = await sequelize.query<{ [key: string]: unknown }[]>(
+        const reviewsDb = getReviewsPrisma();
+        const result = await reviewsDb.$queryRawUnsafe<{ id: string; minimumPassingScore: number | null }[]>(
             `
                 SELECT id, "minimumPassingScore"
                 FROM ${tables.scorecard}
-                WHERE id IN (:scorecardIds)
+                WHERE id = ANY($1::text[])
             `,
-            {
-                replacements: { scorecardIds },
-                type: QueryTypes.SELECT,
-                plain: false,
-                ...disableSearchPath,
-            },
+            scorecardIds,
         );
 
-        return new Map(
-            (rows || []).map((row) => [row.id, toNumber(row.minimumPassingScore as number) ?? 0])
+        return new Map<string, number>(
+            result.map((row: { id: string; minimumPassingScore: number | null }) => [
+                row.id,
+                toNumber(row.minimumPassingScore) ?? 0,
+            ]),
         );
     } catch (error) {
         logger.error('Unable to load scorecard minimum scores');
@@ -119,7 +110,7 @@ export async function loadPassingSubmissions(challengeId: string, winnersIds: nu
     const isTask = challengeType === CHALLENGE_TYPE_VALUES.task;
 
     const submissions = await getSubmissionsForChallenge(challengeId);
-    const minScoreByScorecard = isTask || isMarathonMatch ? new Map<unknown, number>() : await loadScorecardMinScores(
+        const minScoreByScorecard = isTask || isMarathonMatch ? new Map<string, number>() : await loadScorecardMinScores(
       submissions.map(s => s.scorecardId),
     );
 
