@@ -1,25 +1,16 @@
-import { Sequelize } from 'sequelize';
-
 import { envConfig } from '../config';
+import { ExternalPrismaClient } from './external-prisma-client';
 
-let challengeSequelize: Sequelize | null = null;
+let challengePrisma: ExternalPrismaClient | null = null;
 
-export function getChallengeSequelize(): Sequelize {
+export function getChallengePrisma(): ExternalPrismaClient {
     if (!envConfig.CHALLENGE_DB.URL) {
         throw new Error('CHALLENGE_DB_URL is not configured');
     }
 
-    if (!challengeSequelize) {
-        challengeSequelize = new Sequelize(envConfig.CHALLENGE_DB.URL, {
-            logging: false,
-            define: {
-                underscored: true,
-            },
-            dialectOptions: {
-                prependSearchPath: true,
-            },
-        });
+    if (!challengePrisma) {
+        challengePrisma = new ExternalPrismaClient('ChallengeExternalDb', envConfig.CHALLENGE_DB.URL);
     }
 
-    return challengeSequelize;
+    return challengePrisma;
 }

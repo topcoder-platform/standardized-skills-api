@@ -18,8 +18,6 @@ export const DEFAULT_PAGE = 1;
 
 export const DEFAULT_SORT_ORDER = 'ASC';
 
-export const SEQUELIZE_CLS_NAMESPACE = 'standardized-skills-api';
-
 export const CHALLENGE_API_VERSION = '1.1.0';
 
 export enum UserSkillLevels {

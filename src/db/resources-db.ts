@@ -1,24 +1,16 @@
-import { Sequelize } from 'sequelize';
 import { envConfig } from '../config';
+import { ExternalPrismaClient } from './external-prisma-client';
 
-let resourcesSequelize: Sequelize | null = null;
+let resourcesPrisma: ExternalPrismaClient | null = null;
 
-export function getResourcesSequelize(): Sequelize {
+export function getResourcesPrisma(): ExternalPrismaClient {
     if (!envConfig.RESOURCES_DB.URL) {
         throw new Error('RESOURCES_DB_URL is not configured');
     }
 
-    if (!resourcesSequelize) {
-        resourcesSequelize = new Sequelize(envConfig.RESOURCES_DB.URL, {
-            logging: false,
-            define: {
-                underscored: true,
-            },
-            dialectOptions: {
-                prependSearchPath: true,
-            },
-        });
+    if (!resourcesPrisma) {
+        resourcesPrisma = new ExternalPrismaClient('ResourcesExternalDb', envConfig.RESOURCES_DB.URL);
     }
 
-    return resourcesSequelize;
+    return resourcesPrisma;
 }

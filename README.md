@@ -20,12 +20,8 @@ API for suggestion of probable skills with each input.
 - Start the API with `pnpm run start:dev` for watch mode or `pnpm run start` after running `pnpm run build`
 
 ### Setup local database
-- Run `pnpm run db:init` to create the database tables & seed initial data into it
-- Run `pnpm run db:sync` to create any new tables based on the db models created in `src/db/models`
-- Run `pnpm run db:seed` to insert the seed data into the current db tables
+- Run `pnpm prisma:migrate:deploy` to apply schema changes to your database
+- Run `pnpm prisma:studio` if you want to inspect data locally
 
 ## Verification
 - Run the postman collection under `./docs/postman`
-
-## Sequelize DB model generation
-pnpm dlx sequelize-auto -h <dev-db-host-for-skills> -d <dev-db-name-for-skills> -u dbadmin -p 5432 --dialect postgres -o \"./src/db/models\" -l ts -t <table_name>

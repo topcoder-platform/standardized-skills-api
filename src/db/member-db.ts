@@ -1,25 +1,16 @@
-import { Sequelize } from 'sequelize';
-
 import { envConfig } from '../config';
+import { ExternalPrismaClient } from './external-prisma-client';
 
-let memberSequelize: Sequelize | null = null;
+let memberPrisma: ExternalPrismaClient | null = null;
 
-export function getMemberSequelize(): Sequelize {
+export function getMemberPrisma(): ExternalPrismaClient {
     if (!envConfig.MEMBER_DB.URL) {
         throw new Error('MEMBER_DB_URL is not configured');
     }
 
-    if (!memberSequelize) {
-        memberSequelize = new Sequelize(envConfig.MEMBER_DB.URL, {
-            logging: false,
-            define: {
-                underscored: true,
-            },
-            dialectOptions: {
-                prependSearchPath: true,
-            },
-        });
+    if (!memberPrisma) {
+        memberPrisma = new ExternalPrismaClient('MemberExternalDb', envConfig.MEMBER_DB.URL);
     }
 
-    return memberSequelize;
+    return memberPrisma;
 }

@@ -1,9 +1,8 @@
 import { CHALLENGE_REVIEWER_ROLES, CHALLENGE_COPILOT_ROLE, envConfig } from '../config';
-import { getResourcesSequelize } from '../db/resources-db';
-import { QueryTypes } from 'sequelize';
+import { getResourcesPrisma } from '../db/resources-db';
 import { LoggerClient } from './LoggerClient';
 import { InternalServerError } from './errors';
-import { buildQualifiedTable, disableSearchPath, formatError } from './sequelize-query.helpers';
+import { buildQualifiedTable, formatError } from './db-query.helpers';
 
 const logger = new LoggerClient('ResourceDbHelper');
 
@@ -23,23 +22,19 @@ export async function fetchResourcesForChallenge(challengeId: string, ...roleIds
     assertDbConfig();
 
     try {
-        const sequelize = getResourcesSequelize();
+        const resourcesDb = getResourcesPrisma();
         const resourceTable = buildQualifiedTable(
             envConfig.RESOURCES_DB.SCHEMA,
             'Resource',
         );
 
-        const records = await sequelize.query<{ memberId: string; roleId: string; memberHandle: string }[]>(
-            `SELECT "memberId", "memberHandle", "roleId" FROM ${resourceTable} WHERE "roleId" in (:roleIds) and "challengeId" = :challengeId`,
-            {
-                replacements: { challengeId, roleIds },
-                type: QueryTypes.SELECT,
-                plain: false,
-                ...disableSearchPath,
-            },
+        const result = await resourcesDb.$queryRawUnsafe<{ memberId: string; roleId: string; memberHandle: string }[]>(
+            `SELECT "memberId", "memberHandle", "roleId" FROM ${resourceTable} WHERE "roleId" = ANY($1::text[]) and "challengeId" = $2`,
+            roleIds,
+            challengeId,
         );
 
-        return records || [] as { memberId: string; roleId: string; memberHandle: string }[];
+        return result || [] as { memberId: string; roleId: string; memberHandle: string }[];
     } catch (error) {
         logger.error(`Error fetching ${JSON.stringify(roleIds)} roles for challenge ${challengeId} via resources database`);
         logger.error(formatError(error));
