@@ -182,6 +182,7 @@ model userSkill {
 
   @@unique([userId, skillId, userSkillLevelId], map: "uniq_user_skill_type")
   @@index([skillId], map: "fki_fk_skill")
+  @@index([skillId, userId], map: "idx_user_skill_skill_user")
   @@index([userSkillLevelId], map: "fki_fk_user_skill_level")
   @@index([userId, userSkillDisplayModeId], map: "idx_user_skill_user_display_mode")
   @@map("user_skill")
