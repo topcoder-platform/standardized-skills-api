@@ -17,7 +17,8 @@
     "services:up": "cd ./local && docker-compose up -d",
     "prisma:generate": "pnpm exec prisma generate",
     "prisma:migrate:deploy": "pnpm exec prisma migrate deploy",
-    "prisma:studio": "pnpm exec prisma studio"
+    "prisma:studio": "pnpm exec prisma studio",
+    "rebuild:win:summary": "pnpm exec ts-node --transpile-only -r tsconfig-paths/register src/scripts/rebuild-win-summary.ts"
   },
   "devDependencies": {
     "@tsconfig/node20": "^20.1.8",
