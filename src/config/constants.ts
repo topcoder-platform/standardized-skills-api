@@ -68,7 +68,11 @@ export enum SkillEventTypes {
     challengeCopilot = 'challenge_copilot',
     tcaCertCompleted = 'tca_cert_completion',
     tcaCourseCompleted = 'tca_course_completion',
-    engagementAssignment = 'engagement_assignment'
+    engagementAssignment = 'engagement_assignment',
+    copilotReview = 'copilot_review',
+    srmWin = 'srm_win',
+    rdmWin = 'rdm_win',
+    mmWin = 'mm_win',
 }
 
 export enum CHALLENGE_TYPE_VALUES {

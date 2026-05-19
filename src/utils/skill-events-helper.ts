@@ -1,6 +1,19 @@
 import crypto, { BinaryToTextEncoding } from 'crypto';
 import { Prisma } from '@prisma/client';
 import { SkillEventTypes, envConfig } from '../config';
+
+/**
+ * Event type names (and the engagement_assignment type, whose source type is 'engagement')
+ * that count as a "win" in the user_skill_win_summary table.
+ * Must stay in sync with the win logic in reports-api member-search.
+ */
+const WIN_SKILL_EVENT_TYPE_NAMES = new Set([
+    SkillEventTypes.challengeWin,
+    SkillEventTypes.challenge2ndPlace,
+    SkillEventTypes.challenge3rdPlace,
+    'gig_completion',
+    SkillEventTypes.engagementAssignment, // engagement source type = win
+]);
 import { ConflictError } from './errors';
 import { find, get, toNumber } from 'lodash';
 import { ensureChallengeExists } from './challenge-db-helper';
@@ -158,18 +171,45 @@ export async function createSkillEventsForUser(
 ) {
     const eventTypesMap = await getSkillEventTypesMapForClient(tx);
     const now = new Date();
+    const resolvedEventType = getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '');
+    const isWin = WIN_SKILL_EVENT_TYPE_NAMES.has(resolvedEventType.name);
+    const userId = toNumber(user.userId);
+
     const skillEvents = payloadSkills.map((skill) => ({
         eventId,
-        userId: toNumber(user.userId),
+        userId,
         skillId: skill.id,
         sourceId,
         sourceTypeId,
-        skillEventTypeId: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '')
-            .id,
+        skillEventTypeId: resolvedEventType.id,
         createdAt: now,
     }));
 
-    return tx.skillEvent.createMany({
+    await tx.skillEvent.createMany({
         data: skillEvents,
     });
+
+    // Update the pre-computed win/submission summary used by reports-api member search.
+    // event_type_counts is a JSONB map {event_type_name: count} — no code changes
+    // needed when new SkillEventTypes values are added to the enum.
+    const eventTypeName = resolvedEventType.name;
+    const winsIncr      = isWin ? 1 : 0;
+    const newCounts     = JSON.stringify({ [eventTypeName]: 1 });
+
+    for (const skill of payloadSkills) {
+        await tx.$executeRaw`
+            INSERT INTO user_skill_win_summary (user_id, skill_id, wins, submitted, event_type_counts, updated_at)
+            VALUES (${userId}, ${skill.id}::uuid, ${winsIncr}, 1, ${newCounts}::jsonb, NOW())
+            ON CONFLICT (user_id, skill_id) DO UPDATE
+            SET wins              = user_skill_win_summary.wins      + EXCLUDED.wins,
+                submitted         = user_skill_win_summary.submitted + 1,
+                event_type_counts = jsonb_set(
+                                      user_skill_win_summary.event_type_counts,
+                                      ARRAY[${eventTypeName}],
+                                      to_jsonb(
+                                        COALESCE((user_skill_win_summary.event_type_counts->>${eventTypeName})::integer, 0) + 1
+                                      )
+                                    ),
+                updated_at        = NOW()`;
+    }
 }
