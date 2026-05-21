@@ -5,7 +5,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { AuthUser } from '../../common/interfaces/auth-user.interface';
 import { GetUserSkillsDisplayModesQueryDto, GetUserSkillsQueryDto, UpdateUserSkillsRequestBodyDto } from '../../dto';
 import { BadRequestError, NotFoundError } from '../../utils/errors';
-import { ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../../utils/helpers';
+import { ensureUserCanFetchMemberSkills, ensureUserCanManageMemberSkills, ensureUserHasAdminPrivilege } from '../../utils/helpers';
 import { UserSkillLevels } from '../../config';
 
 @Injectable()
@@ -14,8 +14,8 @@ export class UserSkillsService {
 
     constructor(private readonly prisma: PrismaService) {}
 
-    private buildOrderBy(query: GetUserSkillsQueryDto): Prisma.SkillOrderByWithRelationInput[] {
-        const order: Prisma.SkillOrderByWithRelationInput[] = [];
+    private buildOrderBy(query: GetUserSkillsQueryDto): Prisma.skillOrderByWithRelationInput[] {
+        const order: Prisma.skillOrderByWithRelationInput[] = [];
         const sortOrder = (query.sortOrder ?? 'ASC').toLowerCase() as 'asc' | 'desc';
         const sortBy = query.sortBy ?? 'name';
 
@@ -33,11 +33,11 @@ export class UserSkillsService {
     async getUserSkills(user: AuthUser, userId: number, query: GetUserSkillsQueryDto) {
         this.logger.log(`Fetching user skills for userId=${userId} query=${JSON.stringify(query)}`);
 
-        ensureUserCanManageMemberSkills(user, userId);
+        ensureUserCanFetchMemberSkills(user, userId);
 
         const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
 
-        const where: Prisma.SkillWhereInput = {
+        const where: Prisma.skillWhereInput = {
             userSkills: {
                 some: { userId },
             },
@@ -52,31 +52,37 @@ export class UserSkillsService {
                 category: true,
                 userSkills: {
                     where: { userId },
-                    include: {
-                        userSkillLevel: true,
-                        userSkillDisplayMode: true,
+                        include: {
+                            level: true,
+                            displayMode: true,
                     },
                 },
             },
-        } satisfies Prisma.SkillFindManyArgs;
+        } satisfies Prisma.skillFindManyArgs;
 
         let skills: Array<
-            Prisma.SkillGetPayload<{
+            Prisma.skillGetPayload<{
                 include: {
                     category: true;
-                    userSkills: { include: { userSkillLevel: true; userSkillDisplayMode: true } };
+                    userSkills: { include: { level: true; displayMode: true } };
                 };
             }>
         > = [];
         let total = 0;
 
         if (disablePagination) {
-            skills = await this.prisma.skill.findMany(commonArgs);
+            skills = await this.prisma.skill.findMany({
+                ...commonArgs,
+            });
             total = skills.length;
         } else {
             const skip = (query.page - 1) * query.perPage;
             const [queried, count] = await this.prisma.$transaction([
-                this.prisma.skill.findMany({ ...commonArgs, skip, take: query.perPage }),
+                this.prisma.skill.findMany({
+                    ...commonArgs,
+                    skip,
+                    take: query.perPage,
+                }),
                 this.prisma.skill.count({ where }),
             ]);
             skills = queried;
@@ -85,13 +91,13 @@ export class UserSkillsService {
 
         const serialized = skills.map((skill) => {
             const levels = skill.userSkills.map((us) => ({
-                id: us.userSkillLevel.id,
-                name: us.userSkillLevel.name,
-                description: us.userSkillLevel.description ?? '',
+                    id: us.level.id,
+                    name: us.level.name,
+                    description: us.level.description ?? '',
             }));
 
             const preferred =
-                skill.userSkills.find((us) => us.userSkillLevel.name === UserSkillLevels.verified) ??
+                    skill.userSkills.find((us) => us.level.name === UserSkillLevels.verified) ??
                 skill.userSkills[0];
 
             return {
@@ -106,8 +112,8 @@ export class UserSkillsService {
                 levels,
                 displayMode: preferred
                     ? {
-                          id: preferred.userSkillDisplayMode.id,
-                          name: preferred.userSkillDisplayMode.name,
+                              id: preferred.displayMode.id,
+                              name: preferred.displayMode.name,
                       }
                     : null,
             };
@@ -137,7 +143,7 @@ export class UserSkillsService {
         const commonArgs = {
             orderBy: { name: sortOrder },
             select: { id: true, name: true },
-        } satisfies Prisma.UserSkillDisplayModeFindManyArgs;
+        } satisfies Prisma.userSkillDisplayModeFindManyArgs;
 
         let displayModes: Array<{ id: string; name: string }> = [];
         let total = 0;
@@ -295,7 +301,7 @@ export class UserSkillsService {
                 where: {
                     userId,
                     skillId: { notIn: ids },
-                    userSkillLevel: { name: UserSkillLevels.selfDeclared },
+                        level: { name: UserSkillLevels.selfDeclared },
                 },
             });
 

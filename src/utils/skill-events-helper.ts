@@ -1,15 +1,33 @@
 import crypto, { BinaryToTextEncoding } from 'crypto';
+import { Prisma } from '@prisma/client';
 import { SkillEventTypes, envConfig } from '../config';
-import { Event, SkillEvent, SkillEventType } from '../db';
-import { Transaction, UniqueConstraintError } from 'sequelize';
+
+/**
+ * Event type names (and the engagement_assignment type, whose source type is 'engagement')
+ * that count as a "win" in the user_skill_win_summary table.
+ * Must stay in sync with the win logic in reports-api member-search.
+ */
+const WIN_SKILL_EVENT_TYPE_NAMES = new Set([
+    SkillEventTypes.challengeWin,
+    SkillEventTypes.challenge2ndPlace,
+    SkillEventTypes.challenge3rdPlace,
+    'gig_completion',
+    SkillEventTypes.engagementAssignment, // engagement source type = win
+]);
 import { ConflictError } from './errors';
 import { find, get, toNumber } from 'lodash';
 import { ensureChallengeExists } from './challenge-db-helper';
 import { ensureMemberExists } from './member-db-helper';
 import { ChallengeWinnerDto, UserSkillDto } from '../dto';
+import { PrismaService } from '../prisma/prisma.service';
 
-let localSkillEventTypes: Promise<SkillEventType[]>;
+type SkillEventTypeRecord = { id: string; name: string };
+type PrismaSkillEventsClient = Prisma.TransactionClient | PrismaService;
+
+let localSkillEventTypes: Promise<SkillEventTypeRecord[]>;
 export const REVIEWER_TYPE_KEY = 'reviewer';
+export const COPILOT_TYPE_KEY = 'copilot';
+export const FINISHER_TYPE_KEY = 'finisher';
 
 /**
  * Create a hash string for the passed in data
@@ -25,13 +43,24 @@ export const hashData = (data: any, digest: BinaryToTextEncoding = 'base64', sec
  * @param payload
  * @returns
  */
-export async function createAndEnsureEventNotProcessedAlready(topic: string, payload: any) {
+export async function createAndEnsureEventNotProcessedAlready(
+    topic: string,
+    payload: any,
+    client: PrismaSkillEventsClient,
+) {
     const payloadHash = hashData(payload);
 
     try {
-        return await Event.create({ topic, payload, payload_hash: payloadHash });
+        return await client.event.create({
+            data: {
+                topic,
+                payload: payload as Prisma.InputJsonValue,
+                payloadHash,
+                createdAt: new Date(),
+            },
+        });
     } catch (error) {
-        if (error instanceof UniqueConstraintError) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
             throw new ConflictError('Event has already been processed!');
         }
         throw error;
@@ -63,12 +92,14 @@ export async function ensurePayloadWinnersAreValidUsers(winners: { userId: numbe
 /**
  * Fetch all SkillEventTypes and cache locally
  */
-export async function fetchAllSkillEventTypes(freshFetch = false) {
+export async function fetchAllSkillEventTypes(client: PrismaSkillEventsClient, freshFetch = false) {
     if (localSkillEventTypes && !freshFetch) {
         return localSkillEventTypes;
     }
 
-    return (localSkillEventTypes = SkillEventType.findAll());
+    return (localSkillEventTypes = client.skillEventType.findMany({
+        select: { id: true, name: true },
+    }));
 }
 
 /**
@@ -76,12 +107,21 @@ export async function fetchAllSkillEventTypes(freshFetch = false) {
  * - all possible places a user can receive if they win a challenge
  * - if they're reviewers or not
  */
-async function getSkillEventTypesMap() {
-    const allSkillEventTypes = await fetchAllSkillEventTypes();
+async function getSkillEventTypesMapForClient(client: PrismaSkillEventsClient) {
+    const allSkillEventTypes = await fetchAllSkillEventTypes(client, false);
+
+    return buildSkillEventTypesMap(allSkillEventTypes);
+}
+
+function buildSkillEventTypesMap(allSkillEventTypes: SkillEventTypeRecord[]) {
 
     return {
         // reviewer type
         [REVIEWER_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeReview }),
+        // copilot type
+        [COPILOT_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeCopilot }),
+        // finisher type
+        [FINISHER_TYPE_KEY]: find(allSkillEventTypes, { name: SkillEventTypes.challengeFinisher }),
         // winners placements types
         '1': find(allSkillEventTypes, { name: SkillEventTypes.challengeWin }),
         '2': find(allSkillEventTypes, { name: SkillEventTypes.challenge2ndPlace }),
@@ -89,9 +129,8 @@ async function getSkillEventTypesMap() {
         // tca
         [SkillEventTypes.tcaCertCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCertCompleted }),
         [SkillEventTypes.tcaCourseCompleted]: find(allSkillEventTypes, { name: SkillEventTypes.tcaCourseCompleted }),
-        // gig
-        [SkillEventTypes.gigCompletion]: find(allSkillEventTypes, { name: SkillEventTypes.gigCompletion }),
-        // TODO: add more types here as needed
+        // engagement
+        [SkillEventTypes.engagementAssignment]: find(allSkillEventTypes, { name: SkillEventTypes.engagementAssignment }),
         // fallback type
         default: find(allSkillEventTypes, { name: SkillEventTypes.challengeFinisher }),
     };
@@ -103,10 +142,10 @@ async function getSkillEventTypesMap() {
  * then we return the "challenge finisher" type as a fallback
  */
 export function getSkillEventType(
-    eventTypesMap: { [key: string]: SkillEventType | undefined },
+    eventTypesMap: { [key: string]: SkillEventTypeRecord | undefined },
     eventTypeSelector: number | string,
 ) {
-    return get(eventTypesMap, `[${eventTypeSelector}]`, eventTypesMap.default) as SkillEventType;
+    return get(eventTypesMap, `[${eventTypeSelector}]`, eventTypesMap.default) as SkillEventTypeRecord;
 }
 
 /**
@@ -127,23 +166,50 @@ export async function createSkillEventsForUser(
     eventId: string,
     sourceId: string,
     sourceTypeId: string,
-    tx: Transaction,
+    tx: Prisma.TransactionClient,
     skillEventType?: SkillEventTypes,
 ) {
-    const eventTypesMap = await getSkillEventTypesMap();
-    const skillEvents = [];
+    const eventTypesMap = await getSkillEventTypesMapForClient(tx);
+    const now = new Date();
+    const resolvedEventType = getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '');
+    const isWin = WIN_SKILL_EVENT_TYPE_NAMES.has(resolvedEventType.name);
+    const userId = toNumber(user.userId);
+
+    const skillEvents = payloadSkills.map((skill) => ({
+        eventId,
+        userId,
+        skillId: skill.id,
+        sourceId,
+        sourceTypeId,
+        skillEventTypeId: resolvedEventType.id,
+        createdAt: now,
+    }));
+
+    await tx.skillEvent.createMany({
+        data: skillEvents,
+    });
+
+    // Update the pre-computed win/submission summary used by reports-api member search.
+    // event_type_counts is a JSONB map {event_type_name: count} — no code changes
+    // needed when new SkillEventTypes values are added to the enum.
+    const eventTypeName = resolvedEventType.name;
+    const winsIncr      = isWin ? 1 : 0;
+    const newCounts     = JSON.stringify({ [eventTypeName]: 1 });
 
     for (const skill of payloadSkills) {
-        skillEvents.push({
-            event_id: eventId,
-            user_id: toNumber(user.userId),
-            skill_id: skill.id,
-            source_id: sourceId,
-            source_type_id: sourceTypeId,
-            skill_event_type_id: getSkillEventType(eventTypesMap, skillEventType ?? user.placement ?? user.type ?? '')
-                .id,
-        });
+        await tx.$executeRaw`
+            INSERT INTO user_skill_win_summary (user_id, skill_id, wins, submitted, event_type_counts, updated_at)
+            VALUES (${userId}, ${skill.id}::uuid, ${winsIncr}, 1, ${newCounts}::jsonb, NOW())
+            ON CONFLICT (user_id, skill_id) DO UPDATE
+            SET wins              = user_skill_win_summary.wins      + EXCLUDED.wins,
+                submitted         = user_skill_win_summary.submitted + 1,
+                event_type_counts = jsonb_set(
+                                      user_skill_win_summary.event_type_counts,
+                                      ARRAY[${eventTypeName}],
+                                      to_jsonb(
+                                        COALESCE((user_skill_win_summary.event_type_counts->>${eventTypeName})::integer, 0) + 1
+                                      )
+                                    ),
+                updated_at        = NOW()`;
     }
-
-    return SkillEvent.bulkCreate(skillEvents, { transaction: tx });
 }

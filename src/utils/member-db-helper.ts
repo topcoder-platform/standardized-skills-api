@@ -1,24 +1,10 @@
-import { QueryTypes } from 'sequelize';
-
 import { envConfig } from '../config';
-import { getMemberSequelize } from '../db/member-db';
+import { getMemberPrisma } from '../db/member-db';
 import { InternalServerError, NotFoundError } from './errors';
 import { LoggerClient } from './LoggerClient';
+import { buildQualifiedTable, formatError, validateIdentifier } from './db-query.helpers';
 
 const logger = new LoggerClient('MemberDbHelper');
-const disableSearchPath = { supportsSearchPath: false } as any;
-
-function formatError(error: unknown): string {
-    if (error instanceof Error) {
-        return error.stack ?? `${error.name}: ${error.message}`;
-    }
-
-    try {
-        return JSON.stringify(error);
-    } catch {
-        return String(error);
-    }
-}
 
 function assertMemberDbConfig() {
     if (!envConfig.MEMBER_DB.URL) {
@@ -26,45 +12,27 @@ function assertMemberDbConfig() {
     }
 }
 
-function buildQualifiedTable(): string {
-    const schema = envConfig.MEMBER_DB.SCHEMA;
-    const table = envConfig.MEMBER_DB.TABLE;
-
-    validateIdentifier(schema, 'schema');
-    validateIdentifier(table, 'table');
-
-    return `"${schema}"."${table}"`;
-}
-
-function validateIdentifier(value: string, kind: 'schema' | 'table' | 'column') {
-    if (!/^[A-Za-z0-9_]+$/.test(value)) {
-        throw new InternalServerError(`Invalid ${kind} name for member database access`);
-    }
-}
-
 export async function memberExists(memberId: string | number): Promise<boolean> {
     assertMemberDbConfig();
 
     try {
-        const sequelize = getMemberSequelize();
+        const memberDb = getMemberPrisma();
         const idColumn = envConfig.MEMBER_DB.ID_COLUMN;
-        const qualifiedTable = buildQualifiedTable();
+        const qualifiedTable = buildQualifiedTable(
+            envConfig.MEMBER_DB.SCHEMA,
+            envConfig.MEMBER_DB.TABLE,
+        );
 
         validateIdentifier(idColumn, 'column');
 
         logger.info(`Validating member ${memberId} using ${qualifiedTable}.${idColumn}`);
 
-        const record = await sequelize.query<{ [key: string]: unknown }>(
-            `SELECT "${idColumn}" FROM ${qualifiedTable} WHERE "${idColumn}" = $1 LIMIT 1`,
-            {
-                bind: [memberId],
-                type: QueryTypes.SELECT,
-                plain: true,
-                ...disableSearchPath,
-            },
+        const result = await memberDb.$queryRawUnsafe<{ [key: string]: unknown }[]>(
+            `SELECT "${idColumn}" FROM ${qualifiedTable} WHERE "${idColumn}" = $1::bigint LIMIT 1`,
+            memberId,
         );
 
-        return Boolean(record);
+        return Boolean(result[0]);
     } catch (error) {
         logger.error(`Error verifying member ${memberId} via member database`);
         logger.error(formatError(error));

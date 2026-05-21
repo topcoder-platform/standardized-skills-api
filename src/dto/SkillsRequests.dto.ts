@@ -121,3 +121,9 @@ export class SkillIdsRequestBodyDto {
     @ArrayUnique({ message: 'Provided skill ids are not unique!' })
     skillIds: string[];
 }
+
+export class SemanticSearchRequestQueryDto {
+    @IsString()
+    @IsNotEmpty()
+    text: string;
+}

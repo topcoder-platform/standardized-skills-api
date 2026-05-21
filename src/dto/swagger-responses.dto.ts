@@ -58,6 +58,11 @@ export class SkillFuzzyMatchResponseDto {
     name: string;
 }
 
+export class SemanticSkillMatchResponseDto extends SkillFuzzyMatchResponseDto {
+    @ApiProperty({ format: 'number', example: '0-1' })
+    weighted_distance: number;
+}
+
 export class SkillAssignmentResponseDto {
     @ApiProperty({ type: [SkillResponseDto] })
     skills: SkillResponseDto[];

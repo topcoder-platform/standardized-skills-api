@@ -65,7 +65,8 @@ workflows:
                       branches:
                           only:
                               - develop
-                              - PM-3346
+                              - semantic-search
+                              - PM-4863_migrate-to-nestjs
             - "build-prod":
                   context: org-global
                   filters:
