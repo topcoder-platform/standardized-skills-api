@@ -54,6 +54,15 @@ export type sourceType = $Result.DefaultSelection<Prisma.$sourceTypePayload>
  */
 export type userSkill = $Result.DefaultSelection<Prisma.$userSkillPayload>
 /**
+ * Model userSkillWinSummary
+ * Pre-computed win/submission totals per (user_id, skill_id).
+ * eventTypeCounts is a JSONB map of { event_type_name: count } — no schema
+ * changes needed when new SkillEventTypes values are added.
+ * Maintained incrementally on each skill_event insert; used by reports-api
+ * member search to avoid the expensive multi-CTE aggregation over skill_event.
+ */
+export type userSkillWinSummary = $Result.DefaultSelection<Prisma.$userSkillWinSummaryPayload>
+/**
  * Model userSkillDisplayMode
  * 
  */
@@ -266,6 +275,16 @@ export class PrismaClient<
     * ```
     */
   get userSkill(): Prisma.userSkillDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.userSkillWinSummary`: Exposes CRUD operations for the **userSkillWinSummary** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more UserSkillWinSummaries
+    * const userSkillWinSummaries = await prisma.userSkillWinSummary.findMany()
+    * ```
+    */
+  get userSkillWinSummary(): Prisma.userSkillWinSummaryDelegate<ExtArgs, ClientOptions>;
 
   /**
    * `prisma.userSkillDisplayMode`: Exposes CRUD operations for the **userSkillDisplayMode** model.
@@ -745,6 +764,7 @@ export namespace Prisma {
     skillReplacement: 'skillReplacement',
     sourceType: 'sourceType',
     userSkill: 'userSkill',
+    userSkillWinSummary: 'userSkillWinSummary',
     userSkillDisplayMode: 'userSkillDisplayMode',
     userSkillLevel: 'userSkillLevel',
     workSkill: 'workSkill'
@@ -766,7 +786,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "event" | "skill" | "skillCategory" | "skillEvent" | "skillEventType" | "skillReplacement" | "sourceType" | "userSkill" | "userSkillDisplayMode" | "userSkillLevel" | "workSkill"
+      modelProps: "event" | "skill" | "skillCategory" | "skillEvent" | "skillEventType" | "skillReplacement" | "sourceType" | "userSkill" | "userSkillWinSummary" | "userSkillDisplayMode" | "userSkillLevel" | "workSkill"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1362,6 +1382,80 @@ export namespace Prisma {
           }
         }
       }
+      userSkillWinSummary: {
+        payload: Prisma.$userSkillWinSummaryPayload<ExtArgs>
+        fields: Prisma.userSkillWinSummaryFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.userSkillWinSummaryFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.userSkillWinSummaryFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>
+          }
+          findFirst: {
+            args: Prisma.userSkillWinSummaryFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.userSkillWinSummaryFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>
+          }
+          findMany: {
+            args: Prisma.userSkillWinSummaryFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>[]
+          }
+          create: {
+            args: Prisma.userSkillWinSummaryCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>
+          }
+          createMany: {
+            args: Prisma.userSkillWinSummaryCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.userSkillWinSummaryCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>[]
+          }
+          delete: {
+            args: Prisma.userSkillWinSummaryDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>
+          }
+          update: {
+            args: Prisma.userSkillWinSummaryUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>
+          }
+          deleteMany: {
+            args: Prisma.userSkillWinSummaryDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.userSkillWinSummaryUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.userSkillWinSummaryUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>[]
+          }
+          upsert: {
+            args: Prisma.userSkillWinSummaryUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$userSkillWinSummaryPayload>
+          }
+          aggregate: {
+            args: Prisma.UserSkillWinSummaryAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateUserSkillWinSummary>
+          }
+          groupBy: {
+            args: Prisma.userSkillWinSummaryGroupByArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillWinSummaryGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.userSkillWinSummaryCountArgs<ExtArgs>
+            result: $Utils.Optional<UserSkillWinSummaryCountAggregateOutputType> | number
+          }
+        }
+      }
       userSkillDisplayMode: {
         payload: Prisma.$userSkillDisplayModePayload<ExtArgs>
         fields: Prisma.userSkillDisplayModeFieldRefs
@@ -1688,6 +1782,7 @@ export namespace Prisma {
     skillReplacement?: skillReplacementOmit
     sourceType?: sourceTypeOmit
     userSkill?: userSkillOmit
+    userSkillWinSummary?: userSkillWinSummaryOmit
     userSkillDisplayMode?: userSkillDisplayModeOmit
     userSkillLevel?: userSkillLevelOmit
     workSkill?: workSkillOmit
@@ -10731,6 +10826,1052 @@ export namespace Prisma {
 
 
   /**
+   * Model userSkillWinSummary
+   */
+
+  export type AggregateUserSkillWinSummary = {
+    _count: UserSkillWinSummaryCountAggregateOutputType | null
+    _avg: UserSkillWinSummaryAvgAggregateOutputType | null
+    _sum: UserSkillWinSummarySumAggregateOutputType | null
+    _min: UserSkillWinSummaryMinAggregateOutputType | null
+    _max: UserSkillWinSummaryMaxAggregateOutputType | null
+  }
+
+  export type UserSkillWinSummaryAvgAggregateOutputType = {
+    userId: number | null
+    wins: number | null
+    submitted: number | null
+  }
+
+  export type UserSkillWinSummarySumAggregateOutputType = {
+    userId: number | null
+    wins: number | null
+    submitted: number | null
+  }
+
+  export type UserSkillWinSummaryMinAggregateOutputType = {
+    userId: number | null
+    skillId: string | null
+    wins: number | null
+    submitted: number | null
+    updatedAt: Date | null
+  }
+
+  export type UserSkillWinSummaryMaxAggregateOutputType = {
+    userId: number | null
+    skillId: string | null
+    wins: number | null
+    submitted: number | null
+    updatedAt: Date | null
+  }
+
+  export type UserSkillWinSummaryCountAggregateOutputType = {
+    userId: number
+    skillId: number
+    wins: number
+    submitted: number
+    eventTypeCounts: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type UserSkillWinSummaryAvgAggregateInputType = {
+    userId?: true
+    wins?: true
+    submitted?: true
+  }
+
+  export type UserSkillWinSummarySumAggregateInputType = {
+    userId?: true
+    wins?: true
+    submitted?: true
+  }
+
+  export type UserSkillWinSummaryMinAggregateInputType = {
+    userId?: true
+    skillId?: true
+    wins?: true
+    submitted?: true
+    updatedAt?: true
+  }
+
+  export type UserSkillWinSummaryMaxAggregateInputType = {
+    userId?: true
+    skillId?: true
+    wins?: true
+    submitted?: true
+    updatedAt?: true
+  }
+
+  export type UserSkillWinSummaryCountAggregateInputType = {
+    userId?: true
+    skillId?: true
+    wins?: true
+    submitted?: true
+    eventTypeCounts?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type UserSkillWinSummaryAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which userSkillWinSummary to aggregate.
+     */
+    where?: userSkillWinSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of userSkillWinSummaries to fetch.
+     */
+    orderBy?: userSkillWinSummaryOrderByWithRelationInput | userSkillWinSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: userSkillWinSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` userSkillWinSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` userSkillWinSummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned userSkillWinSummaries
+    **/
+    _count?: true | UserSkillWinSummaryCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: UserSkillWinSummaryAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSkillWinSummarySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: UserSkillWinSummaryMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: UserSkillWinSummaryMaxAggregateInputType
+  }
+
+  export type GetUserSkillWinSummaryAggregateType<T extends UserSkillWinSummaryAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserSkillWinSummary]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserSkillWinSummary[P]>
+      : GetScalarType<T[P], AggregateUserSkillWinSummary[P]>
+  }
+
+
+
+
+  export type userSkillWinSummaryGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: userSkillWinSummaryWhereInput
+    orderBy?: userSkillWinSummaryOrderByWithAggregationInput | userSkillWinSummaryOrderByWithAggregationInput[]
+    by: UserSkillWinSummaryScalarFieldEnum[] | UserSkillWinSummaryScalarFieldEnum
+    having?: userSkillWinSummaryScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: UserSkillWinSummaryCountAggregateInputType | true
+    _avg?: UserSkillWinSummaryAvgAggregateInputType
+    _sum?: UserSkillWinSummarySumAggregateInputType
+    _min?: UserSkillWinSummaryMinAggregateInputType
+    _max?: UserSkillWinSummaryMaxAggregateInputType
+  }
+
+  export type UserSkillWinSummaryGroupByOutputType = {
+    userId: number
+    skillId: string
+    wins: number
+    submitted: number
+    eventTypeCounts: JsonValue
+    updatedAt: Date
+    _count: UserSkillWinSummaryCountAggregateOutputType | null
+    _avg: UserSkillWinSummaryAvgAggregateOutputType | null
+    _sum: UserSkillWinSummarySumAggregateOutputType | null
+    _min: UserSkillWinSummaryMinAggregateOutputType | null
+    _max: UserSkillWinSummaryMaxAggregateOutputType | null
+  }
+
+  type GetUserSkillWinSummaryGroupByPayload<T extends userSkillWinSummaryGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<UserSkillWinSummaryGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof UserSkillWinSummaryGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], UserSkillWinSummaryGroupByOutputType[P]>
+            : GetScalarType<T[P], UserSkillWinSummaryGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type userSkillWinSummarySelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    skillId?: boolean
+    wins?: boolean
+    submitted?: boolean
+    eventTypeCounts?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["userSkillWinSummary"]>
+
+  export type userSkillWinSummarySelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    skillId?: boolean
+    wins?: boolean
+    submitted?: boolean
+    eventTypeCounts?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["userSkillWinSummary"]>
+
+  export type userSkillWinSummarySelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    userId?: boolean
+    skillId?: boolean
+    wins?: boolean
+    submitted?: boolean
+    eventTypeCounts?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["userSkillWinSummary"]>
+
+  export type userSkillWinSummarySelectScalar = {
+    userId?: boolean
+    skillId?: boolean
+    wins?: boolean
+    submitted?: boolean
+    eventTypeCounts?: boolean
+    updatedAt?: boolean
+  }
+
+  export type userSkillWinSummaryOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"userId" | "skillId" | "wins" | "submitted" | "eventTypeCounts" | "updatedAt", ExtArgs["result"]["userSkillWinSummary"]>
+
+  export type $userSkillWinSummaryPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "userSkillWinSummary"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      userId: number
+      skillId: string
+      wins: number
+      submitted: number
+      eventTypeCounts: Prisma.JsonValue
+      updatedAt: Date
+    }, ExtArgs["result"]["userSkillWinSummary"]>
+    composites: {}
+  }
+
+  type userSkillWinSummaryGetPayload<S extends boolean | null | undefined | userSkillWinSummaryDefaultArgs> = $Result.GetResult<Prisma.$userSkillWinSummaryPayload, S>
+
+  type userSkillWinSummaryCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<userSkillWinSummaryFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: UserSkillWinSummaryCountAggregateInputType | true
+    }
+
+  export interface userSkillWinSummaryDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['userSkillWinSummary'], meta: { name: 'userSkillWinSummary' } }
+    /**
+     * Find zero or one UserSkillWinSummary that matches the filter.
+     * @param {userSkillWinSummaryFindUniqueArgs} args - Arguments to find a UserSkillWinSummary
+     * @example
+     * // Get one UserSkillWinSummary
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends userSkillWinSummaryFindUniqueArgs>(args: SelectSubset<T, userSkillWinSummaryFindUniqueArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one UserSkillWinSummary that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {userSkillWinSummaryFindUniqueOrThrowArgs} args - Arguments to find a UserSkillWinSummary
+     * @example
+     * // Get one UserSkillWinSummary
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends userSkillWinSummaryFindUniqueOrThrowArgs>(args: SelectSubset<T, userSkillWinSummaryFindUniqueOrThrowArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillWinSummary that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {userSkillWinSummaryFindFirstArgs} args - Arguments to find a UserSkillWinSummary
+     * @example
+     * // Get one UserSkillWinSummary
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends userSkillWinSummaryFindFirstArgs>(args?: SelectSubset<T, userSkillWinSummaryFindFirstArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first UserSkillWinSummary that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {userSkillWinSummaryFindFirstOrThrowArgs} args - Arguments to find a UserSkillWinSummary
+     * @example
+     * // Get one UserSkillWinSummary
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends userSkillWinSummaryFindFirstOrThrowArgs>(args?: SelectSubset<T, userSkillWinSummaryFindFirstOrThrowArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more UserSkillWinSummaries that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {userSkillWinSummaryFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all UserSkillWinSummaries
+     * const userSkillWinSummaries = await prisma.userSkillWinSummary.findMany()
+     * 
+     * // Get first 10 UserSkillWinSummaries
+     * const userSkillWinSummaries = await prisma.userSkillWinSummary.findMany({ take: 10 })
+     * 
+     * // Only select the `userId`
+     * const userSkillWinSummaryWithUserIdOnly = await prisma.userSkillWinSummary.findMany({ select: { userId: true } })
+     * 
+     */
+    findMany<T extends userSkillWinSummaryFindManyArgs>(args?: SelectSubset<T, userSkillWinSummaryFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a UserSkillWinSummary.
+     * @param {userSkillWinSummaryCreateArgs} args - Arguments to create a UserSkillWinSummary.
+     * @example
+     * // Create one UserSkillWinSummary
+     * const UserSkillWinSummary = await prisma.userSkillWinSummary.create({
+     *   data: {
+     *     // ... data to create a UserSkillWinSummary
+     *   }
+     * })
+     * 
+     */
+    create<T extends userSkillWinSummaryCreateArgs>(args: SelectSubset<T, userSkillWinSummaryCreateArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many UserSkillWinSummaries.
+     * @param {userSkillWinSummaryCreateManyArgs} args - Arguments to create many UserSkillWinSummaries.
+     * @example
+     * // Create many UserSkillWinSummaries
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends userSkillWinSummaryCreateManyArgs>(args?: SelectSubset<T, userSkillWinSummaryCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many UserSkillWinSummaries and returns the data saved in the database.
+     * @param {userSkillWinSummaryCreateManyAndReturnArgs} args - Arguments to create many UserSkillWinSummaries.
+     * @example
+     * // Create many UserSkillWinSummaries
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many UserSkillWinSummaries and only return the `userId`
+     * const userSkillWinSummaryWithUserIdOnly = await prisma.userSkillWinSummary.createManyAndReturn({
+     *   select: { userId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends userSkillWinSummaryCreateManyAndReturnArgs>(args?: SelectSubset<T, userSkillWinSummaryCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a UserSkillWinSummary.
+     * @param {userSkillWinSummaryDeleteArgs} args - Arguments to delete one UserSkillWinSummary.
+     * @example
+     * // Delete one UserSkillWinSummary
+     * const UserSkillWinSummary = await prisma.userSkillWinSummary.delete({
+     *   where: {
+     *     // ... filter to delete one UserSkillWinSummary
+     *   }
+     * })
+     * 
+     */
+    delete<T extends userSkillWinSummaryDeleteArgs>(args: SelectSubset<T, userSkillWinSummaryDeleteArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one UserSkillWinSummary.
+     * @param {userSkillWinSummaryUpdateArgs} args - Arguments to update one UserSkillWinSummary.
+     * @example
+     * // Update one UserSkillWinSummary
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends userSkillWinSummaryUpdateArgs>(args: SelectSubset<T, userSkillWinSummaryUpdateArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more UserSkillWinSummaries.
+     * @param {userSkillWinSummaryDeleteManyArgs} args - Arguments to filter UserSkillWinSummaries to delete.
+     * @example
+     * // Delete a few UserSkillWinSummaries
+     * const { count } = await prisma.userSkillWinSummary.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends userSkillWinSummaryDeleteManyArgs>(args?: SelectSubset<T, userSkillWinSummaryDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillWinSummaries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {userSkillWinSummaryUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many UserSkillWinSummaries
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends userSkillWinSummaryUpdateManyArgs>(args: SelectSubset<T, userSkillWinSummaryUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more UserSkillWinSummaries and returns the data updated in the database.
+     * @param {userSkillWinSummaryUpdateManyAndReturnArgs} args - Arguments to update many UserSkillWinSummaries.
+     * @example
+     * // Update many UserSkillWinSummaries
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more UserSkillWinSummaries and only return the `userId`
+     * const userSkillWinSummaryWithUserIdOnly = await prisma.userSkillWinSummary.updateManyAndReturn({
+     *   select: { userId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends userSkillWinSummaryUpdateManyAndReturnArgs>(args: SelectSubset<T, userSkillWinSummaryUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one UserSkillWinSummary.
+     * @param {userSkillWinSummaryUpsertArgs} args - Arguments to update or create a UserSkillWinSummary.
+     * @example
+     * // Update or create a UserSkillWinSummary
+     * const userSkillWinSummary = await prisma.userSkillWinSummary.upsert({
+     *   create: {
+     *     // ... data to create a UserSkillWinSummary
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the UserSkillWinSummary we want to update
+     *   }
+     * })
+     */
+    upsert<T extends userSkillWinSummaryUpsertArgs>(args: SelectSubset<T, userSkillWinSummaryUpsertArgs<ExtArgs>>): Prisma__userSkillWinSummaryClient<$Result.GetResult<Prisma.$userSkillWinSummaryPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of UserSkillWinSummaries.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {userSkillWinSummaryCountArgs} args - Arguments to filter UserSkillWinSummaries to count.
+     * @example
+     * // Count the number of UserSkillWinSummaries
+     * const count = await prisma.userSkillWinSummary.count({
+     *   where: {
+     *     // ... the filter for the UserSkillWinSummaries we want to count
+     *   }
+     * })
+    **/
+    count<T extends userSkillWinSummaryCountArgs>(
+      args?: Subset<T, userSkillWinSummaryCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], UserSkillWinSummaryCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a UserSkillWinSummary.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {UserSkillWinSummaryAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends UserSkillWinSummaryAggregateArgs>(args: Subset<T, UserSkillWinSummaryAggregateArgs>): Prisma.PrismaPromise<GetUserSkillWinSummaryAggregateType<T>>
+
+    /**
+     * Group by UserSkillWinSummary.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {userSkillWinSummaryGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends userSkillWinSummaryGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: userSkillWinSummaryGroupByArgs['orderBy'] }
+        : { orderBy?: userSkillWinSummaryGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, userSkillWinSummaryGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserSkillWinSummaryGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the userSkillWinSummary model
+   */
+  readonly fields: userSkillWinSummaryFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for userSkillWinSummary.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__userSkillWinSummaryClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the userSkillWinSummary model
+   */
+  interface userSkillWinSummaryFieldRefs {
+    readonly userId: FieldRef<"userSkillWinSummary", 'Int'>
+    readonly skillId: FieldRef<"userSkillWinSummary", 'String'>
+    readonly wins: FieldRef<"userSkillWinSummary", 'Int'>
+    readonly submitted: FieldRef<"userSkillWinSummary", 'Int'>
+    readonly eventTypeCounts: FieldRef<"userSkillWinSummary", 'Json'>
+    readonly updatedAt: FieldRef<"userSkillWinSummary", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * userSkillWinSummary findUnique
+   */
+  export type userSkillWinSummaryFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which userSkillWinSummary to fetch.
+     */
+    where: userSkillWinSummaryWhereUniqueInput
+  }
+
+  /**
+   * userSkillWinSummary findUniqueOrThrow
+   */
+  export type userSkillWinSummaryFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which userSkillWinSummary to fetch.
+     */
+    where: userSkillWinSummaryWhereUniqueInput
+  }
+
+  /**
+   * userSkillWinSummary findFirst
+   */
+  export type userSkillWinSummaryFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which userSkillWinSummary to fetch.
+     */
+    where?: userSkillWinSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of userSkillWinSummaries to fetch.
+     */
+    orderBy?: userSkillWinSummaryOrderByWithRelationInput | userSkillWinSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for userSkillWinSummaries.
+     */
+    cursor?: userSkillWinSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` userSkillWinSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` userSkillWinSummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of userSkillWinSummaries.
+     */
+    distinct?: UserSkillWinSummaryScalarFieldEnum | UserSkillWinSummaryScalarFieldEnum[]
+  }
+
+  /**
+   * userSkillWinSummary findFirstOrThrow
+   */
+  export type userSkillWinSummaryFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which userSkillWinSummary to fetch.
+     */
+    where?: userSkillWinSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of userSkillWinSummaries to fetch.
+     */
+    orderBy?: userSkillWinSummaryOrderByWithRelationInput | userSkillWinSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for userSkillWinSummaries.
+     */
+    cursor?: userSkillWinSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` userSkillWinSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` userSkillWinSummaries.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of userSkillWinSummaries.
+     */
+    distinct?: UserSkillWinSummaryScalarFieldEnum | UserSkillWinSummaryScalarFieldEnum[]
+  }
+
+  /**
+   * userSkillWinSummary findMany
+   */
+  export type userSkillWinSummaryFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * Filter, which userSkillWinSummaries to fetch.
+     */
+    where?: userSkillWinSummaryWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of userSkillWinSummaries to fetch.
+     */
+    orderBy?: userSkillWinSummaryOrderByWithRelationInput | userSkillWinSummaryOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing userSkillWinSummaries.
+     */
+    cursor?: userSkillWinSummaryWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` userSkillWinSummaries from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` userSkillWinSummaries.
+     */
+    skip?: number
+    distinct?: UserSkillWinSummaryScalarFieldEnum | UserSkillWinSummaryScalarFieldEnum[]
+  }
+
+  /**
+   * userSkillWinSummary create
+   */
+  export type userSkillWinSummaryCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * The data needed to create a userSkillWinSummary.
+     */
+    data: XOR<userSkillWinSummaryCreateInput, userSkillWinSummaryUncheckedCreateInput>
+  }
+
+  /**
+   * userSkillWinSummary createMany
+   */
+  export type userSkillWinSummaryCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many userSkillWinSummaries.
+     */
+    data: userSkillWinSummaryCreateManyInput | userSkillWinSummaryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * userSkillWinSummary createManyAndReturn
+   */
+  export type userSkillWinSummaryCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * The data used to create many userSkillWinSummaries.
+     */
+    data: userSkillWinSummaryCreateManyInput | userSkillWinSummaryCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * userSkillWinSummary update
+   */
+  export type userSkillWinSummaryUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * The data needed to update a userSkillWinSummary.
+     */
+    data: XOR<userSkillWinSummaryUpdateInput, userSkillWinSummaryUncheckedUpdateInput>
+    /**
+     * Choose, which userSkillWinSummary to update.
+     */
+    where: userSkillWinSummaryWhereUniqueInput
+  }
+
+  /**
+   * userSkillWinSummary updateMany
+   */
+  export type userSkillWinSummaryUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update userSkillWinSummaries.
+     */
+    data: XOR<userSkillWinSummaryUpdateManyMutationInput, userSkillWinSummaryUncheckedUpdateManyInput>
+    /**
+     * Filter which userSkillWinSummaries to update
+     */
+    where?: userSkillWinSummaryWhereInput
+    /**
+     * Limit how many userSkillWinSummaries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * userSkillWinSummary updateManyAndReturn
+   */
+  export type userSkillWinSummaryUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * The data used to update userSkillWinSummaries.
+     */
+    data: XOR<userSkillWinSummaryUpdateManyMutationInput, userSkillWinSummaryUncheckedUpdateManyInput>
+    /**
+     * Filter which userSkillWinSummaries to update
+     */
+    where?: userSkillWinSummaryWhereInput
+    /**
+     * Limit how many userSkillWinSummaries to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * userSkillWinSummary upsert
+   */
+  export type userSkillWinSummaryUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * The filter to search for the userSkillWinSummary to update in case it exists.
+     */
+    where: userSkillWinSummaryWhereUniqueInput
+    /**
+     * In case the userSkillWinSummary found by the `where` argument doesn't exist, create a new userSkillWinSummary with this data.
+     */
+    create: XOR<userSkillWinSummaryCreateInput, userSkillWinSummaryUncheckedCreateInput>
+    /**
+     * In case the userSkillWinSummary was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<userSkillWinSummaryUpdateInput, userSkillWinSummaryUncheckedUpdateInput>
+  }
+
+  /**
+   * userSkillWinSummary delete
+   */
+  export type userSkillWinSummaryDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+    /**
+     * Filter which userSkillWinSummary to delete.
+     */
+    where: userSkillWinSummaryWhereUniqueInput
+  }
+
+  /**
+   * userSkillWinSummary deleteMany
+   */
+  export type userSkillWinSummaryDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which userSkillWinSummaries to delete
+     */
+    where?: userSkillWinSummaryWhereInput
+    /**
+     * Limit how many userSkillWinSummaries to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * userSkillWinSummary without action
+   */
+  export type userSkillWinSummaryDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the userSkillWinSummary
+     */
+    select?: userSkillWinSummarySelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the userSkillWinSummary
+     */
+    omit?: userSkillWinSummaryOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Model userSkillDisplayMode
    */
 
@@ -13988,6 +15129,18 @@ export namespace Prisma {
   export type UserSkillScalarFieldEnum = (typeof UserSkillScalarFieldEnum)[keyof typeof UserSkillScalarFieldEnum]
 
 
+  export const UserSkillWinSummaryScalarFieldEnum: {
+    userId: 'userId',
+    skillId: 'skillId',
+    wins: 'wins',
+    submitted: 'submitted',
+    eventTypeCounts: 'eventTypeCounts',
+    updatedAt: 'updatedAt'
+  };
+
+  export type UserSkillWinSummaryScalarFieldEnum = (typeof UserSkillWinSummaryScalarFieldEnum)[keyof typeof UserSkillWinSummaryScalarFieldEnum]
+
+
   export const UserSkillDisplayModeScalarFieldEnum: {
     id: 'id',
     name: 'name',
@@ -14642,6 +15795,66 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"userSkill"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"userSkill"> | Date | string
     userSkillDisplayModeId?: UuidWithAggregatesFilter<"userSkill"> | string
+  }
+
+  export type userSkillWinSummaryWhereInput = {
+    AND?: userSkillWinSummaryWhereInput | userSkillWinSummaryWhereInput[]
+    OR?: userSkillWinSummaryWhereInput[]
+    NOT?: userSkillWinSummaryWhereInput | userSkillWinSummaryWhereInput[]
+    userId?: IntFilter<"userSkillWinSummary"> | number
+    skillId?: UuidFilter<"userSkillWinSummary"> | string
+    wins?: IntFilter<"userSkillWinSummary"> | number
+    submitted?: IntFilter<"userSkillWinSummary"> | number
+    eventTypeCounts?: JsonFilter<"userSkillWinSummary">
+    updatedAt?: DateTimeFilter<"userSkillWinSummary"> | Date | string
+  }
+
+  export type userSkillWinSummaryOrderByWithRelationInput = {
+    userId?: SortOrder
+    skillId?: SortOrder
+    wins?: SortOrder
+    submitted?: SortOrder
+    eventTypeCounts?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type userSkillWinSummaryWhereUniqueInput = Prisma.AtLeast<{
+    userId_skillId?: userSkillWinSummaryUserIdSkillIdCompoundUniqueInput
+    AND?: userSkillWinSummaryWhereInput | userSkillWinSummaryWhereInput[]
+    OR?: userSkillWinSummaryWhereInput[]
+    NOT?: userSkillWinSummaryWhereInput | userSkillWinSummaryWhereInput[]
+    userId?: IntFilter<"userSkillWinSummary"> | number
+    skillId?: UuidFilter<"userSkillWinSummary"> | string
+    wins?: IntFilter<"userSkillWinSummary"> | number
+    submitted?: IntFilter<"userSkillWinSummary"> | number
+    eventTypeCounts?: JsonFilter<"userSkillWinSummary">
+    updatedAt?: DateTimeFilter<"userSkillWinSummary"> | Date | string
+  }, "userId_skillId">
+
+  export type userSkillWinSummaryOrderByWithAggregationInput = {
+    userId?: SortOrder
+    skillId?: SortOrder
+    wins?: SortOrder
+    submitted?: SortOrder
+    eventTypeCounts?: SortOrder
+    updatedAt?: SortOrder
+    _count?: userSkillWinSummaryCountOrderByAggregateInput
+    _avg?: userSkillWinSummaryAvgOrderByAggregateInput
+    _max?: userSkillWinSummaryMaxOrderByAggregateInput
+    _min?: userSkillWinSummaryMinOrderByAggregateInput
+    _sum?: userSkillWinSummarySumOrderByAggregateInput
+  }
+
+  export type userSkillWinSummaryScalarWhereWithAggregatesInput = {
+    AND?: userSkillWinSummaryScalarWhereWithAggregatesInput | userSkillWinSummaryScalarWhereWithAggregatesInput[]
+    OR?: userSkillWinSummaryScalarWhereWithAggregatesInput[]
+    NOT?: userSkillWinSummaryScalarWhereWithAggregatesInput | userSkillWinSummaryScalarWhereWithAggregatesInput[]
+    userId?: IntWithAggregatesFilter<"userSkillWinSummary"> | number
+    skillId?: UuidWithAggregatesFilter<"userSkillWinSummary"> | string
+    wins?: IntWithAggregatesFilter<"userSkillWinSummary"> | number
+    submitted?: IntWithAggregatesFilter<"userSkillWinSummary"> | number
+    eventTypeCounts?: JsonWithAggregatesFilter<"userSkillWinSummary">
+    updatedAt?: DateTimeWithAggregatesFilter<"userSkillWinSummary"> | Date | string
   }
 
   export type userSkillDisplayModeWhereInput = {
@@ -15330,6 +16543,69 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     userSkillDisplayModeId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type userSkillWinSummaryCreateInput = {
+    userId: number
+    skillId: string
+    wins?: number
+    submitted?: number
+    eventTypeCounts?: JsonNullValueInput | InputJsonValue
+    updatedAt?: Date | string
+  }
+
+  export type userSkillWinSummaryUncheckedCreateInput = {
+    userId: number
+    skillId: string
+    wins?: number
+    submitted?: number
+    eventTypeCounts?: JsonNullValueInput | InputJsonValue
+    updatedAt?: Date | string
+  }
+
+  export type userSkillWinSummaryUpdateInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    skillId?: StringFieldUpdateOperationsInput | string
+    wins?: IntFieldUpdateOperationsInput | number
+    submitted?: IntFieldUpdateOperationsInput | number
+    eventTypeCounts?: JsonNullValueInput | InputJsonValue
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type userSkillWinSummaryUncheckedUpdateInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    skillId?: StringFieldUpdateOperationsInput | string
+    wins?: IntFieldUpdateOperationsInput | number
+    submitted?: IntFieldUpdateOperationsInput | number
+    eventTypeCounts?: JsonNullValueInput | InputJsonValue
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type userSkillWinSummaryCreateManyInput = {
+    userId: number
+    skillId: string
+    wins?: number
+    submitted?: number
+    eventTypeCounts?: JsonNullValueInput | InputJsonValue
+    updatedAt?: Date | string
+  }
+
+  export type userSkillWinSummaryUpdateManyMutationInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    skillId?: StringFieldUpdateOperationsInput | string
+    wins?: IntFieldUpdateOperationsInput | number
+    submitted?: IntFieldUpdateOperationsInput | number
+    eventTypeCounts?: JsonNullValueInput | InputJsonValue
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type userSkillWinSummaryUncheckedUpdateManyInput = {
+    userId?: IntFieldUpdateOperationsInput | number
+    skillId?: StringFieldUpdateOperationsInput | string
+    wins?: IntFieldUpdateOperationsInput | number
+    submitted?: IntFieldUpdateOperationsInput | number
+    eventTypeCounts?: JsonNullValueInput | InputJsonValue
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type userSkillDisplayModeCreateInput = {
@@ -16072,6 +17348,48 @@ export namespace Prisma {
 
   export type userSkillSumOrderByAggregateInput = {
     userId?: SortOrder
+  }
+
+  export type userSkillWinSummaryUserIdSkillIdCompoundUniqueInput = {
+    userId: number
+    skillId: string
+  }
+
+  export type userSkillWinSummaryCountOrderByAggregateInput = {
+    userId?: SortOrder
+    skillId?: SortOrder
+    wins?: SortOrder
+    submitted?: SortOrder
+    eventTypeCounts?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type userSkillWinSummaryAvgOrderByAggregateInput = {
+    userId?: SortOrder
+    wins?: SortOrder
+    submitted?: SortOrder
+  }
+
+  export type userSkillWinSummaryMaxOrderByAggregateInput = {
+    userId?: SortOrder
+    skillId?: SortOrder
+    wins?: SortOrder
+    submitted?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type userSkillWinSummaryMinOrderByAggregateInput = {
+    userId?: SortOrder
+    skillId?: SortOrder
+    wins?: SortOrder
+    submitted?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type userSkillWinSummarySumOrderByAggregateInput = {
+    userId?: SortOrder
+    wins?: SortOrder
+    submitted?: SortOrder
   }
 
   export type userSkillDisplayModeCountOrderByAggregateInput = {

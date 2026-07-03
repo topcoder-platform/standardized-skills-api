@@ -193,6 +193,15 @@ exports.Prisma.UserSkillScalarFieldEnum = {
   userSkillDisplayModeId: 'userSkillDisplayModeId'
 };
 
+exports.Prisma.UserSkillWinSummaryScalarFieldEnum = {
+  userId: 'userId',
+  skillId: 'skillId',
+  wins: 'wins',
+  submitted: 'submitted',
+  eventTypeCounts: 'eventTypeCounts',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.UserSkillDisplayModeScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -253,6 +262,7 @@ exports.Prisma.ModelName = {
   skillReplacement: 'skillReplacement',
   sourceType: 'sourceType',
   userSkill: 'userSkill',
+  userSkillWinSummary: 'userSkillWinSummary',
   userSkillDisplayMode: 'userSkillDisplayMode',
   userSkillLevel: 'userSkillLevel',
   workSkill: 'workSkill'
