@@ -68,9 +68,6 @@ export const envConfig = {
 
     SEMANTIC_SEARCH_MAX_DISTANCE: Number(process.env.SEMANTIC_SEARCH_MAX_DISTANCE ?? 0.4),
 
-    OLLAMA: {
-        API_URL: process.env.OLLAMA_API_URL || 'http://ollama.topcoder-dev.com:11434',
-        EMBEDDING_MODEL: process.env.OLLAMA_EMBEDDING_MODEL || 'qwen3-embedding:latest',
-        EMBEDDINGS_PATH: process.env.OLLAMA_EMBEDDINGS_PATH || '/api/embed',
-    }
+    EMBEDDING_MODEL: process.env.EMBEDDING_MODEL || 'amazon.titan-embed-text-v2:0',
+    EMBEDDING_DIMENSIONS: 1024
 };

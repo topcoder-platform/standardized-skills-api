@@ -13,7 +13,7 @@ import {
 } from '../../dto';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from '../../utils/errors';
 import { DEFAULT_SUGGESTIONS_SIZE, MAX_SUGGESTIONS_SIZE } from '../../config';
-import { fetchOllamaEmbedding, toVectorLiteral } from '../../utils/embeddings-service';
+import { fetchEmbedding, toVectorLiteral } from '../../utils/embeddings-service';
 
 type SkillWithCategory = Prisma.skillGetPayload<{
     include: { category: true };
@@ -57,7 +57,7 @@ export class SkillsService {
     async semanticSearch(payload: SemanticSearchRequestQueryDto) {
         this.logger.log(`Semantic skills search based on request ${JSON.stringify(payload)}`);
 
-        const embeddingQuery = await fetchOllamaEmbedding(payload.text);
+        const embeddingQuery = await fetchEmbedding(payload.text);
         
         if (!embeddingQuery || !embeddingQuery.length) {
             return [];
@@ -181,7 +181,7 @@ export class SkillsService {
                 throw new BadRequestError(`The category with id ${newSkill.categoryId} does not exist!`);
             }
 
-            const nameEmbedding = await fetchOllamaEmbedding(newSkill.name);
+            const nameEmbedding = await fetchEmbedding(newSkill.name);
             const nameEmbeddingLiteral = toVectorLiteral(nameEmbedding);
 
             const skill = await tx.skill.create({
@@ -237,7 +237,7 @@ export class SkillsService {
                 throw new NotFoundError(`Category with id ${body.categoryId} does not exist!`);
             }
 
-            const nameEmbedding = await fetchOllamaEmbedding(body.name);
+            const nameEmbedding = await fetchEmbedding(body.name);
             const nameEmbeddingLiteral = toVectorLiteral(nameEmbedding);
 
             const updatedSkill = await tx.skill.update({
@@ -298,7 +298,7 @@ export class SkillsService {
                 }
             }
 
-            const nameEmbedding = body.name ? await fetchOllamaEmbedding(body.name) : null;
+            const nameEmbedding = body.name ? await fetchEmbedding(body.name) : null;
             const nameEmbeddingLiteral = body.name ? toVectorLiteral(nameEmbedding) : null;
 
             const updatedSkill = await tx.skill.update({

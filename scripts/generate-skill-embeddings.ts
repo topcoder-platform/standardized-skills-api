@@ -2,7 +2,7 @@ import 'dotenv/config';
 import { ConfigService } from '@nestjs/config';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { fetchOllamaEmbedding, toVectorLiteral } from '../src/utils/embeddings-service';
+import { fetchEmbedding, toVectorLiteral } from '../src/utils/embeddings-service';
 
 function getArgValue(flag: string): string | undefined {
     const match = process.argv.find((arg) => arg.startsWith(`${flag}=`));
@@ -76,21 +76,24 @@ async function run() {
             const currentNameEmbeddingIsNull = row.name_embedding_is_null;
 
             if (force || currentNameEmbeddingIsNull) {
-                const embedding = await fetchOllamaEmbedding(row.name);
+                const embedding = await fetchEmbedding(row.name);
                 const literal = toVectorLiteral(embedding);
+                console.log(`[DB] Updating skill ${row.id} (${row.name}) - embedding length: ${embedding?.length ?? 'null'}`);
+                let updated: number;
                 if (literal === null) {
-                    await prisma.$executeRaw(Prisma.sql`
+                    updated = await prisma.$executeRaw(Prisma.sql`
                         UPDATE "skill"
                         SET "name_embedding" = NULL
                         WHERE id = ${row.id}::uuid
                     `);
                 } else {
-                    await prisma.$executeRaw(Prisma.sql`
+                    updated = await prisma.$executeRaw`
                         UPDATE "skill"
                         SET "name_embedding" = ${literal}::public.vector
                         WHERE id = ${row.id}::uuid
-                    `);
+                    `;
                 }
+                console.log(`[DB] Rows affected: ${updated}`);
             }
 
             processed += 1;
