@@ -5,7 +5,7 @@ generator client {
 generator externalClient {
   provider      = "prisma-client-js"
   output        = "../packages/skills-prisma-client"
-  binaryTargets = ["native", "debian-openssl-3.0.x"]
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
@@ -123,6 +123,7 @@ model skillEvent {
   @@index([eventId], map: "fki_fk_event")
   @@index([skillEventTypeId], map: "fki_fk_skill_event_type")
   @@index([sourceTypeId], map: "fki_fk_source_type")
+  @@index([skillId, userId, sourceTypeId, skillEventTypeId], map: "idx_skill_event_member_search")
   @@map("skill_event")
 }
 
@@ -181,8 +182,28 @@ model userSkill {
 
   @@unique([userId, skillId, userSkillLevelId], map: "uniq_user_skill_type")
   @@index([skillId], map: "fki_fk_skill")
+  @@index([skillId, userId], map: "idx_user_skill_skill_user")
   @@index([userSkillLevelId], map: "fki_fk_user_skill_level")
+  @@index([userId, userSkillDisplayModeId], map: "idx_user_skill_user_display_mode")
   @@map("user_skill")
+}
+
+/// Pre-computed win/submission totals per (user_id, skill_id).
+/// eventTypeCounts is a JSONB map of { event_type_name: count } — no schema
+/// changes needed when new SkillEventTypes values are added.
+/// Maintained incrementally on each skill_event insert; used by reports-api
+/// member search to avoid the expensive multi-CTE aggregation over skill_event.
+model userSkillWinSummary {
+  userId          Int      @map("user_id")
+  skillId         String   @map("skill_id") @db.Uuid
+  wins            Int      @default(0)
+  submitted       Int      @default(0)
+  eventTypeCounts Json     @default("{}") @map("event_type_counts")
+  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@id([userId, skillId])
+  @@index([skillId, userId], map: "idx_user_skill_win_summary_skill_user")
+  @@map("user_skill_win_summary")
 }
 
 model userSkillDisplayMode {
