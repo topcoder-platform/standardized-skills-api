@@ -20,6 +20,7 @@ import {
     REVIEWER_TYPE_KEY,
     createAndEnsureEventNotProcessedAlready,
     createSkillEventsForUser,
+    dedupeSkillEventUsers,
     ensureMembersExist,
     ensurePayloadChallengeExists,
     ensurePayloadWinnersAreValidUsers,
@@ -98,7 +99,7 @@ export class SkillEventsService {
         await ensureMembersExist(passingSubmissions.map((submission) => submission.memberId));
 
         await this.prisma.$transaction(async (tx) => {
-            const users = [
+            const users = dedupeSkillEventUsers([
                 ...payload.winners,
                 ...reviewers.map((reviewer) => ({
                     userId: Number(reviewer.memberId),
@@ -112,7 +113,7 @@ export class SkillEventsService {
                     userId: Number(submission.memberId),
                     type: FINISHER_TYPE_KEY,
                 })),
-            ];
+            ]);
 
             for (const user of users) {
                 await tx.userSkill.createMany({
