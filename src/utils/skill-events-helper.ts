@@ -15,7 +15,7 @@ const WIN_SKILL_EVENT_TYPE_NAMES = new Set([
     SkillEventTypes.engagementAssignment, // engagement source type = win
 ]);
 import { ConflictError } from './errors';
-import { find, get, toNumber } from 'lodash';
+import { find, get, toNumber, uniqBy } from 'lodash';
 import { ensureChallengeExists } from './challenge-db-helper';
 import { ensureMemberExists } from './member-db-helper';
 import { ChallengeWinnerDto, UserSkillDto } from '../dto';
@@ -146,6 +146,22 @@ export function getSkillEventType(
     eventTypeSelector: number | string,
 ) {
     return get(eventTypesMap, `[${eventTypeSelector}]`, eventTypesMap.default) as SkillEventTypeRecord;
+}
+
+/**
+ * Removes duplicate skill event recipients for a challenge completed event.
+ * A member can show up more than once, e.g. with several passing submissions or several reviewer roles.
+ * `skill_event` is unique per (skill, skill event type, source, user), so a duplicate entry
+ * would fail the whole transaction and nobody (winners, finishers, reviewers, copilots) would get the skills.
+ * Entries are compared on the user id and the same placement/type selector used by `createSkillEventsForUser`.
+ *
+ * @param users - the winners, reviewers, copilots and finishers collected for the challenge
+ * @returns the users list with only the first entry kept for each (userId, placement/type) pair
+ */
+export function dedupeSkillEventUsers<T extends { userId?: number | string; placement?: number; type?: string }>(
+    users: T[],
+): T[] {
+    return uniqBy(users, (user) => `${toNumber(user.userId)}:${user.placement ?? user.type ?? ''}`);
 }
 
 /**

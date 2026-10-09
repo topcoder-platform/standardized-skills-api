@@ -24,4 +24,5 @@ API for suggestion of probable skills with each input.
 - Run `pnpm prisma:studio` if you want to inspect data locally
 
 ## Verification
+- Run `pnpm test` to execute the unit tests (`src/**/*.spec.ts`, using Node's built-in test runner)
 - Run the postman collection under `./docs/postman`
