@@ -42,14 +42,24 @@ export class SkillEventsService {
 
     constructor(private readonly prisma: PrismaService) {}
 
+    /**
+     * Dispatches an authorized skill event to its topic handler. Challenge events
+     * are recorded atomically with their awards so failed attempts can be replayed.
+     * @param currentUser - The administrator or machine submitting the event.
+     * @param request - The topic and payload received by the skill-events endpoint.
+     * @returns A promise that resolves when the handler finishes.
+     * @throws Authorization, validation, duplicate-event or persistence errors.
+     */
     async processSkillEvent(currentUser: AuthUser, { topic, payload }: SkillEventRequestBodyDto) {
         ensureUserHasAdminPrivilege(currentUser);
+
+        if (topic === SkillEventTopic.challengeUpdate) {
+            return this.processChallengeCompletedSkillEvent(payload as SkillEventPayloadChallengeUpdate);
+        }
 
         const event = await createAndEnsureEventNotProcessedAlready(topic, payload, this.prisma);
 
         switch (topic) {
-            case SkillEventTopic.challengeUpdate:
-                return this.processChallengeCompletedSkillEvent(event.id, payload as SkillEventPayloadChallengeUpdate);
             case SkillEventTopic.tcaUpdate:
                 return this.processTCACompletedSkillEvent(event.id, payload as SkillEventPayloadTCAUpdate);
             case SkillEventTopic.engagementMemberAssigned:
@@ -62,7 +72,15 @@ export class SkillEventsService {
         }
     }
 
-    private async processChallengeCompletedSkillEvent(eventId: string, payload: SkillEventPayloadChallengeUpdate) {
+    /**
+     * Awards verified skills for completed challenges, including Marathon Matches.
+     * Called by processSkillEvent after authorization; the processed-event marker,
+     * user skills, skill history and summaries commit or roll back together.
+     * @param payload - The completed challenge, its skills and winners.
+     * @returns A promise that resolves after awarding skills, or ignoring an incomplete challenge.
+     * @throws Validation, duplicate-event or database errors without marking a failed attempt processed.
+     */
+    private async processChallengeCompletedSkillEvent(payload: SkillEventPayloadChallengeUpdate) {
         this.logger.log(`Handling challenge update skill event using payload ${JSON.stringify(payload)}`);
 
         if (payload.status !== SkillEventChallengeUpdateStatus.completed) {
@@ -99,6 +117,7 @@ export class SkillEventsService {
         await ensureMembersExist(passingSubmissions.map((submission) => submission.memberId));
 
         await this.prisma.$transaction(async (tx) => {
+            const event = await createAndEnsureEventNotProcessedAlready(SkillEventTopic.challengeUpdate, payload, tx);
             const users = dedupeSkillEventUsers([
                 ...payload.winners,
                 ...reviewers.map((reviewer) => ({
@@ -126,7 +145,7 @@ export class SkillEventsService {
                     skipDuplicates: true,
                 });
 
-                await createSkillEventsForUser(user, payload.skills, eventId, payload.id, sourceType.id, tx);
+                await createSkillEventsForUser(user, payload.skills, event.id, payload.id, sourceType.id, tx);
             }
         });
 
