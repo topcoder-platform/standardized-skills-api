@@ -26,3 +26,11 @@ API for suggestion of probable skills with each input.
 ## Verification
 - Run `pnpm test` to execute the unit tests (`src/**/*.spec.ts`, using Node's built-in test runner)
 - Run the postman collection under `./docs/postman`
+
+### Challenge completion events
+Completed challenge and Marathon Match events record their processed-event marker
+in the same transaction as verified member skills, skill history and win summaries.
+If validation or persistence fails, the same completion payload can be replayed
+through `POST /v5/standardized-skills/skill-events`. A successfully processed payload
+still returns a conflict on duplicate delivery. This does not backfill missing
+skills or remove event markers left by failures before this change.
