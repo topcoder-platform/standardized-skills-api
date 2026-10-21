@@ -35,6 +35,7 @@ export class UserSkillsController {
 
     @Roles(UserRoles.Admin, UserRoles.User, UserRoles.TalentManager)
     @Get('display-modes')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.READ)
     @ApiOperation({ summary: 'List user skill display modes' })
     @ApiQuery({ name: 'page', required: false, example: 1, type: Number })
     @ApiQuery({ name: 'perPage', required: false, example: 20, type: Number })
@@ -87,6 +88,7 @@ export class UserSkillsController {
         },
     })
     @Get(':userId')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.READ)
     async getUserSkills(
         @AuthUserDecorator() user: AuthUser,
         @Param() params: UserIdParamDto,
@@ -105,6 +107,7 @@ export class UserSkillsController {
 
     @Roles(UserRoles.Admin, UserRoles.User, UserRoles.TalentManager)
     @Get('display-modes/:name')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.READ)
     @ApiOperation({ summary: 'Get display mode by name' })
     @ApiParam({ name: 'name', description: 'Display mode name', example: 'public' })
     @ApiOkResponse({ description: 'Display mode.', type: UserSkillDisplayModeDto })

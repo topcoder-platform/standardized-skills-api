@@ -1,29 +1,18 @@
-import { pick } from 'lodash';
 import request, { SuperAgentRequest } from 'superagent';
-// we override the default linting and ts rules to allow the use of tc-core-library-js
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
 import { auth as tcCoreAuth } from 'tc-core-library-js';
 
 import { envConfig } from '../config';
 
-const { m2m: m2mAuth } = tcCoreAuth;
-
-const m2m = m2mAuth(
-    pick(envConfig, [
-        'AUTH0_URL',
-        'AUTH0_AUDIENCE',
-        'AUTH0_CLIENT_ID',
-        'AUTH0_CLIENT_SECRET',
-        'AUTH0_PROXY_SERVER_URL',
-    ]),
-);
+let m2m: ReturnType<typeof tcCoreAuth.m2m> | undefined;
 
 /**
- * Get a valid M2M authorization token
+ * Obtains a cached, verified Keycloak token for downstream calls using configured credentials.
+ * @returns Machine access token; takes no arguments.
+ * @throws Error for missing Keycloak settings, issuance errors or invalid returned tokens.
  */
 export const getM2MToken = () => {
-    return m2m.getMachineToken(envConfig.AUTH0_CLIENT_ID, envConfig.AUTH0_CLIENT_SECRET);
+    m2m ??= tcCoreAuth.m2m();
+    return m2m.getMachineToken();
 };
 
 /**

@@ -24,9 +24,9 @@ import {
 } from '@nestjs/swagger';
 import { Response } from 'express';
 
-import { AuthUserDecorator, JwtAuthGuard, Roles, RolesGuard, ScopesGuard } from '../../common';
+import { AuthUserDecorator, JwtAuthGuard, Roles, RolesGuard, Scopes, ScopesGuard } from '../../common';
 import { AuthUser } from '../../common/interfaces/auth-user.interface';
-import { UserRoles } from '../../config';
+import { UserRoles, envConfig } from '../../config';
 import {
     GetAutocompleteRequestQueryDto,
     GetSkillsQueryRequestDto,
@@ -114,7 +114,8 @@ export class SkillsController {
     }
 
     @Post()
-    @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.CREATE)
+    @UseGuards(JwtAuthGuard, RolesGuard, Scopes, ScopesGuard)
     @Roles(UserRoles.Admin)
     @ApiOperation({ summary: 'Create skill' })
     @ApiBearerAuth()
@@ -124,7 +125,8 @@ export class SkillsController {
     }
 
     @Put(':skillId')
-    @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.UPDATE)
+    @UseGuards(JwtAuthGuard, RolesGuard, Scopes, ScopesGuard)
     @Roles(UserRoles.Admin)
     @ApiOperation({ summary: 'Replace skill' })
     @ApiBearerAuth()
@@ -139,7 +141,8 @@ export class SkillsController {
     }
 
     @Patch(':skillId')
-    @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.UPDATE)
+    @UseGuards(JwtAuthGuard, RolesGuard, Scopes, ScopesGuard)
     @Roles(UserRoles.Admin)
     @ApiOperation({ summary: 'Update skill partially' })
     @ApiBearerAuth()
@@ -154,8 +157,9 @@ export class SkillsController {
     }
 
     @Delete(':skillId')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.DELETE)
     @HttpCode(204)
-    @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
+    @UseGuards(JwtAuthGuard, RolesGuard, Scopes, ScopesGuard)
     @Roles(UserRoles.Admin)
     @ApiOperation({ summary: 'Delete skill' })
     @ApiBearerAuth()
@@ -166,7 +170,8 @@ export class SkillsController {
     }
 
     @Put(':skillId/restore')
-    @UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.UPDATE)
+    @UseGuards(JwtAuthGuard, RolesGuard, Scopes, ScopesGuard)
     @Roles(UserRoles.Admin)
     @ApiOperation({ summary: 'Restore archived skill' })
     @ApiBearerAuth()

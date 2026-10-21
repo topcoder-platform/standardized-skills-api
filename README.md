@@ -34,3 +34,7 @@ If validation or persistence fails, the same completion payload can be replayed
 through `POST /v5/standardized-skills/skill-events`. A successfully processed payload
 still returns a conflict on duplicate delivery. This does not backfill missing
 skills or remove event markers left by failures before this change.
+
+## Keycloak migration branch
+
+See [Keycloak configuration and rollout](docs/keycloak-m2m.md). This branch requires explicit Keycloak configuration and is not deployed to existing DEV applications.

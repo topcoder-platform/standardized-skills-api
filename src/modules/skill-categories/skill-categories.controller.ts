@@ -24,7 +24,7 @@ import {
     ApiTags,
 } from '@nestjs/swagger';
 
-import { AuthUserDecorator, JwtAuthGuard, Roles, RolesGuard, ScopesGuard } from '../../common';
+import { AuthUserDecorator, JwtAuthGuard, Roles, RolesGuard, Scopes, ScopesGuard } from '../../common';
 import { AuthUser } from '../../common/interfaces/auth-user.interface';
 import {
     AllCategoriesRequestQueryDto,
@@ -37,12 +37,12 @@ import {
     CategoryResponseDto,
     SkillResponseDto,
 } from '../../dto';
-import { UserRoles } from '../../config';
+import { UserRoles, envConfig } from '../../config';
 import * as helper from '../../utils/helpers';
 import { SkillCategoriesService } from './skill-categories.service';
 
 @Controller('categories')
-@UseGuards(JwtAuthGuard, RolesGuard, ScopesGuard)
+@UseGuards(JwtAuthGuard, RolesGuard, Scopes, ScopesGuard)
 @Roles(UserRoles.Admin)
 @ApiTags('Skill Categories')
 @ApiBearerAuth()
@@ -53,6 +53,7 @@ export class SkillCategoriesController {
     @ApiParam({ name: 'categoryId', description: 'Category identifier', format: 'uuid' })
     @ApiOkResponse({ description: 'Category detail.', type: CategoryResponseDto })
     @Get(':categoryId')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.READ)
     getCategoryById(@Param() params: CategoryIdRequestPathParamDto) {
         return this.skillCategoriesService.getCategoryById(params.categoryId);
     }
@@ -76,6 +77,7 @@ export class SkillCategoriesController {
         },
     })
     @Get()
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.READ)
     async getAllCategories(@Query() query: AllCategoriesRequestQueryDto, @Res({ passthrough: true }) res: Response) {
         const result = await this.skillCategoriesService.getAllCategories(query);
         const disablePagination = query.disablePagination !== undefined && `${query.disablePagination}` !== 'false';
@@ -106,6 +108,7 @@ export class SkillCategoriesController {
         },
     })
     @Get(':categoryId/skills')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.READ)
     async getCategorySkills(
         @Param() params: CategoryIdRequestPathParamDto,
         @Query() query: GetCategorySkillsRequestQueryDto,
@@ -122,6 +125,7 @@ export class SkillCategoriesController {
     }
 
     @Post(':categoryId/assign-skills')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.UPDATE)
     @ApiOperation({ summary: 'Assign skills to category' })
     @ApiParam({ name: 'categoryId', description: 'Category identifier', format: 'uuid' })
     @ApiCreatedResponse({ description: 'Skills reassigned.', type: SkillResponseDto, isArray: true })
@@ -134,6 +138,7 @@ export class SkillCategoriesController {
     }
 
     @Post()
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.CREATE)
     @ApiOperation({ summary: 'Create category' })
     @ApiCreatedResponse({ description: 'Category created.', type: CategoryResponseDto })
     createCategory(@AuthUserDecorator() user: AuthUser, @Body() body: NewCategoryRequestBodyDto) {
@@ -141,6 +146,7 @@ export class SkillCategoriesController {
     }
 
     @Put(':categoryId')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.UPDATE)
     @ApiOperation({ summary: 'Replace category' })
     @ApiParam({ name: 'categoryId', description: 'Category identifier', format: 'uuid' })
     @ApiOkResponse({ description: 'Category updated.', type: CategoryResponseDto })
@@ -153,6 +159,7 @@ export class SkillCategoriesController {
     }
 
     @Patch(':categoryId')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.UPDATE)
     @ApiOperation({ summary: 'Update category partially' })
     @ApiParam({ name: 'categoryId', description: 'Category identifier', format: 'uuid' })
     @ApiCreatedResponse({ description: 'Category patched.', type: CategoryResponseDto })
@@ -165,6 +172,7 @@ export class SkillCategoriesController {
     }
 
     @Delete(':categoryId')
+    @Scopes(envConfig.SCOPES.ALL, envConfig.SCOPES.DELETE)
     @HttpCode(204)
     @ApiOperation({ summary: 'Delete category' })
     @ApiParam({ name: 'categoryId', description: 'Category identifier', format: 'uuid' })
