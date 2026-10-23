@@ -59,12 +59,12 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "superagent": "^10.3.0",
-    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09",
+    "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/112d54a3ed66423e7305e94e174937823e76124e",
     "winston": "^3.19.0"
   },
   "pnpm": {
     "overrides": {
-      "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/e844764e1c2cadcc01fd5e05029590319802af09"
+      "tc-core-library-js": "https://codeload.github.com/topcoder-platform/tc-core-library-js/tar.gz/112d54a3ed66423e7305e94e174937823e76124e"
     }
   }
 }
