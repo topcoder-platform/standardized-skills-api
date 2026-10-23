@@ -24,6 +24,13 @@ export const envConfig = {
     PORT: process.env.PORT || 3000,
     DB_URL: process.env.TC_SKILLS_DATABASE_URL,
     DB_SCHEMA: resolveDbSchema(),
+    // Auth0 M2M settings, used for outbound tokens when USE_KEYCLOAK is not true.
+    // USE_KEYCLOAK=true uses KEYCLOAK_TOKEN_URL/AUDIENCE/CLIENT_ID/CLIENT_SECRET instead.
+    AUTH0_URL: process.env.AUTH0_URL,
+    AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+    AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
+    AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
+    AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL,
     AUTH_SECRET: process.env.AUTH_SECRET,
     VALID_ISSUERS: process.env.VALID_ISSUERS || '[]',
     M2M_AUDIT_HANDLE: process.env.M2M_AUDIT_HANDLE || 'tcwebservice',

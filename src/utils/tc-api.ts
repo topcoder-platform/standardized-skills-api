@@ -6,12 +6,30 @@ import { envConfig } from '../config';
 let m2m: ReturnType<typeof tcCoreAuth.m2m> | undefined;
 
 /**
- * Obtains a cached, verified Keycloak token for downstream calls using configured credentials.
+ * Maps this service's pre-Keycloak Auth0 settings to the core's Auth0 option names.
+ * The core uses them only when USE_KEYCLOAK is not true; in Keycloak mode it ignores them.
+ * @returns The `AUTH0_*` options passed to `auth.m2m` by {@link getM2MToken}; takes no arguments.
+ */
+export const auth0Options = () => ({
+    AUTH0_URL: envConfig.AUTH0_URL,
+    AUTH0_AUDIENCE: envConfig.AUTH0_AUDIENCE,
+    AUTH0_CLIENT_ID: envConfig.AUTH0_CLIENT_ID,
+    AUTH0_CLIENT_SECRET: envConfig.AUTH0_CLIENT_SECRET,
+    AUTH0_PROXY_SERVER_URL: envConfig.AUTH0_PROXY_SERVER_URL,
+});
+
+/**
+ * Obtains a cached or new M2M token for downstream calls (the TaaS job lookup and
+ * challenge PATCHes without a user token) from the provider selected by USE_KEYCLOAK.
+ * USE_KEYCLOAK=true: a verified Keycloak token using KEYCLOAK_TOKEN_URL, KEYCLOAK_AUDIENCE
+ * and KEYCLOAK_CLIENT_ID/SECRET. Otherwise: an Auth0 token using AUTH0_URL, AUTH0_AUDIENCE,
+ * AUTH0_PROXY_SERVER_URL and AUTH0_CLIENT_ID/SECRET, as before the Keycloak migration.
  * @returns Machine access token; takes no arguments.
- * @throws Error for missing Keycloak settings, issuance errors or invalid returned tokens.
+ * @throws TypeError for an invalid USE_KEYCLOAK value or Keycloak settings; rejects for
+ * missing credentials, issuance errors or (Keycloak) invalid returned tokens.
  */
 export const getM2MToken = () => {
-    m2m ??= tcCoreAuth.m2m();
+    m2m ??= tcCoreAuth.m2m(auth0Options());
     return m2m.getMachineToken();
 };
 

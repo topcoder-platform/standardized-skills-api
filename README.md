@@ -37,4 +37,4 @@ skills or remove event markers left by failures before this change.
 
 ## Keycloak migration branch
 
-See [Keycloak configuration and rollout](docs/keycloak-m2m.md). This branch requires explicit Keycloak configuration and is not deployed to existing DEV applications.
+See [Keycloak configuration and rollout](docs/keycloak-m2m.md). `USE_KEYCLOAK=true` gets outbound M2M tokens from Keycloak (`KEYCLOAK_*`); unset or `false` uses the Auth0 settings (`AUTH0_URL`, `AUTH0_AUDIENCE`, `AUTH0_PROXY_SERVER_URL`, `AUTH0_CLIENT_ID`, `AUTH0_CLIENT_SECRET`). This branch is not deployed to existing DEV applications.
