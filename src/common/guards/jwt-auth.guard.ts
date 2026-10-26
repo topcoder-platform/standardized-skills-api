@@ -1,55 +1,43 @@
 import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { middleware } from 'tc-core-library-js';
+import { createJwtVerifier, type JwtVerifier } from 'tc-core-library-js';
 
 import { AuthenticatedRequest } from '../interfaces/auth-user.interface';
 
+/** Verifies bearer tokens through the shared client and attaches the Skills request identity. */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
+    private verifier?: JwtVerifier;
+
+    /** Stores deployment settings; verifier creation is lazy and validates configuration on first authentication. */
     constructor(private readonly configService: ConfigService) {}
 
+    /** Authenticates a request and supplies the service audit handle for machines.
+     * @param context Nest request context. @returns True after verified identity attachment.
+     * @throws UnauthorizedException for missing, malformed, invalid or expired tokens.
+     */
     async canActivate(context: ExecutionContext): Promise<boolean> {
         const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-        const response = context.switchToHttp().getResponse();
-        const authorization = request.headers['authorization'] ?? request.headers['Authorization'];
-
-        if (!authorization || typeof authorization !== 'string') {
-            throw new UnauthorizedException('Authorization header missing');
-        }
-
-        const [, token] = authorization.split(' ');
-        if (!token) {
-            throw new UnauthorizedException('Invalid authorization header format');
-        }
-
-        const authSecret = this.configService.get<string>('legacyEnv.AUTH_SECRET');
-        const validIssuers = this.configService.get('legacyEnv.VALID_ISSUERS');
-
+        const authorization = request.headers.authorization;
+        const match = typeof authorization === 'string' ? /^Bearer ([^\s]+)$/i.exec(authorization) : null;
+        if (!match) throw new UnauthorizedException('A bearer token is required');
         try {
-            await new Promise<void>((resolve, reject) => {
-                middleware.jwtAuthenticator({
-                    AUTH_SECRET: authSecret,
-                    VALID_ISSUERS: validIssuers,
-                })(request, response, (err?: Error) => {
-                    if (err) {
-                        reject(err);
-                        return;
-                    }
-                    resolve();
-                });
+            this.verifier ??= createJwtVerifier({
+                AUTH0_AUDIENCE: process.env.AUTH0_AUDIENCE,
+                JWT_AUDIENCE: process.env.JWT_AUDIENCE,
+                AUTH_SECRET: this.configService.get<string>('legacyEnv.AUTH_SECRET'),
+                VALID_ISSUERS: this.configService.get('legacyEnv.VALID_ISSUERS'),
             });
-        } catch (error: any) {
-            throw new UnauthorizedException(error?.message ?? 'Unauthorized');
-        }
-
-        request.userToken = token;
-
-        if (request.authUser?.isMachine) {
-            request.authUser.handle = this.configService.get<string>('auth.m2mAuditHandle', 'tcwebservice');
-        } else if (request.authUser) {
-            request.authUser.userId = String(request.authUser.userId);
-        }
-
-        return true;
+            const user = await this.verifier.verify(match[1]);
+            if (!user.isMachine && user.userId === undefined) throw new Error('A member ID is required');
+            request.authUser = {
+                ...user,
+                userId: user.userId === undefined ? '' : String(user.userId),
+                handle: user.isMachine ? this.configService.get<string>('auth.m2mAuditHandle', 'tcwebservice') : user.handle ?? '',
+                email: user.email ?? '',
+            };
+            request.userToken = match[1];
+            return true;
+        } catch { throw new UnauthorizedException('Invalid or expired access token'); }
     }
 }

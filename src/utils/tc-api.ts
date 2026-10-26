@@ -1,13 +1,10 @@
 import { pick } from 'lodash';
 import request, { SuperAgentRequest } from 'superagent';
-// we override the default linting and ts rules to allow the use of tc-core-library-js
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-import { auth as tcCoreAuth } from 'tc-core-library-js';
+import { createM2MClient } from 'tc-core-library-js';
 
 import { envConfig } from '../config';
 
-const { m2m: m2mAuth } = tcCoreAuth;
+const m2mAuth = createM2MClient;
 
 const m2m = m2mAuth(
     pick(envConfig, [
@@ -23,7 +20,7 @@ const m2m = m2mAuth(
  * Get a valid M2M authorization token
  */
 export const getM2MToken = () => {
-    return m2m.getMachineToken(envConfig.AUTH0_CLIENT_ID, envConfig.AUTH0_CLIENT_SECRET);
+    return m2m.getMachineToken(envConfig.AUTH0_CLIENT_ID || '', envConfig.AUTH0_CLIENT_SECRET || '');
 };
 
 /**
