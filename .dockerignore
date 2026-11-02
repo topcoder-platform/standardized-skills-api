@@ -11,3 +11,7 @@ docs
 local
 
 README.md
+.env
+.env.*
+**/.env
+**/.env.*
