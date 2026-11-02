@@ -4,8 +4,8 @@ its associations with members, challenges and jobs. It also provides a type-ahea
 API for suggestion of probable skills with each input.
 
 ## Prerequisites
-- Node.js v22+
-- pnpm (enable via `corepack enable pnpm` if you use Node's bundled Corepack)
+- Node.js 22.13+ for development; the production image uses Node.js 26.
+- pnpm 11.15.1 (`npm install --global pnpm@11.15.1`)
 
 ## Local deployment
 - Run `pnpm install`
@@ -76,3 +76,9 @@ overrides of these four keys with the global values before deployment. Parameter
 are consumed on deployment/task startup; changing Parameter Store alone does not
 replace running tasks. Existing role, scope, ownership and active-session checks
 continue after JWT verification.
+
+## Container security maintenance
+
+The multi-stage Docker build installs the frozen lockfile, generates both Prisma clients, checks dependency compatibility, lints and compiles, then retains production dependencies. The Alpine runtime uses its dynamically linked Node.js 26 package and runs as UID 10001. Its startup script still applies Prisma migrations before starting the API, using the installed CLI directly. Supply configuration through ECS environment variables or secrets; `.env` files are excluded from the image.
+
+Run `pnpm audit`, `pnpm test`, and `pnpm run test:dependency-compat` after dependency updates. The local minimatch adapter preserves the callable API and glob traversal expected by older tools while using minimatch 11's bounded matcher.
