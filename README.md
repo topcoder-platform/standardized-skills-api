@@ -82,3 +82,23 @@ continue after JWT verification.
 The multi-stage Docker build installs the frozen lockfile, generates both Prisma clients, checks dependency compatibility, lints and compiles, then retains production dependencies. The Alpine runtime uses its dynamically linked Node.js 26 package and runs as UID 10001. Its startup script still applies Prisma migrations before starting the API, using the installed CLI directly. Supply configuration through ECS environment variables or secrets; `.env` files are excluded from the image.
 
 Run `pnpm audit`, `pnpm test`, and `pnpm run test:dependency-compat` after dependency updates. The local minimatch adapter preserves the callable API and glob traversal expected by older tools while using minimatch 11's bounded matcher.
+
+## Deployment secret precedence and verification
+
+CircleCI uses tc-deploy-scripts v1.4.17 pinned to commit
+`31be63398bb230d551579a41de7b21ef7f1674e4`. Before execution,
+`deployment/prepare-deploy-script.py` applies checked adaptations and rejects
+unexpected upstream changes. Shared `/config/common/global-appvar` references
+are loaded first, followed by service `appvar` references; service settings win
+when names overlap. Each secret name appears exactly once in the task definition.
+No Parameter Store values are changed or printed by the adaptation.
+
+Registration and update errors fail the job. The ECS waiter must finish on the
+new task-definition ARN with a completed deployment and the desired running
+count; an old healthy deployment or rollback cannot count as success.
+Regression tests run before deployment and can be run locally with:
+
+```sh
+DEPLOY_SCRIPT_SOURCE=/path/to/pinned/tc-deploy-scripts/master_deploy.sh \
+  python3 -B -m unittest discover -s deployment -p 'test_*.py'
+```
