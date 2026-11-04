@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "environment": "dev",
+  "accountId": "811668436784",
+  "region": "us-east-1",
+  "deployRoleArn": "arn:aws:iam::811668436784:role/standardized-skills-api-dev-deploy",
+  "taskRoleArn": "arn:aws:iam::811668436784:role/bedrock-embeddings-service-role",
+  "executionRoleArn": "arn:aws:iam::811668436784:role/ecsTaskExecutionRole",
+  "cluster": "standardized-skills-serverless",
+  "service": "standardized-skills-api",
+  "taskFamily": "standardized-skills-api",
+  "circleciOrgId": "947bef5e-1669-415d-b83c-4fc85155b7df",
+  "circleciProjectId": "14b0c35d-516b-4d10-b882-f1f20fa5ad9e",
+  "repository": "github.com/topcoder-platform/standardized-skills-api",
+  "branch": "develop",
+  "images": {
+    "standardized-skills-api": "standardized-skills-api"
+  }
+}
