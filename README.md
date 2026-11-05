@@ -4,8 +4,8 @@ its associations with members, challenges and jobs. It also provides a type-ahea
 API for suggestion of probable skills with each input.
 
 ## Prerequisites
-- Node.js v22+
-- pnpm (enable via `corepack enable pnpm` if you use Node's bundled Corepack)
+- Node.js 22.13+ for development; the production image uses Node.js 26.
+- pnpm 11.15.1 (`npm install --global pnpm@11.15.1`)
 
 ## Local deployment
 - Run `pnpm install`
@@ -34,3 +34,71 @@ If validation or persistence fails, the same completion payload can be replayed
 through `POST /v5/standardized-skills/skill-events`. A successfully processed payload
 still returns a conflict on duplicate delivery. This does not backfill missing
 skills or remove event markers left by failures before this change.
+
+## Shared authentication and bus client (v6 refresh)
+
+This branch uses `tc-core-library-js` **4.0.0-rc.1**. Use its named
+`createJwtVerifier` / `createJwtAuthenticator`, `createM2MClient`, and
+`createBusApiClient` exports for shared authentication and bus API publishing.
+Service-specific roles, scopes, sessions and ownership checks remain in this service.
+The former bus wrapper dependency and local JWT cryptography must not be reintroduced.
+
+RSA verification requires an exact configured issuer and audience (`JWT_AUDIENCE`
+for client tokens, `AUTH0_AUDIENCE` for machine/API tokens, or this service's explicit
+issuer-policy settings). HMAC secrets must be at least 32 bytes; no default secret
+is supplied. Expiry is enforced. Machine identity comes from the shared verifier,
+not the presence of scopes. Supply real development credentials through the service's
+existing environment configuration before deployment.
+
+Bus publishers use `createBusApiClient(config).postEvent(event)` with the existing
+event envelope and optional key. Configure `BUSAPI_URL` for v6 and the existing
+OAuth credentials/token provider. The client uses bounded HTTPS requests and does
+not retry POSTs automatically. Application retry/outbox behavior remains local.
+
+See the [core migration guide](https://github.com/topcoder-platform/tc-core-library-js/blob/v4.0.0-rc.1/MIGRATION.md)
+for the API mapping, compatibility requirements, and rollout scope.
+
+## Shared JWT deployment configuration
+
+Development deployments load `/config/common/global-appvar` alongside the service's
+application parameters. JWT verification uses the same four settings as the other
+v6 services: `VALID_ISSUERS` (JSON array or comma-separated exact issuers),
+`AUTH_SECRET` (the existing shared HS256 signing key, at least 32 UTF-8 bytes),
+`JWT_AUDIENCE` (the browser application's audience), and `AUTH0_AUDIENCE` (the
+machine/API audience). RSA keys are fetched over HTTPS from the trusted issuer's
+`/.well-known/jwks.json`. Audience settings must reach the shared verifier; OAuth
+client IDs/secrets used for outbound requests are independent of JWT audiences.
+
+The development browser audience is `BXWXUWnilVUPdN01t2Se29Tw2ZYNGZvH`, and the
+machine audience is `https://m2m.topcoder-dev.com/`. Use the existing Parameter Store
+secret rather than creating a per-service key. Reconcile any service-specific
+overrides of these four keys with the global values before deployment. Parameters
+are consumed on deployment/task startup; changing Parameter Store alone does not
+replace running tasks. Existing role, scope, ownership and active-session checks
+continue after JWT verification.
+
+## Container security maintenance
+
+The multi-stage Docker build installs the frozen lockfile, generates both Prisma clients, checks dependency compatibility, lints and compiles, then retains production dependencies. The Alpine runtime uses its dynamically linked Node.js 26 package and runs as UID 10001. Its startup script still applies Prisma migrations before starting the API, using the installed CLI directly. Supply configuration through ECS environment variables or secrets; `.env` files are excluded from the image.
+
+Run `pnpm audit`, `pnpm test`, and `pnpm run test:dependency-compat` after dependency updates. The local minimatch adapter preserves the callable API and glob traversal expected by older tools while using minimatch 11's bounded matcher.
+
+## Deployment secret precedence and verification
+
+CircleCI uses tc-deploy-scripts v1.4.17 pinned to commit
+`31be63398bb230d551579a41de7b21ef7f1674e4`. Before execution,
+`deployment/prepare-deploy-script.py` applies checked adaptations and rejects
+unexpected upstream changes. Shared `/config/common/global-appvar` references
+are loaded first, followed by service `appvar` references; service settings win
+when names overlap. Each secret name appears exactly once in the task definition.
+No Parameter Store values are changed or printed by the adaptation.
+
+Registration and update errors fail the job. The ECS waiter must finish on the
+new task-definition ARN with a completed deployment and the desired running
+count; an old healthy deployment or rollback cannot count as success.
+Regression tests run before deployment and can be run locally with:
+
+```sh
+DEPLOY_SCRIPT_SOURCE=/path/to/pinned/tc-deploy-scripts/master_deploy.sh \
+  python3 -B -m unittest discover -s deployment -p 'test_*.py'
+```

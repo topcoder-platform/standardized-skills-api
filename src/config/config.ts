@@ -29,7 +29,7 @@ export const envConfig = {
     AUTH0_CLIENT_ID: process.env.AUTH0_CLIENT_ID,
     AUTH0_CLIENT_SECRET: process.env.AUTH0_CLIENT_SECRET,
     AUTH0_PROXY_SERVER_URL: process.env.AUTH0_PROXY_SERVER_URL,
-    AUTH_SECRET: process.env.AUTH_SECRET || 'mysecret',
+    AUTH_SECRET: process.env.AUTH_SECRET,
     VALID_ISSUERS:
         process.env.VALID_ISSUERS ||
         '["https://api.topcoder-dev.com", "https://api.topcoder.com", "https://topcoder-dev.auth0.com/", "https://auth.topcoder-dev.com/"]',

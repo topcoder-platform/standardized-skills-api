@@ -1,10 +1,10 @@
 #!/bin/bash
 set -eo pipefail
 
-export TC_SKILLS_DATABASE_URL=$(echo -e ${TC_SKILLS_DATABASE_URL})
+export TC_SKILLS_DATABASE_URL=$(printf '%b' "$TC_SKILLS_DATABASE_URL")
 
 echo "Database - running migrations."
-npx prisma migrate deploy
+node node_modules/prisma/build/index.js migrate deploy
 
 echo "Starting standardized-skills-api."
-npm start
+exec node dist/main.js
