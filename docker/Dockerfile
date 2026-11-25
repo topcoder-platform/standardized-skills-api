@@ -11,7 +11,7 @@ RUN pnpm prune --prod --ignore-scripts
 
 FROM alpine:3.24
 RUN apk upgrade --no-cache \
-    && apk add --no-cache 'zlib>=1.4-r0' 'nodejs-current~26' 'nodejs-current>=26.13.1-r0' openssl bash ca-certificates \
+    && apk add --no-cache 'libcrypto3>=3.5.9-r1' 'libssl3>=3.5.9-r1' 'zlib>=1.4-r0' 'nodejs-current~26' 'nodejs-current>=26.13.1-r0' openssl bash ca-certificates \
     && addgroup -S -g 10001 app && adduser -S -D -u 10001 -G app app
 WORKDIR /app
 ENV NODE_ENV=production
