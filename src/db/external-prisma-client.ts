@@ -1,3 +1,4 @@
+import { createPostgresAdapter } from '../prisma-adapter';
 import { Prisma, PrismaClient } from '@prisma/client';
 
 import { LoggerClient } from '../utils/LoggerClient';
@@ -19,11 +20,7 @@ export class ExternalPrismaClient extends PrismaClient {
                 { level: 'warn', emit: 'event' },
                 { level: 'error', emit: 'event' },
             ],
-            datasources: {
-                db: {
-                    url: databaseUrl,
-                },
-            },
+            adapter: createPostgresAdapter(databaseUrl),
         });
 
         this.logger = new LoggerClient(clientName);

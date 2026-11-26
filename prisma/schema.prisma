@@ -5,12 +5,10 @@ generator client {
 generator externalClient {
   provider      = "prisma-client-js"
   output        = "../packages/skills-prisma-client"
-  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("TC_SKILLS_DATABASE_URL")
 }
 
 model SequelizeMeta {
