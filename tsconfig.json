@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node"],
     "lib": [
       "es2022"
     ],
@@ -7,14 +8,14 @@
     "target": "es2022",
     "strict": true,
     "esModuleInterop": true,
-    "moduleResolution": "node16",
+    "moduleResolution": "NodeNext",
     "allowJs": true,
     "checkJs": false,
     "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "strictPropertyInitialization": false,
-    "baseUrl": "./src",
+
     "resolveJsonModule": true,
     "skipLibCheck": true
   },

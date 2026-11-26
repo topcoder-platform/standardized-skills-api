@@ -1,3 +1,4 @@
+import { createPostgresAdapter } from '../prisma-adapter';
 import { INestApplication, Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaClient } from '@prisma/client';
@@ -15,11 +16,7 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
             : databaseUrl;
 
         super({
-            datasources: {
-                db: {
-                    url: resolvedUrl,
-                },
-            },
+            adapter: createPostgresAdapter(resolvedUrl),
             transactionOptions: {
                 timeout: 10000
             }

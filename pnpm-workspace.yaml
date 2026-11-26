@@ -51,3 +51,8 @@ allowBuilds:
   dtrace-provider: false
   prisma: true
   unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - '@nestjs/common@12.6.3'
+  - '@nestjs/core@12.6.3'
+  - '@nestjs/platform-express@12.6.3'
